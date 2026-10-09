@@ -27,7 +27,7 @@ export function CheckoutSheet() {
   const { items, subtotal, fee, preorderDays } = useCart();
   const isOpen = overlay?.type === 'checkout';
 
-  const [form, setForm] = useState({ name: '', phone: '', address: '', postal: '', date: '', comment: '' });
+  const [form, setForm] = useState({ name: '', phone: '', address: '', date: '', comment: '' });
   const [method, setMethod] = useState<DeliveryMethod>('taekbae');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -43,7 +43,6 @@ export function CheckoutSheet() {
       name: saved.name || f.name || [user?.first_name, user?.last_name].filter(Boolean).join(' ') || me?.first_name || '',
       phone: saved.phone || f.phone || me?.phone || '',
       address: saved.address || f.address,
-      postal: saved.postal || f.postal,
     }));
     setErr('');
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -51,7 +50,6 @@ export function CheckoutSheet() {
   const d = data?.delivery;
   const methods: { id: DeliveryMethod; title: string; desc: string }[] = [
     { id: 'taekbae', title: t.taekbae, desc: d?.taekbae_note_uz || t.taekbae_d },
-    { id: 'bus', title: t.bus, desc: d?.bus_note_uz || t.bus_d },
     { id: 'pickup', title: t.pickup, desc: d?.pickup_note_uz || t.pickup_d },
   ];
   const deliveryFee = fee(method);
@@ -72,12 +70,11 @@ export function CheckoutSheet() {
         customer_name: form.name,
         phone: form.phone,
         address: form.address,
-        postal_code: form.postal,
         desired_date: form.date || undefined,
         comment: form.comment,
       });
       try {
-        localStorage.setItem(FORM_KEY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address, postal: form.postal }));
+        localStorage.setItem(FORM_KEY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address }));
       } catch {}
       haptic.success();
       clear();
@@ -126,12 +123,6 @@ export function CheckoutSheet() {
           <>
             <label className="label">{t.address}{method === 'taekbae' && ' *'}</label>
             <textarea className="textarea" value={form.address} onChange={up('address')} placeholder="경기도 안산시 ..." rows={2} />
-            {method === 'taekbae' && (
-              <>
-                <label className="label">{t.postal}</label>
-                <input className="input" value={form.postal} onChange={up('postal')} inputMode="numeric" placeholder="15xxx" />
-              </>
-            )}
           </>
         )}
         {preorderDays > 0 && (

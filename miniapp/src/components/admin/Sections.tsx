@@ -330,12 +330,10 @@ export function SettingsAdmin() {
         <div className="fgrid">
           {num('delivery', 'taekbae_fee', '택배 narxi (₩)')}
           {num('delivery', 'free_from', '택배 bepul (₩ dan yuqori, 0 = yo‘q)')}
-          {num('delivery', 'bus_fee', '버스터미널 narxi (₩)')}
           {num('delivery', 'pickup_fee', 'Olib ketish narxi (₩)')}
           {num('delivery', 'min_order', 'Minimal buyurtma (₩)')}
           <div />
           {text('delivery', 'taekbae_note_uz', '택배 izohi', { full: true })}
-          {text('delivery', 'bus_note_uz', '버스터미널 izohi', { full: true })}
           {text('delivery', 'pickup_note_uz', 'Olib ketish izohi', { full: true })}
         </div>
       </div>

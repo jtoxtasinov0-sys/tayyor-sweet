@@ -8,7 +8,8 @@ const cache = require('../utils/cache');
 const { trackingUrl, COURIERS } = require('../utils/format');
 const logger = require('../utils/logger');
 
-const METHODS = ['taekbae', 'bus', 'pickup'];
+// 'bus' (버스터미널) olib tashlangan — eski buyurtmalardagi qiymat faqat ko'rsatiladi
+const METHODS = ['taekbae', 'pickup'];
 
 function withTracking(o) {
   return {
