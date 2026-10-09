@@ -1,0 +1,37 @@
+# Render: New → Blueprint → shu repo. Maxfiy qiymatlarni Render panelida kiritasiz.
+services:
+  - type: web
+    name: tayyor-sweet-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: MINIAPP_URL
+        sync: false
+      - key: OWNER_LINK
+        sync: false
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      - key: SHOP_NAME
+        value: Tayyor & Sweet
+      - key: SHOP_SHORT_NAME
+        value: TS
+      - key: ORDER_PREFIX
+        value: TS
