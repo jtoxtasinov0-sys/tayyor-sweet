@@ -46,13 +46,50 @@ async function toAdmins(fn) {
   }
 }
 
+// Buyurtmadagi mahsulot rasmlari (takrorlarsiz, Telegram albomi uchun ko'pi bilan 10 ta)
+async function orderPhotos(order) {
+  const seen = new Set();
+  const photos = [];
+  for (const i of order.items || []) {
+    if (!i.image_id || seen.has(i.image_id) || photos.length >= 10) continue;
+    seen.add(i.image_id);
+    const img = await Image.get(i.image_id).catch(() => null);
+    if (img) photos.push({ media: { source: img.data }, caption: i.name });
+  }
+  return photos;
+}
+
+// Rasm har bir adminga qayta yuklanmasin — birinchi yuborishdan keyin Telegram file_id ishlatiladi
+const keepFileId = (photo, msg) => {
+  if (msg?.photo?.length) photo.media = msg.photo.at(-1).file_id;
+};
+
+// Tahrirlanganda ham sig'ishi uchun Telegram chegarasidan (1024) biroz kam
+const CAPTION_MAX = 900;
+
 async function newOrder(order) {
-  await toAdmins((id) =>
-    bot.telegram.sendMessage(id, `🆕 <b>Yangi buyurtma!</b>\n\n${orderSummary(order)}`, {
-      parse_mode: 'HTML',
-      ...orderAdminInline(order),
-    })
-  );
+  const text = `🆕 <b>Yangi buyurtma!</b>\n\n${orderSummary(order)}`;
+  const extra = { parse_mode: 'HTML', ...orderAdminInline(order) };
+  const photos = await orderPhotos(order);
+
+  await toAdmins(async (id) => {
+    try {
+      // Bitta mahsulot: rasm + matn + tugmalar bitta xabarda
+      if (photos.length === 1 && text.length <= CAPTION_MAX) {
+        return keepFileId(photos[0], await bot.telegram.sendPhoto(id, photos[0].media, { caption: text, ...extra }));
+      }
+      // Bir nechta mahsulot: avval rasmlar albomi, keyin tugmali matn
+      if (photos.length === 1) {
+        keepFileId(photos[0], await bot.telegram.sendPhoto(id, photos[0].media, { caption: photos[0].caption }));
+      } else if (photos.length > 1) {
+        const msgs = await bot.telegram.sendMediaGroup(id, photos.map((p) => ({ type: 'photo', ...p })));
+        msgs.forEach((m, k) => keepFileId(photos[k], m));
+      }
+    } catch (e) {
+      logger.warn(`Buyurtma rasmi yuborilmadi (${id}):`, e.message);
+    }
+    await bot.telegram.sendMessage(id, text, extra);
+  });
 }
 
 async function receiptUploaded(order, image) {
