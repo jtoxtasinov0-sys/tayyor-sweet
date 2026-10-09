@@ -49,5 +49,7 @@ module.exports = {
   corsOrigins: list(env.CORS_ORIGINS),
   // Brauzerda (Telegramsiz) sinash uchun: ALLOW_DEV_AUTH=1
   allowDevAuth: env.ALLOW_DEV_AUTH === '1' && env.NODE_ENV !== 'production',
+  // Saytdan (Telegramsiz) buyurtma: brauzer "mehmon" kaliti bilan. O'chirish: ALLOW_GUEST_ORDERS=0
+  allowGuests: env.ALLOW_GUEST_ORDERS !== '0',
   rasmlarDir: path.resolve(__dirname, '../..', env.RASMLAR_DIR || '../rasmlar'),
 };

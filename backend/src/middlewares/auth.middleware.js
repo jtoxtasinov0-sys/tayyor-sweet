@@ -31,6 +31,14 @@ function verifyInitData(initData) {
   }
 }
 
+// Saytdan kirgan mehmon: brauzer o'zi yaratgan tasodifiy kalitdan manfiy ID olinadi
+// (Telegram foydalanuvchi ID lari musbat — to'qnashmaydi). Kalitning o'zi bazaga yozilmaydi.
+function guestId(token) {
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(token || '')) return null;
+  const hex = crypto.createHash('sha256').update(token).digest('hex').slice(0, 12);
+  return -(parseInt(hex, 16) + 1);
+}
+
 // Express: mijoz API uchun
 async function requireTelegramUser(req, res, next) {
   try {
@@ -39,8 +47,13 @@ async function requireTelegramUser(req, res, next) {
       // Faqat mahalliy sinov uchun (Telegramdan tashqarida)
       tg = { id: Number(req.get('X-Dev-User-Id') || 1), first_name: 'Dev', username: 'dev' };
     }
-    if (!tg?.id) return res.status(401).json({ error: 'unauthorized' });
-    req.user = await User.upsertFromTelegram(tg);
+    if (tg?.id) {
+      req.user = await User.upsertFromTelegram(tg);
+      return next();
+    }
+    const gid = config.allowGuests ? guestId(req.get('X-Guest-Token')) : null;
+    if (!gid) return res.status(401).json({ error: 'unauthorized' });
+    req.user = await User.findGuest(gid);
     next();
   } catch (e) {
     logger.error('auth:', e.message);
@@ -60,4 +73,4 @@ async function botUser(ctx, next) {
   return next();
 }
 
-module.exports = { verifyInitData, requireTelegramUser, botUser };
+module.exports = { verifyInitData, guestId, requireTelegramUser, botUser };

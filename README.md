@@ -63,6 +63,10 @@ So'ng Render'dagi `MINIAPP_URL` ni Vercel manziliga o'rnating — bot menyu tugm
 | `/admin parol` | admin huquqini olish (5 xato → 15 daqiqa blok) |
 | `/panel` | statistika + tekshirilishi kerak bo'lgan buyurtmalar (tugmalar bilan) |
 
+Saytdan (Telegramsiz, oddiy brauzerda) ham buyurtma berish mumkin: brauzer o'ziga "mehmon" kaliti yaratadi,
+buyurtmalar shu brauzerda "Buyurtmalar" bo'limida ko'rinadi. Bunday buyurtmalarda adminga "🌐 Saytdan" belgisi chiqadi —
+mijozga Telegram xabar bormaydi, telefon orqali bog'laning. O'chirish: Render'da `ALLOW_GUEST_ORDERS=0`.
+
 Buyurtma holatlari: **To'lov kutilmoqda → Chek yuborildi → Tasdiqlandi → Jo'natildi → Yetkazildi** (yoki Bekor qilindi).
 Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzatish havolasi bilan).
 

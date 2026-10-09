@@ -17,11 +17,32 @@ function initData(): string {
   return window.Telegram?.WebApp?.initData || '';
 }
 
+// Saytdan (Telegramsiz) kirganda: brauzerda saqlanadigan tasodifiy "mehmon" kaliti.
+// Buyurtmalar shu kalitga bog'lanadi — shu brauzerda "Buyurtmalarim" ko'rinadi.
+const GUEST_KEY = 'ts-guest';
+let guest = '';
+
+function guestToken(): string {
+  if (guest) return guest;
+  try {
+    guest = localStorage.getItem(GUEST_KEY) || '';
+  } catch {}
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(guest)) {
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    guest = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    try {
+      localStorage.setItem(GUEST_KEY, guest);
+    } catch {}
+  }
+  return guest;
+}
+
 async function request<T>(path: string, opts: RequestInit & { token?: string } = {}): Promise<T> {
   const headers: Record<string, string> = { ...(opts.headers as Record<string, string>) };
   if (opts.body && !(opts.body instanceof FormData)) headers['Content-Type'] = 'application/json';
   if (opts.token) headers.Authorization = `Bearer ${opts.token}`;
-  else headers['X-Telegram-Init-Data'] = initData();
+  else if (initData()) headers['X-Telegram-Init-Data'] = initData();
+  else if (typeof window !== 'undefined') headers['X-Guest-Token'] = guestToken();
   const res = await fetch(API_URL + path, { ...opts, headers });
   const text = await res.text();
   const data = text ? JSON.parse(text) : null;

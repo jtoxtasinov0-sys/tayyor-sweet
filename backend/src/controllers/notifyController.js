@@ -26,6 +26,7 @@ function orderSummary(o, lang = 'uz') {
     '',
     `👤 ${esc(o.customer_name)} · ${esc(o.phone)}${o.username ? ` · @${esc(o.username)}` : ''}`,
   ];
+  if (User.isGuest(o.user_id)) lines.push("🌐 Saytdan (Telegram'siz) — mijozga telefon orqali bog'laning");
   if (o.address) lines.push(`📍 ${esc(o.address)}${o.postal_code ? ` (${esc(o.postal_code)})` : ''}`);
   if (o.desired_date) lines.push(`📅 ${new Date(o.desired_date).toISOString().slice(0, 10)}`);
   if (o.comment) lines.push(`💬 ${esc(o.comment)}`);
@@ -65,7 +66,7 @@ async function receiptUploaded(order, image) {
 }
 
 async function statusChanged(order) {
-  if (!order.user_id) return;
+  if (!order.user_id || User.isGuest(order.user_id)) return;
   const user = await User.get(order.user_id);
   const lang = user?.lang || 'uz';
   const L = t(lang);

@@ -242,14 +242,14 @@ export function CustomersAdmin() {
               <tr key={u.id}>
                 <td>
                   <b>{u.first_name || '—'}</b> {u.is_admin && <span className="badge badge-hit">ADMIN</span>} {u.bot_blocked && <span className="badge badge-sale">bloklagan</span>}
-                  <div className="muted" style={{ fontSize: 12 }}>{u.username ? <a href={`https://t.me/${u.username}`} target="_blank" rel="noreferrer">@{u.username}</a> : u.id}</div>
+                  <div className="muted" style={{ fontSize: 12 }}>{u.username ? <a href={`https://t.me/${u.username}`} target="_blank" rel="noreferrer">@{u.username}</a> : Number(u.id) < 0 ? '🌐 Sayt' : u.id}</div>
                 </td>
                 <td>{u.phone || '—'}</td>
                 <td>{u.lang || '—'}</td>
                 <td>{u.orders_count}</td>
                 <td>{won(u.orders_sum)}</td>
                 <td className="muted">{fmtDate(u.last_seen, 'uz')}</td>
-                <td><button className="btn btn-ghost btn-sm" onClick={() => toggleAdmin(u)}>{u.is_admin ? 'Adminlikdan olish' : 'Admin qilish'}</button></td>
+                <td>{Number(u.id) > 0 && <button className="btn btn-ghost btn-sm" onClick={() => toggleAdmin(u)}>{u.is_admin ? 'Adminlikdan olish' : 'Admin qilish'}</button>}</td>
               </tr>
             ))}
           </tbody>

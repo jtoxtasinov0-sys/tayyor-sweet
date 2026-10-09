@@ -44,8 +44,9 @@ async function me(req, res) {
 async function updateMe(req, res) {
   const { lang, phone } = req.body || {};
   let u = req.user;
-  if (lang === 'uz' || lang === 'ru') u = await User.setLang(u.id, lang);
-  if (typeof phone === 'string' && phone.trim()) u = await User.setPhone(u.id, phone.trim().slice(0, 32));
+  // Mehmon hali bazada bo'lmasa UPDATE hech narsa qaytarmaydi — joriy qiymat qoladi
+  if (lang === 'uz' || lang === 'ru') u = (await User.setLang(u.id, lang)) || u;
+  if (typeof phone === 'string' && phone.trim()) u = (await User.setPhone(u.id, phone.trim().slice(0, 32))) || u;
   req.user = u;
   return me(req, res);
 }

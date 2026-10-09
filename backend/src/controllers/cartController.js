@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Setting = require('../models/Setting');
 const Image = require('../models/Image');
+const User = require('../models/User');
 const notify = require('./notifyController');
 const cache = require('../utils/cache');
 const { trackingUrl, COURIERS } = require('../utils/format');
@@ -64,6 +65,7 @@ async function create(req, res) {
   if (q.min_order && q.subtotal < q.min_order) return res.status(400).json({ error: 'Minimal buyurtma summasidan kam' });
 
   const desired = /^\d{4}-\d{2}-\d{2}$/.test(b.desired_date || '') ? b.desired_date : null;
+  if (User.isGuest(req.user.id)) await User.saveGuest(req.user.id, name, phone);
   const order = await Order.create({
     user_id: req.user.id,
     ...q,

@@ -15,6 +15,24 @@ async function upsertFromTelegram(u) {
   );
 }
 
+// Saytdan kirgan mehmon (manfiy ID, Telegram'siz). Bazaga faqat buyurtma berganda yoziladi —
+// shunchaki ko'rib chiqqanlar mijozlar ro'yxatini to'ldirib yubormasin.
+const isGuest = (id) => Number(id) < 0;
+
+async function findGuest(id) {
+  const u = await db.one('UPDATE users SET last_seen = now() WHERE id = $1 RETURNING *', [id]);
+  return u || { id: String(id), first_name: null, last_name: null, username: null, phone: null, lang: null, is_admin: false, created_at: null };
+}
+
+// Ism/telefon buyurtmadan olinadi (admin ro'yxatida ko'rinishi uchun)
+const saveGuest = (id, name, phone) =>
+  db.one(
+    `INSERT INTO users (id, first_name, phone) VALUES ($1, $2, $3)
+     ON CONFLICT (id) DO UPDATE SET first_name = EXCLUDED.first_name, phone = EXCLUDED.phone, last_seen = now()
+     RETURNING *`,
+    [id, name, phone]
+  );
+
 const get = (id) => db.one('SELECT * FROM users WHERE id = $1', [id]);
 const setLang = (id, lang) => db.one('UPDATE users SET lang = $2 WHERE id = $1 RETURNING *', [id, lang]);
 const setPhone = (id, phone) => db.one('UPDATE users SET phone = $2 WHERE id = $1 RETURNING *', [id, phone]);
@@ -39,6 +57,7 @@ async function list({ q = '', limit = 50, offset = 0 } = {}) {
   return { rows, total: count };
 }
 
-const broadcastTargets = () => db.many('SELECT id, lang FROM users WHERE bot_blocked = false ORDER BY id');
+// Mehmonlarga (id < 0) Telegram xabar yuborib bo'lmaydi
+const broadcastTargets = () => db.many('SELECT id, lang FROM users WHERE bot_blocked = false AND id > 0 ORDER BY id');
 
-module.exports = { upsertFromTelegram, get, setLang, setPhone, setAdmin, markBlocked, admins, list, broadcastTargets };
+module.exports = { upsertFromTelegram, isGuest, findGuest, saveGuest, get, setLang, setPhone, setAdmin, markBlocked, admins, list, broadcastTargets };
