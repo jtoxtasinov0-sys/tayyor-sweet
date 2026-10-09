@@ -13,6 +13,7 @@ function registerBotRoutes() {
   bot.command('til', start.askLang);
   bot.command('admin', adminBot.admin);
   bot.command('panel', adminBot.panel);
+  bot.command('id', adminBot.myId);
 
   bot.action(/^lang:(uz|ru)$/, start.chooseLang);
   bot.action(/^ord:(\d+):(confirmed|cancelled|shipped|delivered)$/, adminBot.orderAction);
@@ -34,12 +35,14 @@ const COMMANDS = {
     { command: 'narxlar', description: 'Narxlar jadvali' },
     { command: 'buyurtmalar', description: 'Mening buyurtmalarim' },
     { command: 'til', description: "Tilni o'zgartirish" },
+    { command: 'id', description: 'Mening Telegram ID raqamim' },
   ],
   ru: [
     { command: 'start', description: 'Главное меню' },
     { command: 'narxlar', description: 'Прайс-лист' },
     { command: 'buyurtmalar', description: 'Мои заказы' },
     { command: 'til', description: 'Сменить язык' },
+    { command: 'id', description: 'Мой Telegram ID' },
   ],
 };
 

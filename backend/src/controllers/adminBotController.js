@@ -36,6 +36,15 @@ async function admin(ctx) {
   return panel(ctx);
 }
 
+// /id: hammaga Telegram ID, adminga qo'shimcha admin paroli
+async function myId(ctx) {
+  const lines = [`🆔 Sizning Telegram ID: <code>${ctx.from.id}</code>`];
+  if (isAdmin(ctx) && config.admin.password) {
+    lines.push(`🔑 Admin parol: <tg-spoiler><code>${config.admin.password.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c])}</code></tg-spoiler>`);
+  }
+  return ctx.reply(lines.join('\n'), { parse_mode: 'HTML' });
+}
+
 async function panel(ctx) {
   const lang = langOf(ctx);
   const L = t(lang);
@@ -83,4 +92,4 @@ async function orderAction(ctx) {
   await notify.statusChanged(full);
 }
 
-module.exports = { admin, panel, orderAction, isAdmin };
+module.exports = { admin, panel, myId, orderAction, isAdmin };
