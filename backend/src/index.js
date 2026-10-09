@@ -58,10 +58,22 @@ async function setupBot() {
   }
 }
 
+// Render bepul tarifi 15 daqiqa so'rov kelmasa serverni uxlatadi — keyin birinchi ochilish ~1 daqiqa kutadi.
+// Server o'z manziliga har 10 daqiqada murojaat qilib uyg'oq turadi. O'chirish: KEEP_ALIVE=0
+function keepAlive() {
+  if (!config.keepAlive || !config.bot.publicUrl) return;
+  const url = `${config.bot.publicUrl}/api/health`;
+  setInterval(() => {
+    fetch(url, { signal: AbortSignal.timeout(30_000) }).catch((e) => logger.warn('keep-alive:', e.message));
+  }, 10 * 60_000);
+  logger.info('⏰ Keep-alive yoqildi');
+}
+
 async function main() {
   await migrate();
   logger.info('✅ Baza tayyor');
   app.listen(config.port, () => logger.info(`🚀 API: http://localhost:${config.port}`));
+  keepAlive();
   await setupBot().catch((e) => logger.error('Botni sozlab bo‘lmadi:', e.message));
 }
 

@@ -61,6 +61,8 @@ async function image(req, res) {
   res.set({
     'Content-Type': img.mime,
     'Cache-Control': 'public, max-age=31536000, immutable',
+    // Vercel CDN ham keshlasin — rasmlar backend uxlab qolganda ham tez ochiladi
+    'CDN-Cache-Control': 'public, max-age=31536000, immutable',
     ETag: etag,
   });
   res.send(img.data);

@@ -4,14 +4,17 @@ import { useEffect, type ReactNode } from 'react';
 import { tg } from '@/hooks/useTelegram';
 import { api } from '@/lib/api';
 import { useApp } from '@/store/appStore';
-import type { Lang } from '@/lib/types';
+import type { Bootstrap, Lang } from '@/lib/types';
 
 const LANG_KEY = 'ts-lang';
 
-export function TelegramProvider({ children }: { children: ReactNode }) {
+export function TelegramProvider({ children, initialData }: { children: ReactNode; initialData?: Bootstrap | null }) {
   const set = useApp((s) => s.set);
 
   useEffect(() => {
+    // Serverda tayyorlangan ma'lumot — ilova backend javobini kutmasdan ochiladi
+    if (initialData && !useApp.getState().data) set({ data: initialData });
+
     const w = tg();
     if (w) {
       w.ready();
@@ -29,6 +32,7 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     const tgLang = w?.initDataUnsafe?.user?.language_code;
     set({ lang: (saved as Lang) || (tgLang === 'ru' ? 'ru' : 'uz') });
 
+    // Fonda yangilash (backend uxlab qolgan bo'lsa — uni uyg'otadi ham)
     loadBootstrap();
 
     api
@@ -48,10 +52,19 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-export function loadBootstrap() {
+export function loadBootstrap(attempt = 0) {
   const set = useApp.getState().set;
   set({ loadError: false });
-  api.bootstrap().then((data) => set({ data })).catch(() => set({ loadError: true }));
+  api
+    .bootstrap()
+    .then((data) => set({ data }))
+    .catch(() => {
+      // Ma'lumot allaqachon bor — xato ekrani kerak emas
+      if (useApp.getState().data) return;
+      // Backend uyg'onayotgan bo'lishi mumkin — yana urinib ko'ramiz
+      if (attempt < 3) setTimeout(() => loadBootstrap(attempt + 1), 2000 * (attempt + 1));
+      else set({ loadError: true });
+    });
 }
 
 export function saveLang(lang: Lang) {

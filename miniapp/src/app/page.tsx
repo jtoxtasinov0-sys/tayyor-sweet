@@ -1,73 +1,27 @@
-'use client';
-// Bosh sahifa: mini ilova qobig'i (ekranlar + oynalar)
-import { useEffect, useState } from 'react';
-import { TelegramProvider, loadBootstrap } from '@/providers/TelegramProvider';
-import { useApp } from '@/store/appStore';
-import { Splash, Onboarding, BottomNavigation } from '@/components/layout';
-import { Toast, Empty, useT } from '@/components/ui';
-import { Home, Catalog } from '@/components/features/Home';
-import { Cart } from '@/components/features/Cart';
-import { Orders, OrderSheet } from '@/components/features/Orders';
-import { Profile } from '@/components/features/Profile';
-import { ProductSheet } from '@/components/features/ProductSheet';
-import { CheckoutSheet, PaymentSheet } from '@/components/features/Checkout';
-import { StoryViewer } from '@/components/features/Stories';
+// Bosh sahifa. Do'kon ma'lumotlari serverda olinadi va Vercel'da keshlanadi (ISR):
+// backend (Render) uxlab qolgan bo'lsa ham ilova darhol ochiladi, ma'lumot fonda yangilanadi.
+import { ShopApp } from '@/components/ShopApp';
+import type { Bootstrap } from '@/lib/types';
 
-function Screens() {
-  const t = useT();
-  const data = useApp((s) => s.data);
-  const loadError = useApp((s) => s.loadError);
-  const tab = useApp((s) => s.tab);
-  const [minSplash, setMinSplash] = useState(false);
+// Sahifa ko'pi bilan har 60 soniyada fonda qayta yig'iladi
+export const revalidate = 60;
 
-  useEffect(() => {
-    const id = setTimeout(() => setMinSplash(true), 1100);
-    return () => clearTimeout(id);
-  }, []);
+const backend = (process.env.BACKEND_URL || 'http://localhost:4000').replace(/\/+$/, '');
 
-  if (loadError && !data) {
-    return (
-      <Empty
-        emoji="📡"
-        title={t.error}
-        text="Internet aloqasini tekshiring"
-        action={<button className="btn btn-primary" onClick={loadBootstrap}>{t.retry}</button>}
-      />
-    );
+async function getBootstrap(): Promise<Bootstrap | null> {
+  try {
+    // Render uyg'onishi ~1 daqiqagacha cho'zilishi mumkin
+    const res = await fetch(`${backend}/api/bootstrap`, { signal: AbortSignal.timeout(50_000) });
+    if (!res.ok) throw new Error(`bootstrap: ${res.status}`);
+    return (await res.json()) as Bootstrap;
+  } catch (e) {
+    // Build va dev paytida backend bo'lmasa — ma'lumot brauzerda yuklanadi.
+    // Fondagi yangilashda xato tashlanadi: Next.js oxirgi muvaffaqiyatli sahifani berishda davom etadi.
+    if (process.env.NODE_ENV !== 'production' || process.env.NEXT_PHASE === 'phase-production-build') return null;
+    throw e;
   }
-
-  return (
-    <>
-      <Splash done={!!data && minSplash} />
-      {data && (
-        <>
-          <Onboarding />
-          <main key={tab}>
-            {tab === 'home' && <Home />}
-            {tab === 'catalog' && <Catalog />}
-            {tab === 'cart' && <Cart />}
-            {tab === 'orders' && <Orders />}
-            {tab === 'profile' && <Profile />}
-          </main>
-          <BottomNavigation />
-          <ProductSheet />
-          <CheckoutSheet />
-          <PaymentSheet />
-          <OrderSheet />
-          <StoryViewer />
-        </>
-      )}
-      <Toast />
-    </>
-  );
 }
 
-export default function Page() {
-  return (
-    <TelegramProvider>
-      <div className="app">
-        <Screens />
-      </div>
-    </TelegramProvider>
-  );
+export default async function Page() {
+  return <ShopApp initialData={await getBootstrap()} />;
 }

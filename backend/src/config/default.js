@@ -51,5 +51,7 @@ module.exports = {
   allowDevAuth: env.ALLOW_DEV_AUTH === '1' && env.NODE_ENV !== 'production',
   // Saytdan (Telegramsiz) buyurtma: brauzer "mehmon" kaliti bilan. O'chirish: ALLOW_GUEST_ORDERS=0
   allowGuests: env.ALLOW_GUEST_ORDERS !== '0',
+  // Render'da server uxlab qolmasligi uchun o'ziga ping. O'chirish: KEEP_ALIVE=0
+  keepAlive: !!env.RENDER_EXTERNAL_URL && env.KEEP_ALIVE !== '0',
   rasmlarDir: path.resolve(__dirname, '../..', env.RASMLAR_DIR || '../rasmlar'),
 };

@@ -44,6 +44,7 @@ Admin panel ham shu o'zgaruvchilardan foydalanadi.
 **Render (backend + bot)** — New → Blueprint → shu repo (`render.yaml`). Kiritish kerak:
 `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_IDS`, `MINIAPP_URL` (Vercel manzili), `OWNER_LINK`.
 Render'da bot webhook rejimida ishlaydi (`RENDER_EXTERNAL_URL` avtomatik).
+Bepul tarifda server 15 daqiqada uxlab qolmasligi uchun o'ziga har 10 daqiqada ping yuboradi (o'chirish: `KEEP_ALIVE=0`).
 
 **Vercel (mini ilova + admin)** — repo'ni import qiling:
 - Root Directory: `miniapp`
@@ -51,6 +52,8 @@ Render'da bot webhook rejimida ishlaydi (`RENDER_EXTERNAL_URL` avtomatik).
 - Environment: `BACKEND_URL=https://<render-manzil>.onrender.com`
 
 So'ng Render'dagi `MINIAPP_URL` ni Vercel manziliga o'rnating — bot menyu tugmasini o'zi sozlaydi.
+
+Mini ilova do'kon ma'lumotlarini Vercel'da keshlaydi (ISR, har 60 soniyada fonda yangilanadi) — backend uyg'onishini kutmasdan darhol ochiladi.
 
 ## Bot buyruqlari
 

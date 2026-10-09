@@ -14,8 +14,9 @@ export function Splash({ done }: { done: boolean }) {
   const [gone, setGone] = useState(false);
   useEffect(() => {
     if (!done) return;
-    const t1 = setTimeout(() => setHide(true), 350);
-    const t2 = setTimeout(() => setGone(true), 900);
+    // Ma'lumot tayyor — splash darhol so'nadi (sun'iy kutish yo'q)
+    const t1 = setTimeout(() => setHide(true), 30);
+    const t2 = setTimeout(() => setGone(true), 560);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
