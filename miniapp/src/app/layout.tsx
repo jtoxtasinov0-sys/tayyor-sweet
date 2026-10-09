@@ -6,10 +6,25 @@ import '@/styles/globals.css';
 
 const onest = Onest({ subsets: ['latin', 'cyrillic'], variable: '--font-onest', display: 'swap' });
 
+const description = 'Shirinliklar, tortlar va yarim tayyor mahsulotlar — Koreya bo‘ylab 택배';
+// Link ulashilganda (Telegram, Instagram, WhatsApp) chiqadigan rasm: public/og.jpg
+const ogImage = { url: '/og.jpg', width: 1200, height: 630, alt: 'Tayyor & Sweet' };
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tayyor-sweet.vercel.app'),
   title: 'Tayyor & Sweet',
-  description: 'Shirinliklar, tortlar va yarim tayyor mahsulotlar — Koreya bo‘ylab 택배',
-  icons: { icon: '/images/logo.png' },
+  description,
+  icons: { icon: '/images/logo.png', apple: '/images/logo.png' },
+  openGraph: {
+    type: 'website',
+    siteName: 'Tayyor & Sweet',
+    title: 'Tayyor & Sweet 🍰',
+    description,
+    url: '/',
+    locale: 'uz_UZ',
+    images: [ogImage],
+  },
+  twitter: { card: 'summary_large_image', title: 'Tayyor & Sweet 🍰', description, images: [ogImage.url] },
 };
 
 export const viewport: Viewport = {
