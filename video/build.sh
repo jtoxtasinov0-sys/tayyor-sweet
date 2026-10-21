@@ -24,7 +24,7 @@ one() {
   get() { echo "$M" | python3 -c "import json,sys;print(json.load(sys.stdin)['$1'])"; }
   AF="loudnorm=I=-15:TP=-1.5:LRA=11:measured_I=$(get input_i):measured_TP=$(get input_tp):measured_LRA=$(get input_lra):measured_thresh=$(get input_thresh):offset=$(get target_offset):linear=true,aresample=48000"
   ffmpeg -v error -y -i "$TMP/$N-video.mp4" -i "$TMP/$N.wav" -map 0:v -map 1:a -af "$AF" \
-    -c:v libx264 -preset slow -crf 22 -profile:v high -pix_fmt yuv420p -r 30 \
+    -c:v libx264 -preset slow -crf 26 -profile:v high -pix_fmt yuv420p -r 30 \
     -c:a aac -b:a 128k -ar 48000 -movflags +faststart -shortest "$OUT/$N.mp4"
   echo "✓ $OUT/$N.mp4 ($(du -h "$OUT/$N.mp4" | cut -f1))"
 }
