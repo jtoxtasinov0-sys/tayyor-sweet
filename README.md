@@ -91,7 +91,8 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
 - Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).
 - Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
-- Videolar: `miniapp/public/video/ilova-<iphone|samsung>-<uz|ru>.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
+- Videolar (faqat o'zbekcha, Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
+  `miniapp/public/video/ilova-<iphone|samsung>-uz.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
   Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
 
 **Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
@@ -100,8 +101,8 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
 npm i                                  # playwright (Chromium) o'rnatiladi
 (cd ../miniapp && npm run build && npx next start -p 3100)   # alohida oynada
 node shots.mjs                         # sahifa rasmlari (videodagi /ilova va do'kon)
-./build.sh                             # 4 ta video: kadrlar → ovoz → -15 LUFS → mp4
-./preview.sh iphone uz 0 10            # tez tekshiruv: oraliq kadrlari bitta rasmda
+./build.sh                             # 2 ta video (iPhone, Samsung): kadrlar → ovoz → -15 LUFS → mp4
+./preview.sh iphone 0 10               # tez tekshiruv: oraliq kadrlari bitta rasmda
 ```
 
 Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` da. Ovoz effektlari va fon musiqasi

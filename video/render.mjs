@@ -1,5 +1,5 @@
 // Kadrlarni Chromium'da chizib ffmpeg'ga uzatadi.
-// node render.mjs --device iphone|samsung --lang uz|ru [--from s] [--to s] [--fps 30] [--scale 1]
+// node render.mjs --device iphone|samsung [--from s] [--to s] [--fps 30] [--scale 1]
 //   [--out kadrlar_papkasi --jpg]   — alohida JPEG kadrlar (oldindan ko'rish uchun)
 //   [--mp4 fayl.mp4]                — ovozsiz video
 //   [--cues fayl.json]              — ovoz effektlari vaqtlari
@@ -16,7 +16,6 @@ const opt = (k, d) => {
   return i >= 0 ? a[i + 1] : d;
 };
 const device = opt('device', 'iphone');
-const lang = opt('lang', 'uz');
 const fps = +opt('fps', 30);
 const scale = +opt('scale', 1);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,7 +39,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: Math.round(1080 * scale), height: Math.round(1920 * scale) } });
 page.on('pageerror', (e) => console.error('page error:', e.message));
 page.on('console', (m) => m.type() === 'error' && console.error('console:', m.text()));
-await page.goto(`http://127.0.0.1:${port}/video/index.html?device=${device}&lang=${lang}&scale=${scale}`);
+await page.goto(`http://127.0.0.1:${port}/video/index.html?device=${device}&scale=${scale}`);
 const info = await page.evaluate(() => window.ready);
 const from = +opt('from', 0);
 const to = Math.min(+opt('to', info.dur), info.dur);
@@ -61,7 +60,7 @@ for (let i = 0; i < n; i++) {
   const buf = Buffer.from(b64, 'base64');
   if (outDir) await writeFile(join(outDir, String(i).padStart(5, '0') + '.jpg'), buf);
   if (ff && !ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
-  if (i % 60 === 0 && !outDir) process.stdout.write(`\r${device}-${lang}: ${i}/${n}`);
+  if (i % 60 === 0 && !outDir) process.stdout.write(`\r${device}: ${i}/${n}`);
 }
 if (ff) {
   ff.stdin.end();

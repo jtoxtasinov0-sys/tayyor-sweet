@@ -105,8 +105,8 @@ function pickLang(): Lang {
   return navigator.language?.startsWith('ru') ? 'ru' : 'uz';
 }
 
-// Video va muqovasi: public/video/ilova-<iphone|samsung>-<uz|ru>.mp4 / .jpg (video/build.sh yig'adi)
-const guideVideo = (device: Device, lang: Lang) => `/video/ilova-${device}-${lang}`;
+// Video (faqat o'zbekcha) va muqovasi: public/video/ilova-<iphone|samsung>-uz.mp4 / .jpg (video/build.sh yig'adi)
+const guideVideo = (device: Device) => `/video/ilova-${device}-uz`;
 
 export function InstallGuide() {
   const [lang, setLang] = useState<Lang>('uz');
@@ -229,10 +229,10 @@ export function InstallGuide() {
           ))}
         </div>
         <video
-          key={device + lang}
+          key={device}
           className="inst-player"
-          src={`${guideVideo(device, lang)}.mp4`}
-          poster={`${guideVideo(device, lang)}.jpg`}
+          src={`${guideVideo(device)}.mp4`}
+          poster={`${guideVideo(device)}.jpg`}
           controls
           playsInline
           preload="metadata"

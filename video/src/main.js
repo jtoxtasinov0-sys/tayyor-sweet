@@ -1,21 +1,26 @@
 // Video kadri: drawFrame(t) faqat vaqtga bog'liq (tasodifiy son va taymer yo'q) — oldindan ko'rish va yakuniy kadr bir xil
-import { W, H, C, E, F, S, clamp, lerp, pr, vis, rng, rr, fillRR, text, IMG, loadImages, circleImg, shadow, noShadow } from './core.js';
-import { STR } from './strings.js';
+import { W, H, C, E, F, S, clamp, lerp, pr, vis, rng, rr, fillRR, text, IMG, loadImages, shadow, noShadow } from './core.js';
+import { L } from './strings.js';
 import * as UI from './ui.js';
 
 const Q = new URLSearchParams(location.search);
 const DEVICE = Q.get('device') === 'samsung' ? 'samsung' : 'iphone';
-const LANG = Q.get('lang') === 'ru' ? 'ru' : 'uz';
-const L = STR[LANG];
 const OS = DEVICE === 'iphone' ? 'ios' : 'and';
 const D = UI.DEV[OS];
 
-// Telefon (kanvas pikselida): ekran 656 px eni
-const K = 656 / D.SW;
-const SCR = { x: 212, y: 453, w: 656, h: D.SH * K };
-const PHONE = { x: 195, y: 436, w: 690, h: SCR.h + 34 };
+// Instagram Reels xavfsiz hududi (1080×1920): tepada ~250 px (sarlavha paneli), pastda ~420 px
+// (izoh, akkaunt nomi), o'ngda tugmalar ustuni. Hamma muhim narsa markazdagi 780×1250 ichida.
+const SAFE = { x0: 150, x1: 930, y0: 250, y1: 1510 };
+// Telefon (kanvas pikselida): ekran 450 px eni, markazda
+const SCR_W = 450;
+const K = SCR_W / D.SW;
+const BEZEL = 12;
+const SCR_H = D.SH * K;
+const PHONE = { x: 540 - SCR_W / 2 - BEZEL, y: 490, w: SCR_W + 2 * BEZEL, h: SCR_H + 2 * BEZEL };
+const SCR = { x: PHONE.x + BEZEL, y: PHONE.y + BEZEL, w: SCR_W, h: SCR_H };
 const ANCHOR = { x: 540, y: PHONE.y + PHONE.h / 2 };
-const CLIP_TOP = 432;
+// Zum paytida telefon ko'rinadigan oyna (yuqori va pastki cheti yumshoq so'nadi)
+const VIEW = { y0: 470, y1: SAFE.y1, fade: 40 };
 
 // ---------- Vaqt jadvali yordamchilari ----------
 const cues = [];
@@ -61,7 +66,7 @@ class Cam {
     let fy = ANCHOR.y;
     if (fyPt != null && s > 1.001) {
       fy = SCR.y + fyPt * K;
-      const lo = PHONE.y + (ANCHOR.y - CLIP_TOP) / s, hi = PHONE.y + PHONE.h - (H - ANCHOR.y) / s;
+      const lo = PHONE.y + (ANCHOR.y - VIEW.y0) / s, hi = PHONE.y + PHONE.h - (VIEW.y1 - ANCHOR.y) / s;
       fy = lo > hi ? (lo + hi) / 2 : clamp(fy, lo, hi);
     }
     this.keys.push({ t0, t1, s, fy });
@@ -113,19 +118,19 @@ function buildIphone(tl) {
     .move(22.8, 23.3, ST.addRow(shareTop)).tap(T.tapAddRow).move(24.8, 25.25, ST.addBtn(addTop)).tap(T.tapAdd).hide(25.7);
   touch.show(27.5, { x: SW / 2 + 40, y: 600 }).move(27.55, 28.0, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(28.5);
 
-  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.5, tl.link.cy)
-    .to(T.sheet + 0.05, T.sheet + 0.6, 1.3, 640)
+  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
+    .to(T.sheet + 0.05, T.sheet + 0.6, 1.45, 640)
     .to(T.toast + 0.1, T.toast + 0.7, 1)
-    .to(T.tapBar, T.tapBar + 0.6, 1.35, 650)
+    .to(T.tapBar, T.tapBar + 0.6, 1.5, 650)
     .to(T.load, T.load + 0.6, 1)
-    .to(T.page + 0.4, T.s4 - 0.2, 1.1, 360)
-    .to(T.s4, T.s4 + 0.6, 1.45, 700)
-    .to(T.tapShare + 0.2, T.tapShare + 0.8, 1.25, 600)
-    .to(T.tapAddRow + 0.3, T.tapAddRow + 0.9, 1.4, 200)
+    .to(T.page + 0.4, T.s4 - 0.2, 1.2, 360)
+    .to(T.s4, T.s4 + 0.6, 1.6, 700)
+    .to(T.tapShare + 0.2, T.tapShare + 0.8, 1.4, 600)
+    .to(T.tapAddRow + 0.3, T.tapAddRow + 0.9, 1.55, 200)
     .to(T.tapAdd + 0.1, T.tapAdd + 0.6, 1)
-    .to(T.fresh - 0.2, T.fresh + 0.4, 1.3, freshRect.cy)
+    .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
     .to(T.tapIcon + 0.1, T.tapIcon + 0.6, 1)
-    .to(T.shop + 0.4, T.phoneOut - 0.3, 1.08, 400)
+    .to(T.shop + 0.4, T.phoneOut - 0.3, 1.15, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
   cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
@@ -234,17 +239,17 @@ function buildSamsung(tl, pageBtn) {
   touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
   touch.show(25.4, { x: SW / 2 + 40, y: 600 }).move(25.45, 25.85, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(26.3);
 
-  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.5, tl.link.cy)
-    .to(T.sheet + 0.05, T.sheet + 0.6, 1.3, 650)
+  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
+    .to(T.sheet + 0.05, T.sheet + 0.6, 1.45, 650)
     .to(T.toast + 0.1, T.toast + 0.7, 1)
-    .to(T.tapOmni - 0.3, T.tapOmni + 0.3, 1.35, 250)
+    .to(T.tapOmni - 0.3, T.tapOmni + 0.3, 1.5, 250)
     .to(T.load, T.load + 0.6, 1)
-    .to(T.s4, T.s4 + 0.6, 1.35, CT.pageBtn.y)
-    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.3, 690)
+    .to(T.s4, T.s4 + 0.6, 1.5, CT.pageBtn.y)
+    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, 690)
     .to(T.installing + 0.2, T.installing + 0.8, 1)
-    .to(T.fresh - 0.2, T.fresh + 0.4, 1.3, freshRect.cy)
+    .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
     .to(T.tapIcon + 0.1, T.tapIcon + 0.6, 1)
-    .to(T.shop + 0.4, T.phoneOut - 0.3, 1.08, 400)
+    .to(T.shop + 0.4, T.phoneOut - 0.3, 1.15, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
   cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
@@ -368,6 +373,14 @@ function layoutWords(c, words, font, maxW) {
   return lines.map((Ln) => ({ items: Ln, w: Ln.length ? Ln[Ln.length - 1].x + Ln[Ln.length - 1].w : 0 }));
 }
 
+// Matn berilgan enga sig'masa — shrift kichrayadi
+function fitFont(c, str, weight, size, maxW, min = 20) {
+  let sz = size;
+  c.font = F(weight, sz);
+  while (sz > min && c.measureText(str).width > maxW) c.font = F(weight, --sz);
+  return F(weight, sz);
+}
+
 function caption(c, t) {
   const steps = SC.steps;
   let i = -1;
@@ -380,28 +393,28 @@ function caption(c, t) {
   const final = i === steps.length - 1;
   c.save();
   c.globalAlpha = 1 - E.in2(out);
-  c.translate(0, -30 * E.in2(out));
+  c.translate(0, -24 * E.in2(out));
   // qadam belgisi
   const pin = E.back(pr(t, t0, t0 + 0.35));
-  const label = final ? (LANG === 'ru' ? '✓ ГОТОВО' : '✓ TAYYOR') : L.step(i + 1);
-  c.font = F(800, 26);
-  const pw = c.measureText(label).width + 44;
+  const label = final ? '✓ TAYYOR' : L.step(i + 1);
+  c.font = F(800, 24);
+  const pw = c.measureText(label).width + 40;
   c.save();
-  c.translate(540, 168);
+  c.translate(540, 290);
   c.scale(pin, pin);
-  shadow(c, 16, 'rgba(217,79,147,0.45)', 6);
+  shadow(c, 14, 'rgba(217,79,147,0.45)', 5);
   const g = c.createLinearGradient(-pw / 2, 0, pw / 2, 0);
   g.addColorStop(0, '#F8A0D0');
   g.addColorStop(1, '#D94F93');
-  fillRR(c, -pw / 2, -24, pw, 48, 24, g);
+  fillRR(c, -pw / 2, -22, pw, 44, 22, g);
   noShadow(c);
-  text(c, label, 0, 9.5, F(800, 26), '#fff', 'center');
+  text(c, label, 0, 8.5, F(800, 24), '#fff', 'center');
   c.restore();
   // matn
-  const font = F(800, 56);
-  const lines = layoutWords(c, wordsOf(txt), font, 980);
-  const lh = 68;
-  const y0 = lines.length > 1 ? 262 : 290;
+  const font = F(800, 46);
+  const lines = layoutWords(c, wordsOf(txt), font, SAFE.x1 - SAFE.x0 + 20);
+  const lh = 56;
+  const y0 = 358;
   let n = 0;
   lines.forEach((Ln, li) => {
     const lx = 540 - Ln.w / 2;
@@ -411,8 +424,8 @@ function caption(c, t) {
       if (p <= 0) continue;
       c.save();
       c.globalAlpha *= p;
-      c.filter = p < 1 ? `blur(${(1 - p) * 10}px)` : 'none';
-      text(c, it.s, lx + it.x, y0 + li * lh + (1 - p) * 26, font, it.hl ? C.accent : C.plum);
+      c.filter = p < 1 ? `blur(${(1 - p) * 9}px)` : 'none';
+      text(c, it.s, lx + it.x, y0 + li * lh + (1 - p) * 22, font, it.hl ? C.accent : C.plum);
       c.restore();
     }
   });
@@ -420,60 +433,50 @@ function caption(c, t) {
   const hp = E.out3(pr(t, t0 + 0.5, t0 + 0.9));
   if (hp > 0) {
     c.globalAlpha *= hp;
-    c.font = F(600, 30);
-    text(c, hint, 540, y0 + lines.length * lh - 6 + (1 - hp) * 14, F(600, 30), C.muted, 'center');
+    const hf = fitFont(c, hint, 600, 26, SAFE.x1 - SAFE.x0);
+    text(c, hint, 540, y0 + (lines.length - 1) * lh + 44 + (1 - hp) * 12, hf, C.muted, 'center');
   }
   c.restore();
 }
 
-function header(c, t) {
-  const a = E.out3(pr(t, 2.15, 2.6)) * (1 - pr(t, SC.T.phoneOut, SC.T.phoneOut + 0.3));
-  if (a <= 0) return;
+// Logo ramkasiz (shaffof fonli chizma + yozuv), orqasida yumshoq oq nur
+function logoAt(c, cx, cy, size, alpha) {
+  if (size <= 0 || alpha <= 0) return;
   c.save();
-  c.globalAlpha = a;
-  text(c, 'Tayyor & Sweet', 112, 96, F(700, 32), C.plum);
-  c.font = F(700, 28);
-  const chip = L.chip[DEVICE];
-  const cw = c.measureText(chip).width + 40;
-  shadow(c, 12, 'rgba(74,36,68,0.12)', 4);
-  fillRR(c, 1020 - cw, 62, cw, 52, 26, '#fff');
-  noShadow(c);
-  text(c, chip, 1020 - cw / 2, 98, F(700, 28), C.plum, 'center');
+  c.globalAlpha = alpha;
+  const rg = c.createRadialGradient(cx, cy, size * 0.1, cx, cy, size * 0.75);
+  rg.addColorStop(0, 'rgba(255,255,255,0.85)');
+  rg.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = rg;
+  c.fillRect(cx - size, cy - size, size * 2, size * 2);
+  c.drawImage(IMG.logoClean, cx - size / 2, cy - size / 2, size, size);
   c.restore();
 }
 
-// Logo: intro'da markazda, keyin sarlavhaga, outro'da yana markazga
+const LOGO_Y = 680;
 function logo(c, t) {
   const T = SC.T;
-  const big = { x: 540, y: 690, r: 170 };
-  const small = { x: 76, y: 88, r: 30 };
-  let p = E.io3(pr(t, 1.9, 2.45));
-  if (t > T.phoneOut) p = 1 - E.io3(pr(t, T.phoneOut + 0.1, T.phoneOut + 0.7));
-  const pop = t < 1 ? E.back(pr(t, 0.05, 0.55)) : 1;
-  const x = lerp(big.x, small.x, p), y = lerp(big.y, small.y, p), r = lerp(big.r, small.r, p) * pop;
-  if (r <= 0) return;
-  c.save();
-  shadow(c, lerp(50, 10, p), 'rgba(217,79,147,0.35)', lerp(18, 3, p));
-  c.fillStyle = '#fff';
-  c.beginPath();
-  c.arc(x, y, r + lerp(10, 3, p), 0, Math.PI * 2);
-  c.fill();
-  noShadow(c);
-  circleImg(c, IMG.logo, x, y, r);
-  c.restore();
+  if (t < 2.4) {
+    const pop = E.back(pr(t, 0.05, 0.6));
+    const out = E.in2(pr(t, 1.85, 2.3));
+    logoAt(c, 540, LOGO_Y - 60 * out, 340 * pop * (1 - 0.15 * out), 1 - out);
+  } else if (t > T.phoneOut + 0.3) {
+    const q = E.back(pr(t, T.phoneOut + 0.35, T.phoneOut + 0.9));
+    logoAt(c, 540, LOGO_Y, 340 * q, clamp(q * 1.5));
+  }
 }
 
 function intro(c, t) {
-  const T = SC.T;
   const out = E.in2(pr(t, 1.85, 2.3));
   if (out >= 1) return;
   c.save();
   c.globalAlpha = 1 - out;
   c.translate(0, -60 * out);
   const [l1, l2] = L.intro[DEVICE];
+  const maxW = SAFE.x1 - SAFE.x0;
   const items = [
-    [l1, F(800, 92), C.accent, 1050],
-    [l2, F(800, 92), C.plum, 1152],
+    [l1, fitFont(c, l1, 800, 84, maxW), C.accent, 1045],
+    [l2, fitFont(c, l2, 800, 84, maxW), C.plum, 1138],
   ];
   items.forEach(([s, font, col, y], i) => {
     const p = E.out3(pr(t, 0.35 + i * 0.14, 0.8 + i * 0.14));
@@ -486,33 +489,35 @@ function intro(c, t) {
   });
   const sp = E.back(pr(t, 0.95, 1.35));
   if (sp > 0) {
-    c.font = F(700, 40);
-    const w = c.measureText(L.intro_sub).width + 64;
+    c.font = F(700, 38);
+    const w = c.measureText(L.intro_sub).width + 60;
     c.save();
-    c.translate(540, 1250);
+    c.translate(540, 1238);
     c.scale(sp, sp);
-    fillRR(c, -w / 2, -36, w, 72, 36, '#fff');
-    text(c, L.intro_sub, 0, 14, F(700, 40), C.accent, 'center');
+    shadow(c, 16, 'rgba(217,79,147,0.25)', 6);
+    fillRR(c, -w / 2, -34, w, 68, 34, '#fff');
+    noShadow(c);
+    text(c, L.intro_sub, 0, 13, F(700, 38), C.accent, 'center');
     c.restore();
   }
   floaters(c, t, 0.2);
   c.restore();
 }
 
-// Logo atrofida suzib yuruvchi shirinliklar
+// Logo atrofida suzib yuruvchi shirinliklar (xavfsiz hudud ichida)
 function floaters(c, t, t0) {
   const r = rng(3);
   ['🍰', '🧁', '🎂', '🥟', '🍩', '🍪'].forEach((e, i) => {
     const a = (i / 6) * Math.PI * 2 + t * 0.25;
-    const rad = 320 + 24 * Math.sin(t * 1.3 + i);
+    const rad = 300 + 20 * Math.sin(t * 1.3 + i);
     const p = E.back(pr(t, t0 + i * 0.06, t0 + 0.4 + i * 0.06));
     if (p <= 0) return;
     c.save();
     c.globalAlpha *= 0.9;
-    c.font = `${Math.round(70 * p)}px "Noto Color Emoji"`;
+    c.font = `${Math.round(62 * p)}px "Noto Color Emoji"`;
     c.textAlign = 'center';
     c.textBaseline = 'middle';
-    c.fillText(e, 540 + Math.cos(a) * rad * 1.2, 690 + Math.sin(a) * rad * 0.68 + (r() - 0.5) * 20);
+    c.fillText(e, 540 + Math.cos(a) * rad * 1.15, LOGO_Y + Math.sin(a) * rad * 0.78 + (r() - 0.5) * 12);
     c.restore();
   });
 }
@@ -523,7 +528,8 @@ function outro(c, t) {
   if (t < p0) return;
   floaters(c, t, p0 + 0.3);
   const [l1, l2] = L.outro;
-  [[l1, F(800, 80), C.plum, 1060], [l2, F(600, 40), C.muted, 1140]].forEach(([s, font, col, y], i) => {
+  const maxW = SAFE.x1 - SAFE.x0;
+  [[l1, fitFont(c, l1, 800, 74, maxW), C.plum, 1050], [l2, fitFont(c, l2, 600, 38, maxW), C.muted, 1122]].forEach(([s, font, col, y], i) => {
     const p = E.out3(pr(t, p0 + 0.15 + i * 0.18, p0 + 0.6 + i * 0.18));
     if (p <= 0) return;
     c.save();
@@ -532,22 +538,6 @@ function outro(c, t) {
     text(c, s, 540, y + (1 - p) * 30, font, col, 'center');
     c.restore();
   });
-  const bp = E.back(pr(t, p0 + 0.6, p0 + 1.0));
-  if (bp > 0) {
-    c.font = F(700, 36);
-    const w = c.measureText('Tayyor & Sweet').width + 70;
-    c.save();
-    c.translate(540, 1260);
-    c.scale(bp, bp);
-    shadow(c, 20, 'rgba(217,79,147,0.45)', 8);
-    const g = c.createLinearGradient(-w / 2, 0, w / 2, 0);
-    g.addColorStop(0, '#F8A0D0');
-    g.addColorStop(1, '#D94F93');
-    fillRR(c, -w / 2, -38, w, 76, 38, g);
-    noShadow(c);
-    text(c, 'Tayyor & Sweet', 0, 13, F(700, 36), '#fff', 'center');
-    c.restore();
-  }
 }
 
 // ---------- Telefon ----------
@@ -560,28 +550,33 @@ function phoneOffset(t) {
 
 function drawPhone(c, t, camS) {
   const ios = OS === 'ios';
-  const R = ios ? 98 : 70;
+  const f = SCR_W / 656;
+  const R = (ios ? 98 : 70) * f;
   c.save();
-  shadow(c, 60, 'rgba(74,36,68,0.28)', 30);
+  shadow(c, 44, 'rgba(74,36,68,0.28)', 20);
   fillRR(c, PHONE.x, PHONE.y, PHONE.w, PHONE.h, R, ios ? '#1C1C1E' : '#26272B');
   noShadow(c);
   // yon tugmalar
   c.fillStyle = ios ? '#2C2C2E' : '#323338';
+  const side = (x, y, h) => {
+    rr(c, x, PHONE.y + y * f, 5, h * f, 2.5);
+    c.fill();
+  };
   if (ios) {
-    rr(c, PHONE.x - 5, PHONE.y + 250, 6, 60, 3); c.fill();
-    rr(c, PHONE.x - 5, PHONE.y + 340, 6, 100, 3); c.fill();
-    rr(c, PHONE.x - 5, PHONE.y + 460, 6, 100, 3); c.fill();
-    rr(c, PHONE.x + PHONE.w - 1, PHONE.y + 360, 6, 150, 3); c.fill();
+    side(PHONE.x - 4, 250, 60);
+    side(PHONE.x - 4, 340, 100);
+    side(PHONE.x - 4, 460, 100);
+    side(PHONE.x + PHONE.w - 1, 360, 150);
   } else {
-    rr(c, PHONE.x + PHONE.w - 1, PHONE.y + 300, 6, 160, 3); c.fill();
-    rr(c, PHONE.x + PHONE.w - 1, PHONE.y + 500, 6, 90, 3); c.fill();
+    side(PHONE.x + PHONE.w - 1, 300, 160);
+    side(PHONE.x + PHONE.w - 1, 500, 90);
   }
   c.strokeStyle = 'rgba(255,255,255,0.12)';
-  c.lineWidth = 3;
-  rr(c, PHONE.x + 3, PHONE.y + 3, PHONE.w - 6, PHONE.h - 6, R - 3);
+  c.lineWidth = 2;
+  rr(c, PHONE.x + 2, PHONE.y + 2, PHONE.w - 4, PHONE.h - 4, R - 2);
   c.stroke();
   // ekran
-  rr(c, SCR.x, SCR.y, SCR.w, SCR.h, ios ? 82 : 58);
+  rr(c, SCR.x, SCR.y, SCR.w, SCR.h, (ios ? 82 : 58) * f);
   c.clip();
   c.translate(SCR.x, SCR.y);
   c.scale(K, K);
@@ -602,10 +597,10 @@ function finger(c, t, toCanvas) {
     c.strokeStyle = `rgba(217,79,147,${0.55 * (1 - q)})`;
     c.lineWidth = 6 * (1 - q) + 1;
     c.beginPath();
-    c.arc(p.x, p.y, 40 + 70 * E.out3(q), 0, Math.PI * 2);
+    c.arc(p.x, p.y, 30 + 55 * E.out3(q), 0, Math.PI * 2);
     c.stroke();
   }
-  const r = 40 - 8 * f.press;
+  const r = 30 - 6 * f.press;
   shadow(c, 18, 'rgba(74,36,68,0.35)', 6);
   c.fillStyle = `rgba(255,255,255,${0.62 + 0.2 * f.press})`;
   c.beginPath();
@@ -621,10 +616,10 @@ function finger(c, t, toCanvas) {
   c.fill();
   if (f.hold >= 0 && f.hold <= 1) {
     c.strokeStyle = C.accent;
-    c.lineWidth = 8;
+    c.lineWidth = 6;
     c.lineCap = 'round';
     c.beginPath();
-    c.arc(p.x, p.y, 56, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f.hold);
+    c.arc(p.x, p.y, 43, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f.hold);
     c.stroke();
   }
   c.restore();
@@ -638,7 +633,7 @@ function sparkles(c, t, toCanvas) {
   const r = rng(11);
   c.save();
   for (let i = 0; i < 14; i++) {
-    const a = r() * Math.PI * 2, sp = 90 + r() * 120, size = 10 + r() * 14;
+    const a = r() * Math.PI * 2, sp = 70 + r() * 100, size = 8 + r() * 12;
     const q = pr(age, r() * 0.15, 0.9 + r() * 0.3);
     if (q <= 0 || q >= 1) continue;
     const d = sp * E.out3(q);
@@ -666,7 +661,7 @@ function confetti(c, t) {
   for (let i = 0; i < 110; i++) {
     const side = i % 2 ? 1 : -1;
     const x0 = 540 + side * (120 + r() * 120);
-    const y0 = 760;
+    const y0 = 700;
     const vx = side * (150 + r() * 520) * (r() > 0.25 ? 1 : -0.4);
     const vy = -(900 + r() * 900);
     const x = x0 + vx * age;
@@ -686,34 +681,44 @@ function confetti(c, t) {
 }
 
 // ---------- Kadr ----------
+let layer = null;
 export function drawFrame(c, t) {
   c.save();
   background(c, t);
   intro(c, t);
   outro(c, t);
-  header(c, t);
   caption(c, t);
   const off = phoneOffset(t);
   const cm = cam.at(t);
   const toCanvas = (x, y) => ({ x: ANCHOR.x + (x - ANCHOR.x) * cm.s, y: ANCHOR.y + (y - cm.fy) * cm.s + off });
   if (off < 1600) {
-    c.save();
-    c.beginPath();
-    c.rect(0, CLIP_TOP, W, H - CLIP_TOP);
-    c.clip();
-    c.translate(0, off);
-    c.translate(ANCHOR.x, ANCHOR.y);
-    c.scale(cm.s, cm.s);
-    c.translate(-ANCHOR.x, -cm.fy);
-    drawPhone(c, t, cm.s);
-    c.restore();
-    // yuqori chegara: telefon matn ostida yumshoq yo'qoladi
-    if (cm.s > 1.01) {
-      const g = c.createLinearGradient(0, CLIP_TOP, 0, CLIP_TOP + 46);
-      g.addColorStop(0, 'rgba(255,240,247,1)');
-      g.addColorStop(1, 'rgba(255,240,247,0)');
-      c.fillStyle = g;
-      c.fillRect(0, CLIP_TOP, W, 46);
+    // zum kuchayishi bilan oyna cheti so'nadi (s=1 da telefon to'liq, chegarasiz)
+    const fz = clamp((cm.s - 1) / 0.15);
+    const lc = fz > 0 ? layerCtx(c) : c;
+    lc.save();
+    lc.translate(0, off);
+    lc.translate(ANCHOR.x, ANCHOR.y);
+    lc.scale(cm.s, cm.s);
+    lc.translate(-ANCHOR.x, -cm.fy);
+    drawPhone(lc, t, cm.s);
+    lc.restore();
+    if (fz > 0) {
+      const e = `rgba(0,0,0,${1 - fz})`;
+      const g = lc.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, e);
+      g.addColorStop(VIEW.y0 / H, e);
+      g.addColorStop((VIEW.y0 + VIEW.fade) / H, '#000');
+      g.addColorStop((VIEW.y1 - VIEW.fade) / H, '#000');
+      g.addColorStop(VIEW.y1 / H, e);
+      g.addColorStop(1, e);
+      lc.globalCompositeOperation = 'destination-in';
+      lc.fillStyle = g;
+      lc.fillRect(0, 0, W, H);
+      lc.globalCompositeOperation = 'source-over';
+      c.save();
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.drawImage(layer, 0, 0);
+      c.restore();
     }
     sparkles(c, t, toCanvas);
     finger(c, t, toCanvas);
@@ -723,20 +728,36 @@ export function drawFrame(c, t) {
   c.restore();
 }
 
+// Asosiy kanvas bilan bir xil o'lcham va masshtabdagi yordamchi kanvas
+function layerCtx(c) {
+  const cv = c.canvas;
+  if (!layer || layer.width !== cv.width || layer.height !== cv.height) {
+    layer = document.createElement('canvas');
+    layer.width = cv.width;
+    layer.height = cv.height;
+  }
+  const lc = layer.getContext('2d');
+  lc.setTransform(1, 0, 0, 1, 0, 0);
+  lc.clearRect(0, 0, layer.width, layer.height);
+  lc.setTransform(c.getTransform());
+  return lc;
+}
+
 export async function init() {
   await loadImages({
     logo: '/miniapp/public/images/logo.png',
     icon: '/miniapp/public/icons/icon-512.png',
     welcome: '/miniapp/public/og.jpg',
-    pageIos: `/video/assets/shots/ilova-ios-${LANG}.png`,
-    pageAnd: `/video/assets/shots/ilova-android-${LANG}.png`,
-    shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-${LANG}.png`,
+    logoClean: '/video/assets/logo-clean.png',
+    pageIos: '/video/assets/shots/ilova-ios-uz.png',
+    pageAnd: '/video/assets/shots/ilova-android-uz.png',
+    shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-uz.png`,
   });
   await document.fonts.ready;
   const layout = await fetch('/video/assets/shots/layout.json').then((r) => r.json());
   const c = document.getElementById('c').getContext('2d');
   const tl = UI.tgLayout(c, OS, L.tg);
-  const b = layout[`ilova-android-${LANG}`];
+  const b = layout['ilova-android-uz'];
   const pageBtn = { x: b.x, y: b.y, w: b.width, h: b.height, cx: b.x + b.width / 2, cy: b.y + b.height / 2 };
   SC = DEVICE === 'iphone' ? buildIphone(tl) : buildSamsung(tl, pageBtn);
   // qadam almashganda yumshoq "whoosh"
@@ -746,5 +767,5 @@ export async function init() {
   cue(SC.T.phoneOut, 'whoosh');
   cue(SC.T.phoneOut + 0.6, 'outro');
   cues.sort((a, b) => a.t - b.t);
-  return { dur: SC.T.dur, cues, device: DEVICE, lang: LANG };
+  return { dur: SC.T.dur, cues, device: DEVICE };
 }

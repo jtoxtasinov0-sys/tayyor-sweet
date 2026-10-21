@@ -154,9 +154,8 @@ async function guideVideo(ctx) {
   const L = t(lang);
   const ios = ctx.match[1] === 'ios';
   await ctx.answerCbQuery().catch(() => {});
-  // Rus tilidagi video bo'lmasa — o'zbekchasi; serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
-  const names = [`ilova-${ios ? 'iphone' : 'samsung'}-${lang}.mp4`, `ilova-${ios ? 'iphone' : 'samsung'}-uz.mp4`];
-  const name = names.find((n) => videoIds.has(n) || fs.existsSync(path.join(config.videoDir, n))) || names[0];
+  // Video faqat o'zbekcha (izoh matni foydalanuvchi tilida); serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
+  const name = `ilova-${ios ? 'iphone' : 'samsung'}-uz.mp4`;
   const file = path.join(config.videoDir, name);
   const source = videoIds.get(name) || (fs.existsSync(file) ? { source: file } : `${config.miniappUrl}/video/${name}`);
   // Telegram chatdagi kichik rasm (bo'lmasa video birinchi kadri — bo'sh fon — chiqadi)

@@ -10,13 +10,9 @@ const UA = {
 // [nom, platforma, yo'l, en, bo'y, standalone, til]
 const shots = [
   ['ilova-ios-uz', 'ios', '/ilova', 390, 700, false, 'uz'],
-  ['ilova-ios-ru', 'ios', '/ilova?lang=ru', 390, 700, false, 'ru'],
   ['ilova-android-uz', 'android', '/ilova', 384, 700, false, 'uz'],
-  ['ilova-android-ru', 'android', '/ilova?lang=ru', 384, 700, false, 'ru'],
   ['shop-ios-uz', 'ios', '/', 390, 800, true, 'uz'],
-  ['shop-ios-ru', 'ios', '/', 390, 800, true, 'ru'],
   ['shop-android-uz', 'android', '/', 384, 800, true, 'uz'],
-  ['shop-android-ru', 'android', '/', 384, 800, true, 'ru'],
 ];
 await mkdir('assets/shots', { recursive: true });
 const browser = await chromium.launch();
@@ -43,6 +39,9 @@ for (const [name, os, path, width, height, standalone, lang] of shots) {
   const page = await ctx.newPage();
   await page.goto(base + path, { waitUntil: 'networkidle' }).catch(() => {});
   await page.waitForTimeout(1500);
+  // Video faqat o'zbekcha: sahifadagi boshqa tillardagi mayda izohlar rasmda ko'rinmaydi
+  await page.addStyleTag({ content: '.inst-steps small { display: none !important; }' });
+  await page.waitForTimeout(100);
   await page.screenshot({ path: `assets/shots/${name}.png` });
   const btn = await page.$('.inst-big');
   if (btn) layout[name] = await btn.boundingBox();

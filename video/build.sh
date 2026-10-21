@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Qo'llanma videolarini to'liq yig'ish: kadrlar → ovoz → ovoz balandligini me'yorlash → mp4 + muqova rasmlari.
-# Natija: miniapp/public/video/ilova-<iphone|samsung>-<uz|ru>.mp4, .jpg (sayt muqovasi), -thumb.jpg (Telegram)
+# Natija: miniapp/public/video/ilova-<iphone|samsung>-uz.mp4, .jpg (sayt muqovasi), -thumb.jpg (Telegram)
 # Ishlatish: ./build.sh [posters]   — "posters" faqat muqovalarni chizadi (sahifa rasmlarini olishdan oldin kerak)
 set -uo pipefail
 cd "$(dirname "$0")"
@@ -11,12 +11,12 @@ mkdir -p "$OUT" "$TMP"
 one() {
   local D=$1 LG=$2 N=ilova-$1-$2
   # muqova: intro kadri (logo + sarlavha)
-  node render.mjs --device $D --lang $LG --from 1.6 --to 1.61 --fps 100 --out "$TMP/$N-poster" >/dev/null
+  node render.mjs --device $D --from 1.6 --to 1.61 --fps 100 --out "$TMP/$N-poster" >/dev/null
   ffmpeg -v error -y -i "$TMP/$N-poster/00000.jpg" -vf scale=720:-2 -q:v 4 "$OUT/$N.jpg"
   ffmpeg -v error -y -i "$TMP/$N-poster/00000.jpg" -vf scale=180:-2 -q:v 5 "$OUT/$N-thumb.jpg"
   [ "$POSTERS" = 1 ] && return
 
-  node render.mjs --device $D --lang $LG --mp4 "$TMP/$N-video.mp4" --cues "$TMP/$N.json" >/dev/null
+  node render.mjs --device $D --mp4 "$TMP/$N-video.mp4" --cues "$TMP/$N.json" >/dev/null
   python3 audio.py "$TMP/$N.json" "$TMP/$N.wav" >/dev/null
   # ovoz balandligi: -15 LUFS, eng baland nuqta -1.5 dBTP (ikki bosqichli loudnorm)
   local M AF
@@ -31,8 +31,6 @@ one() {
 
 POSTERS=0
 [ "${1:-}" = posters ] && POSTERS=1
-# 4 ta video parallel (har biri alohida Chromium)
-for D in iphone samsung; do
-  for LG in uz ru; do one $D $LG & done
-done
+# Video faqat o'zbekcha; ikkalasi parallel (har biri alohida Chromium)
+for D in iphone samsung; do one $D uz & done
 wait
