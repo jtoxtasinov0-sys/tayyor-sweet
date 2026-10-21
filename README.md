@@ -8,6 +8,7 @@ tayyor_sweet/
 ├── backend/        Node.js: Telegram bot (Telegraf) + API (Express) + PostgreSQL (Neon)
 ├── miniapp/        Next.js (App Router) + Zustand: mini ilova (/) va admin panel (/admin)
 ├── rasmlar/        Mahsulot rasmlari — "Papkadan yuklash" shu yerdan o'qiydi (nusxasi: miniapp/public/rasmlar)
+├── video/          "Ilovani o'rnatish" video qo'llanmalarini yasovchi kod (kanvas + ovoz sintezi)
 ├── 1_setup.bat     Paketlarni o'rnatish + bazaga 24 ta mahsulotni yuklash
 ├── 2_start.bat     Backend va mini ilovani ishga tushirish
 ├── 3_tunnel.bat    Telefonda sinash uchun https tunnel (cloudflared)
@@ -70,6 +71,7 @@ zaxira ma'lumot bilan yig'iladi: katalog, narxlar va rasmlar ko'rinadi (buyurtma
 | `/narxlar` | narxlar jadvali (bazadan) |
 | `/buyurtmalar` | oxirgi buyurtmalar va holati |
 | `/til` | tilni o'zgartirish |
+| `/ilova` | ilovani telefonga o'rnatish: link + iPhone / Samsung video qo'llanma (pastki menyuda ham bor) |
 | `/admin parol` | admin huquqini olish (5 xato → 15 daqiqa blok) |
 | `/panel` | statistika + tekshirilishi kerak bo'lgan buyurtmalar (tugmalar bilan) |
 
@@ -79,6 +81,31 @@ mijozga Telegram xabar bormaydi, telefon orqali bog'laning. O'chirish: Render'da
 
 Buyurtma holatlari: **To'lov kutilmoqda → Chek yuborildi → Tasdiqlandi → Jo'natildi → Yetkazildi** (yoki Bekor qilindi).
 Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzatish havolasi bilan).
+
+## Ilovani telefonga o'rnatish
+
+Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegram'siz ochiladi (mehmon rejimida buyurtma).
+
+- Botda **📲 Ilovani o'rnatish** tugmasi (`/ilova`) → link `…/ilova` + iPhone / Samsung video tugmalari.
+- `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,
+  Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
+- Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).
+- Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
+- Videolar: `miniapp/public/video/ilova-<iphone|samsung>-<uz|ru>.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
+  Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
+
+**Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
+
+```
+npm i                                  # playwright (Chromium) o'rnatiladi
+(cd ../miniapp && npm run build && npx next start -p 3100)   # alohida oynada
+node shots.mjs                         # sahifa rasmlari (videodagi /ilova va do'kon)
+./build.sh                             # 4 ta video: kadrlar → ovoz → -15 LUFS → mp4
+./preview.sh iphone uz 0 10            # tez tekshiruv: oraliq kadrlari bitta rasmda
+```
+
+Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` da. Ovoz effektlari va fon musiqasi
+`video/audio.py` da kod bilan sintez qilinadi — tashqi fayl va litsenziya talab qilinmaydi. Shrift: Onest (OFL).
 
 ## Admin panel (8 bo'lim)
 

@@ -11,11 +11,13 @@ function registerBotRoutes() {
   bot.command('narxlar', start.prices);
   bot.command('buyurtmalar', start.myOrders);
   bot.command('til', start.askLang);
+  bot.command('ilova', start.install);
   bot.command('admin', adminBot.admin);
   bot.command('panel', adminBot.panel);
   bot.command('id', adminBot.myId);
 
   bot.action(/^lang:(uz|ru)$/, start.chooseLang);
+  bot.action(/^guide:(ios|android)$/, start.guideVideo);
   bot.action(/^ord:(\d+):(confirmed|cancelled|shipped|delivered)$/, adminBot.orderAction);
 
   bot.on('contact', start.contact);
@@ -23,6 +25,7 @@ function registerBotRoutes() {
   bot.hears(start.menuMatchers.orders, start.myOrders);
   bot.hears(start.menuMatchers.contact, start.contactInfo);
   bot.hears(start.menuMatchers.lang, start.askLang);
+  bot.hears(start.menuMatchers.install, start.install);
   bot.on('photo', start.photo);
   bot.on('message', start.start);
 
@@ -35,6 +38,7 @@ const COMMANDS = {
     { command: 'narxlar', description: 'Narxlar jadvali' },
     { command: 'buyurtmalar', description: 'Mening buyurtmalarim' },
     { command: 'til', description: "Tilni o'zgartirish" },
+    { command: 'ilova', description: "Ilovani telefonga o'rnatish" },
     { command: 'id', description: 'Mening Telegram ID raqamim' },
   ],
   ru: [
@@ -42,6 +46,7 @@ const COMMANDS = {
     { command: 'narxlar', description: 'Прайс-лист' },
     { command: 'buyurtmalar', description: 'Мои заказы' },
     { command: 'til', description: 'Сменить язык' },
+    { command: 'ilova', description: 'Установить приложение' },
     { command: 'id', description: 'Мой Telegram ID' },
   ],
 };

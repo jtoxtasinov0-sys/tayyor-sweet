@@ -9,6 +9,10 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/api/:path*', destination: `${backend}/api/:path*` }];
   },
+  // Service worker yangilanishi telefonlarga darhol yetib borishi uchun keshlanmaydi
+  async headers() {
+    return [{ source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache' }] }];
+  },
 };
 
 export default nextConfig;

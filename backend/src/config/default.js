@@ -54,4 +54,6 @@ module.exports = {
   // Render'da server uxlab qolmasligi uchun o'ziga ping. O'chirish: KEEP_ALIVE=0
   keepAlive: !!env.RENDER_EXTERNAL_URL && env.KEEP_ALIVE !== '0',
   rasmlarDir: path.resolve(__dirname, '../..', env.RASMLAR_DIR || '../rasmlar'),
+  // "Ilovani o'rnatish" video qo'llanmalari (mini ilova bilan bitta papkada: miniapp/public/video)
+  videoDir: path.resolve(__dirname, '../../../miniapp/public/video'),
 };

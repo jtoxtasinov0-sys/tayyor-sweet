@@ -22,7 +22,16 @@ function mainKeyboard(lang) {
   if (url && url.startsWith('https://')) rows.push([Markup.button.webApp(L.open_shop, url)]);
   rows.push([L.menu_prices, L.menu_orders]);
   rows.push([L.menu_contact, L.menu_lang]);
+  rows.push([L.menu_install]);
   return Markup.keyboard(rows).resize();
+}
+
+// Ilovani o'rnatish: qaysi telefon uchun video qo'llanma
+function installInline(lang) {
+  const L = t(lang);
+  return Markup.inlineKeyboard([
+    [Markup.button.callback(L.guide_ios, 'guide:ios'), Markup.button.callback(L.guide_android, 'guide:android')],
+  ]);
 }
 
 function openShopInline(lang, path = '') {
@@ -53,4 +62,4 @@ function orderAdminInline(order) {
   return rows.length ? Markup.inlineKeyboard(rows) : undefined;
 }
 
-module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, openShopInline, adminInline, orderAdminInline, webAppUrl };
+module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, openShopInline, installInline, adminInline, orderAdminInline, webAppUrl };

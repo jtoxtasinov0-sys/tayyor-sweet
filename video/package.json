@@ -1,0 +1,13 @@
+{
+  "name": "tayyor-sweet-video",
+  "private": true,
+  "description": "Ilovani o'rnatish video qo'llanmalari (kanvas kadrlar + sintez ovoz)",
+  "type": "module",
+  "scripts": {
+    "shots": "node shots.mjs",
+    "build": "./build.sh"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

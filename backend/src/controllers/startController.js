@@ -1,4 +1,6 @@
 // Mijoz uchun bot logikasi: /start, til, telefon, menyu, narxlar, buyurtmalar
+const fs = require('fs');
+const path = require('path');
 const config = require('../config/default');
 const User = require('../models/User');
 const Order = require('../models/Order');
@@ -109,12 +111,54 @@ async function contactInfo(ctx) {
   });
 }
 
+// Ilovani telefonga o'rnatish (PWA): link + iPhone / Samsung video qo'llanma
+const installLink = (lang) => (config.miniappUrl ? `${config.miniappUrl}/ilova${lang === 'ru' ? '?lang=ru' : ''}` : '');
+
+async function install(ctx) {
+  const lang = langOf(ctx);
+  const link = installLink(lang);
+  if (!link) return ctx.reply(t(lang).main_menu, kb.openShopInline(lang));
+  return ctx.reply(t(lang).install(link), {
+    parse_mode: 'HTML',
+    link_preview_options: { is_disabled: true },
+    ...kb.installInline(lang),
+  });
+}
+
+// Telegram file_id: video serverdan bir marta yuklanadi, keyin qayta yuborilmaydi
+const videoIds = new Map();
+
+async function guideVideo(ctx) {
+  const lang = langOf(ctx);
+  const L = t(lang);
+  const ios = ctx.match[1] === 'ios';
+  await ctx.answerCbQuery().catch(() => {});
+  // Rus tilidagi video bo'lmasa — o'zbekchasi; serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
+  const names = [`ilova-${ios ? 'iphone' : 'samsung'}-${lang}.mp4`, `ilova-${ios ? 'iphone' : 'samsung'}-uz.mp4`];
+  const name = names.find((n) => videoIds.has(n) || fs.existsSync(path.join(config.videoDir, n))) || names[0];
+  const file = path.join(config.videoDir, name);
+  const source = videoIds.get(name) || (fs.existsSync(file) ? { source: file } : `${config.miniappUrl}/video/${name}`);
+  // Telegram chatdagi kichik rasm (bo'lmasa video birinchi kadri — bo'sh fon — chiqadi)
+  const thumb = file.replace(/\.mp4$/, '-thumb.jpg');
+  await ctx.sendChatAction('upload_video').catch(() => {});
+  const msg = await ctx.replyWithVideo(source, {
+    caption: (ios ? L.guide_caption_ios : L.guide_caption_android)(installLink(lang)),
+    parse_mode: 'HTML',
+    width: 1080,
+    height: 1920,
+    supports_streaming: true,
+    ...(source.source && fs.existsSync(thumb) ? { thumbnail: { source: thumb } } : {}),
+  });
+  if (msg.video?.file_id) videoIds.set(name, msg.video.file_id);
+}
+
 // Pastki menyu matnli tugmalari (ikkala tilda)
 const menuMatchers = {
   prices: [T.uz.menu_prices, T.ru.menu_prices],
   orders: [T.uz.menu_orders, T.ru.menu_orders],
   contact: [T.uz.menu_contact, T.ru.menu_contact],
   lang: [T.uz.menu_lang, T.ru.menu_lang],
+  install: [T.uz.menu_install, T.ru.menu_install],
 };
 
 async function photo(ctx) {
@@ -122,4 +166,4 @@ async function photo(ctx) {
   return ctx.reply(t(langOf(ctx)).send_receipt_hint, kb.openShopInline(langOf(ctx)));
 }
 
-module.exports = { start, greet, chooseLang, askLang, contact, prices, myOrders, contactInfo, menuMatchers, buildPriceList, photo };
+module.exports = { start, greet, chooseLang, askLang, contact, prices, myOrders, contactInfo, install, guideVideo, menuMatchers, buildPriceList, photo };

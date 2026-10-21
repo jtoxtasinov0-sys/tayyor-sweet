@@ -17,8 +17,11 @@ export function Profile() {
   const shop = useApp((s) => s.data?.shop);
   const lang_ = lang === 'ru' ? 'ru' : 'uz';
   const [stats, setStats] = useState({ count: 0, sum: 0 });
+  // O'rnatilgan ilova ichida "o'rnatish" bandi kerak emas
+  const [standalone, setStandalone] = useState(false);
 
   useEffect(() => {
+    setStandalone(window.matchMedia('(display-mode: standalone)').matches);
     api
       .orders()
       .then((o) => setStats({ count: o.length, sum: o.filter((x) => x.status !== 'cancelled').reduce((s, x) => s + x.total, 0) }))
@@ -68,6 +71,12 @@ export function Profile() {
         {shop?.instagram && (
           <button onClick={() => openLink(`https://instagram.com/${shop.instagram!.replace('@', '')}`)}>
             <span className="ic">📸</span><span>{t.instagram}</span><span className="val">{shop.instagram}</span>
+          </button>
+        )}
+        {!standalone && (
+          // Telegram ichida openLink tashqi brauzerni (Safari/Chrome) ochadi — o'rnatish o'sha yerda bo'ladi
+          <button onClick={() => openLink(`${window.location.origin}/ilova?lang=${lang_}`)}>
+            <span className="ic">📲</span><span>{t.install_app}</span><span className="val">›</span>
           </button>
         )}
         {me?.is_admin && (

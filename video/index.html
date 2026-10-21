@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ilova qo'llanma video</title>
+<style>
+  @font-face { font-family: Onest; font-weight: 500; src: url(assets/fonts/Onest-500.ttf); }
+  @font-face { font-family: Onest; font-weight: 600; src: url(assets/fonts/Onest-600.ttf); }
+  @font-face { font-family: Onest; font-weight: 700; src: url(assets/fonts/Onest-700.ttf); }
+  @font-face { font-family: Onest; font-weight: 800; src: url(assets/fonts/Onest-800.ttf); }
+  @font-face { font-family: "Noto Sans KR Sub"; font-weight: 400 600; src: url(assets/fonts/NotoSansKR-sub-500.ttf); }
+  @font-face { font-family: "Noto Sans KR Sub"; font-weight: 700 900; src: url(assets/fonts/NotoSansKR-sub-700.ttf); }
+  html, body { margin: 0; background: #222; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<!-- Shriftlarni oldindan yuklash (kanvas ularni o'zi so'ramaydi) -->
+<div style="position:absolute;opacity:0;pointer-events:none">
+  <span style="font:500 10px Onest">a</span><span style="font:600 10px Onest">a</span>
+  <span style="font:700 10px Onest">a</span><span style="font:800 10px Onest">a</span>
+  <span style="font:500 10px 'Noto Sans KR Sub'">복</span><span style="font:700 10px 'Noto Sans KR Sub'">복</span>
+  <span style="font:400 10px Inter">a</span><span style="font:600 10px Inter">a</span>
+  <span style="font:10px 'Noto Color Emoji'">🍰</span>
+</div>
+<script type="module">
+  import { init, drawFrame } from './src/main.js';
+  const q = new URLSearchParams(location.search);
+  const scale = +(q.get('scale') || 1);
+  const cv = document.getElementById('c');
+  cv.width = Math.round(1080 * scale);
+  cv.height = Math.round(1920 * scale);
+  const c = cv.getContext('2d');
+  window.ready = (async () => {
+    await Promise.all(['500', '600', '700', '800'].map((w) => document.fonts.load(`${w} 20px Onest`)));
+    await document.fonts.load('500 20px "Noto Sans KR Sub"');
+    await document.fonts.load('700 20px "Noto Sans KR Sub"');
+    return init();
+  })();
+  window.frame = (t, q = 0.92) => {
+    c.setTransform(scale, 0, 0, scale, 0, 0);
+    drawFrame(c, t);
+    return cv.toDataURL('image/jpeg', q).slice(23);
+  };
+  window.show = (t) => { c.setTransform(scale, 0, 0, scale, 0, 0); drawFrame(c, t); };
+</script>
+</body>
+</html>
