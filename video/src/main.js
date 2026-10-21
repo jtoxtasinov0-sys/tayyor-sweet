@@ -439,17 +439,13 @@ function caption(c, t) {
   c.restore();
 }
 
-// Logo ramkasiz (shaffof fonli chizma + yozuv), orqasida yumshoq oq nur
+// Logo: dumaloq pushti fonda (oq ramkasiz), ostida yumshoq soya
 function logoAt(c, cx, cy, size, alpha) {
   if (size <= 0 || alpha <= 0) return;
   c.save();
   c.globalAlpha = alpha;
-  const rg = c.createRadialGradient(cx, cy, size * 0.1, cx, cy, size * 0.75);
-  rg.addColorStop(0, 'rgba(255,255,255,0.85)');
-  rg.addColorStop(1, 'rgba(255,255,255,0)');
-  c.fillStyle = rg;
-  c.fillRect(cx - size, cy - size, size * 2, size * 2);
-  c.drawImage(IMG.logoClean, cx - size / 2, cy - size / 2, size, size);
+  shadow(c, size * 0.12, 'rgba(217,79,147,0.35)', size * 0.04);
+  c.drawImage(IMG.logoRound, cx - size / 2, cy - size / 2, size, size);
   c.restore();
 }
 
@@ -459,10 +455,10 @@ function logo(c, t) {
   if (t < 2.4) {
     const pop = E.back(pr(t, 0.05, 0.6));
     const out = E.in2(pr(t, 1.85, 2.3));
-    logoAt(c, 540, LOGO_Y - 60 * out, 340 * pop * (1 - 0.15 * out), 1 - out);
+    logoAt(c, 540, LOGO_Y - 60 * out, 380 * pop * (1 - 0.15 * out), 1 - out);
   } else if (t > T.phoneOut + 0.3) {
     const q = E.back(pr(t, T.phoneOut + 0.35, T.phoneOut + 0.9));
-    logoAt(c, 540, LOGO_Y, 340 * q, clamp(q * 1.5));
+    logoAt(c, 540, LOGO_Y, 380 * q, clamp(q * 1.5));
   }
 }
 
@@ -748,7 +744,7 @@ export async function init() {
     logo: '/miniapp/public/images/logo.png',
     icon: '/miniapp/public/icons/icon-512.png',
     welcome: '/miniapp/public/og.jpg',
-    logoClean: '/video/assets/logo-clean.png',
+    logoRound: '/video/assets/logo-round.png',
     pageIos: '/video/assets/shots/ilova-ios-uz.png',
     pageAnd: '/video/assets/shots/ilova-android-uz.png',
     shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-uz.png`,

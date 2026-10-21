@@ -91,7 +91,8 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
 - Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).
 - Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
-- Videolar (faqat o'zbekcha, Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
+- Videolar (yozuvlar o'zbekcha, telefon interfeysi ruscha — ko'pchilik telefonni rus tilida ishlatadi;
+  Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
   `miniapp/public/video/ilova-<iphone|samsung>-uz.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
   Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
 

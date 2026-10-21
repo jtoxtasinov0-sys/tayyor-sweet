@@ -14,13 +14,13 @@ const T = {
     menu_lang: '🌐 Til',
     menu_install: "📲 Ilovani o'rnatish",
     install: (link) =>
-      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\nDo'kon telefoningiz bosh ekranida bo'ladi — bir bosishda ochiladi.\n\n🔗 ${link}\n\n👆 Linkni <b>bosib turing</b> → «Nusxa olish», keyin <b>Safari</b> (iPhone) yoki <b>Chrome</b> (Samsung) da oching.\n\n🎬 Batafsil — video qo'llanmada 👇`,
+      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\nDo'kon telefoningiz bosh ekranida bo'ladi — bir bosishda ochiladi.\n\n🔗 ${link}\n\n👆 Linkni <b>bosib turing</b> → «Nusxa olish» (ruscha: «Копировать»), keyin <b>Safari</b> (iPhone) yoki <b>Chrome</b> (Samsung) da oching.\n\n🎬 Batafsil — video qo'llanmada 👇`,
     guide_ios: '🍏 iPhone — video',
     guide_android: '🤖 Samsung — video',
     guide_caption_ios: (link) =>
-      `🍏 <b>iPhone'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Nusxa olish»\n2. Safari'ni oching, manzil qatoriga joylang\n3. «⋯» → «Ulashish» → «Bosh ekranga qo'shish»\n4. «Qo'shish» — tayyor! 🎉\n\n🔗 ${link}`,
+      `🍏 <b>iPhone'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Копировать» (Nusxa olish)\n2. Safari'ni oching, manzil qatoriga joylang → «Вставить и перейти»\n3. «⋯» → «Поделиться» (Ulashish) → «На экран «Домой»» (Bosh ekranga qo'shish)\n4. «Добавить» (Qo'shish) — tayyor! 🎉\n\n🔗 ${link}`,
     guide_caption_android: (link) =>
-      `🤖 <b>Samsung'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Nusxa olish»\n2. Chrome'ni oching, manzil qatoriga joylang\n3. «📲 Ilovani o'rnatish» → «O'rnatish»\n4. Bosh ekrandagi belgini bosing — tayyor! 🎉\n\n🔗 ${link}`,
+      `🤖 <b>Samsung'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Копировать» (Nusxa olish)\n2. Chrome'ni oching, manzil qatorini bosing → «Скопированная ссылка»\n3. «📲 Ilovani o'rnatish» → «Установить» (O'rnatish)\n4. Bosh ekrandagi belgini bosing — tayyor! 🎉\n\n🔗 ${link}`,
     main_menu: "Quyidagi tugma orqali do'konni oching 👇",
     no_orders: "Sizda hali buyurtmalar yo'q. Do'konni ochib, birinchi buyurtmangizni bering 🍰",
     your_orders: '📦 <b>Oxirgi buyurtmalaringiz:</b>',

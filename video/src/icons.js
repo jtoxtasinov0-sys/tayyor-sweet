@@ -288,7 +288,7 @@ export function appIcon(c, kind, x, y, s, ios = true) {
     case 'gallery': base(c, x, y, s, grad(c, x, y, s, '#FF7AA2', '#E5375F'), ios); glyph.photos(c, cx, cy, s * 0.9); break;
     case 'settings': base(c, x, y, s, grad(c, x, y, s, '#B5B8BF', '#83868F'), ios); glyph.gear(c, cx, cy, s, '#3a3c42'); break;
     case 'clock': base(c, x, y, s, '#111', ios); glyph.clock(c, cx, cy, s); break;
-    case 'calendar': base(c, x, y, s, '#fff', ios); glyph.calendar(c, cx, cy, s, ios ? 'TUE' : 'TUE'); break;
+    case 'calendar': base(c, x, y, s, '#fff', ios); glyph.calendar(c, cx, cy, s, 'СР'); break;
     case 'weather': base(c, x, y, s, grad(c, x, y, s, '#4AA8F2', '#1B6FD6'), ios); glyph.weather(c, cx, cy, s); break;
     case 'notes': {
       base(c, x, y, s, '#fff', ios);
