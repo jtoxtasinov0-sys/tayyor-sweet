@@ -36,6 +36,8 @@ export interface Product {
   badge: 'hit' | 'new' | 'sale' | null;
   preorder_days: number;
   in_stock: boolean;
+  stock?: number | null;      // omborda qoldiq (null — hisob yuritilmaydi)
+  stock_min?: number;         // faqat admin: "kam qoldi" chegarasi
   active: boolean;
   sort: number;
   source?: string | null;
@@ -113,6 +115,7 @@ export interface Bootstrap {
   products: Product[];
   stories: Story[];
   banners: Banner[];
+  image_files?: Record<string, string>; // rasm id → public/rasmlar/ dagi fayl
 }
 
 export type OrderStatus = 'pending_payment' | 'receipt_sent' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';

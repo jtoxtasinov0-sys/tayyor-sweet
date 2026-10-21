@@ -8,16 +8,17 @@ const { stories, banners } = require('../models/Story');
 const cache = require('../utils/cache');
 const config = require('../config/default');
 
-const publicProduct = ({ source, created_at, ...p }) => p;
+const publicProduct = ({ source, created_at, stock_min, ...p }) => p;
 
 async function bootstrap(req, res) {
   const data = await cache.wrap('bootstrap', 30_000, async () => {
-    const [settings, categories, products, storyList, bannerList] = await Promise.all([
+    const [settings, categories, products, storyList, bannerList, imageFiles] = await Promise.all([
       Setting.all(),
       Category.list(),
       Product.list(),
       stories.list(),
       banners.list(),
+      Image.folderFiles(),
     ]);
     return {
       shop: { ...settings.shop, owner_link: settings.shop?.owner_link || config.ownerLink, bot_username: config.bot.username },
@@ -28,6 +29,7 @@ async function bootstrap(req, res) {
       products: products.map(publicProduct),
       stories: storyList,
       banners: bannerList,
+      image_files: imageFiles,
     };
   });
   res.set('Cache-Control', 'no-store').json(data);

@@ -106,30 +106,33 @@ export function BottomNavigation() {
     return () => clearTimeout(id);
   }, [bump]);
 
-  const items: { id: Tab; label: string; icon: () => React.JSX.Element }[] = [
-    { id: 'home', label: t.home, icon: Icon.home },
-    { id: 'catalog', label: t.catalog, icon: Icon.grid },
-    { id: 'cart', label: t.cart, icon: Icon.bag },
-    { id: 'orders', label: t.orders, icon: Icon.box },
-    { id: 'profile', label: t.profile, icon: Icon.user },
-  ];
+  const go = (id: Tab) => {
+    haptic.select();
+    setTab(id);
+  };
+  const item = (id: Tab, label: string, I: () => React.JSX.Element) => (
+    <button key={id} className={cx('nav-item', tab === id && 'active')} onClick={() => go(id)}>
+      <I />
+      <span>{label}</span>
+    </button>
+  );
+
+  // Suzuvchi panel: chapda 2 ta, o'rtada ko'tarilgan savat tugmasi, o'ngda 2 ta bo'lim
   return (
     <nav className="bottom-nav">
-      {items.map(({ id, label, icon: I }) => (
-        <button
-          key={id}
-          id={id === 'cart' ? 'cart-target' : undefined}
-          className={cx('nav-item', tab === id && 'active', id === 'cart' && anim && 'bump')}
-          onClick={() => {
-            haptic.select();
-            setTab(id);
-          }}
-        >
-          <I />
-          {label}
-          {id === 'cart' && count > 0 && <span className="nav-badge">{count}</span>}
-        </button>
-      ))}
+      {item('home', t.home, Icon.home)}
+      {item('catalog', t.catalog, Icon.grid)}
+      <button
+        id="cart-target"
+        className={cx('nav-cart', tab === 'cart' && 'active', anim && 'bump')}
+        aria-label={t.cart}
+        onClick={() => go('cart')}
+      >
+        <span className="nav-cart-btn"><Icon.bag /></span>
+        {count > 0 && <span className="nav-badge">{count > 99 ? '99+' : count}</span>}
+      </button>
+      {item('orders', t.orders, Icon.box)}
+      {item('profile', t.profile, Icon.user)}
     </nav>
   );
 }

@@ -89,6 +89,7 @@ export function ProductsAdmin() {
               <div className="flags">
                 {!p.active && <span className="badge badge-sale">Yashirin</span>}
                 {!p.in_stock && <span className="badge badge-hit">Tugagan</span>}
+                {p.stock != null && <span className="badge badge-new" title="Omborda">📦 {p.stock}</span>}
                 {p.badge && <span className="badge badge-new">{p.badge.toUpperCase()}</span>}
               </div>
               <div className="b">

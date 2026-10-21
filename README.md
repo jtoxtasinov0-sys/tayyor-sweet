@@ -7,7 +7,7 @@ Ma'lumotlar `tayyor_sweet_telegram_app.html` dan olingan: 24 ta mahsulot, 3 ta k
 tayyor_sweet/
 ├── backend/        Node.js: Telegram bot (Telegraf) + API (Express) + PostgreSQL (Neon)
 ├── miniapp/        Next.js (App Router) + Zustand: mini ilova (/) va admin panel (/admin)
-├── rasmlar/        Mahsulot rasmlari — "Papkadan yuklash" shu yerdan o'qiydi
+├── rasmlar/        Mahsulot rasmlari — "Papkadan yuklash" shu yerdan o'qiydi (nusxasi: miniapp/public/rasmlar)
 ├── 1_setup.bat     Paketlarni o'rnatish + bazaga 24 ta mahsulotni yuklash
 ├── 2_start.bat     Backend va mini ilovani ishga tushirish
 ├── 3_tunnel.bat    Telefonda sinash uchun https tunnel (cloudflared)
@@ -55,6 +55,13 @@ So'ng Render'dagi `MINIAPP_URL` ni Vercel manziliga o'rnating — bot menyu tugm
 
 Mini ilova do'kon ma'lumotlarini Vercel'da keshlaydi (ISR, har 60 soniyada fonda yangilanadi) — backend uyg'onishini kutmasdan darhol ochiladi.
 
+**Rasmlar backendga bog'liq emas.** `rasmlar/` dagi mahsulot rasmlarining nusxasi `miniapp/public/rasmlar/` da turadi —
+brauzer ularni Vercel CDN'dan oladi, backend uxlab qolsa ham ko'rinadi. `rasmlar/` ga yangi rasm qo'shsangiz, nusxasini
+`miniapp/public/rasmlar/` ga ham qo'ying (qo'yilmasa rasm backenddan olinadi). Admin yuklagan rasmlar backenddan keladi.
+
+**Backend ishlamasa.** Build paytida backend javob bermasa, sahifa `miniapp/src/lib/fallback-bootstrap.json` dagi
+zaxira ma'lumot bilan yig'iladi: katalog, narxlar va rasmlar ko'rinadi (buyurtma va admin panel uchun backend kerak).
+
 ## Bot buyruqlari
 
 | Buyruq | Vazifasi |
@@ -73,12 +80,15 @@ mijozga Telegram xabar bormaydi, telefon orqali bog'laning. O'chirish: Render'da
 Buyurtma holatlari: **To'lov kutilmoqda → Chek yuborildi → Tasdiqlandi → Jo'natildi → Yetkazildi** (yoki Bekor qilindi).
 Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzatish havolasi bilan).
 
-## Admin panel (7 bo'lim)
+## Admin panel (8 bo'lim)
 
 1. **Dashboard** — bugungi buyurtmalar, tushum, 14 kunlik grafik, top mahsulotlar
 2. **Buyurtmalar** — filtr, chekni ko'rish, holat, kuryer + trek raqam, mijozga izoh
 3. **Mahsulotlar** — rasm ramkasini sozlash, tezkor o'lcham tugmalari, ranglar, o'lcham jadvali, "📸 Story qilish", papkadan yuklash, narxlar jadvali
-4. **Kategoriyalar**
-5. **Story va bannerlar** (karusel)
-6. **Mijozlar va rassilka**
-7. **Sozlamalar** — do'kon, bank rekvizitlari, yetkazish narxlari, e'lon
+4. **Ombor** — qoldiqlar, kirim / chiqim / sanoq, "kam qoldi" chegarasi, harakatlar tarixi.
+   Buyurtmada qoldiq o'zi kamayadi, bekor qilinsa qaytadi, tugasa mahsulot "Tugagan" bo'ladi, kam qolsa adminga xabar boradi.
+   Hisob yuritilmagan mahsulotlar (masalan, buyurtmaga tayyorlanadigan tortlar) avvalgidek cheklovsiz sotiladi.
+5. **Kategoriyalar**
+6. **Story va bannerlar** (karusel)
+7. **Mijozlar va rassilka**
+8. **Sozlamalar** — do'kon, bank rekvizitlari, yetkazish narxlari, e'lon

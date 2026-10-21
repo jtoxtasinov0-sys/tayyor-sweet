@@ -1,7 +1,7 @@
 'use client';
 // Admin panel uchun umumiy qismlar: token, so'rovlar, drawer, maydonlar, rasm yuklash
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { adminRequest, ApiError, API_URL } from '@/lib/api';
+import { adminRequest, ApiError, imageUrl } from '@/lib/api';
 import { compressImage } from '@/lib/utils';
 import { Icon } from '@/components/ui';
 
@@ -61,7 +61,7 @@ export function useLoad<T>(path: string | null, deps: unknown[] = []) {
   return { data, setData, loading, reload };
 }
 
-export const imgSrc = (id?: number | null) => (id ? `${API_URL}/api/images/${id}` : '/images/logo.png');
+export const imgSrc = imageUrl;
 
 export function Drawer({ title, onClose, children, footer }: { title: ReactNode; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
   useEffect(() => {

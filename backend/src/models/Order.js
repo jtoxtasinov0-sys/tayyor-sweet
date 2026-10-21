@@ -2,24 +2,23 @@
 const db = require('../database/connection');
 const { orderNumber } = require('../utils/format');
 
-async function create(d) {
-  // Raqam takrorlanib qolsa, qayta urinamiz
+// client — tranzaksiya ichida chaqirilganda (ombor qoldig'i bilan birga)
+async function create(d, client = db.pool) {
+  // Raqam takrorlanib qolsa, qayta urinamiz (ON CONFLICT xato bermaydi — tranzaksiya buzilmaydi)
   for (let i = 0; i < 5; i++) {
-    try {
-      return await db.one(
-        `INSERT INTO orders (number, user_id, items, subtotal, delivery_fee, total, delivery_method,
-           customer_name, phone, address, postal_code, desired_date, comment, history)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
-        [
-          orderNumber(), d.user_id, JSON.stringify(d.items), d.subtotal, d.delivery_fee, d.total,
-          d.delivery_method, d.customer_name, d.phone, d.address || null, d.postal_code || null,
-          d.desired_date || null, d.comment || null,
-          JSON.stringify([{ status: 'pending_payment', at: new Date().toISOString() }]),
-        ]
-      );
-    } catch (e) {
-      if (e.code !== '23505') throw e;
-    }
+    const { rows } = await client.query(
+      `INSERT INTO orders (number, user_id, items, subtotal, delivery_fee, total, delivery_method,
+         customer_name, phone, address, postal_code, desired_date, comment, history)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+       ON CONFLICT (number) DO NOTHING RETURNING *`,
+      [
+        orderNumber(), d.user_id, JSON.stringify(d.items), d.subtotal, d.delivery_fee, d.total,
+        d.delivery_method, d.customer_name, d.phone, d.address || null, d.postal_code || null,
+        d.desired_date || null, d.comment || null,
+        JSON.stringify([{ status: 'pending_payment', at: new Date().toISOString() }]),
+      ]
+    );
+    if (rows[0]) return rows[0];
   }
   throw new Error('Buyurtma raqamini yaratib bo‘lmadi');
 }

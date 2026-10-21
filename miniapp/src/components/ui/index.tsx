@@ -1,7 +1,7 @@
 'use client';
 // Kichik qismlar: rasm (ramka bilan), bottom sheet, son tanlash, toast, ikonlar
 import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
-import { imageUrl } from '@/lib/api';
+import { imageUrl, backendImageUrl } from '@/lib/api';
 import type { Frame } from '@/lib/types';
 import { useBackButton } from '@/hooks/useTelegram';
 import { useApp } from '@/store/appStore';
@@ -10,13 +10,21 @@ import { cx } from '@/lib/utils';
 
 export const useT = () => DICT[useApp((s) => s.lang)];
 
-// Admin sozlagan kesim: fokus nuqta (x,y %) va zoom
+const LOGO = '/images/logo.png';
+
+// Admin sozlagan kesim: fokus nuqta (x,y %) va zoom.
+// Rasm ochilmasa: statik fayl → backend → logo (buzilgan rasm belgisi hech qachon chiqmaydi)
 export function Img({
   id, frame, alt = '', className, style, eager, src,
 }: { id?: number | null; frame?: Frame | null; alt?: string; className?: string; style?: CSSProperties; eager?: boolean; src?: string }) {
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState<string[]>([]);
   const ref = useRef<HTMLImageElement>(null);
-  const url = src || imageUrl(id);
+  const candidates = [src || imageUrl(id)];
+  if (!src && id && candidates[0] !== backendImageUrl(id)) candidates.push(backendImageUrl(id));
+  const url = candidates.find((u) => !failed.includes(u)) || LOGO;
+  // Logo o'zi so'ralgan bo'lsa (masalan, sarlavhada) — u zaxira emas
+  const placeholder = url === LOGO && candidates[0] !== LOGO;
   // Keshdagi rasm onLoad'dan oldin yuklangan bo'lishi mumkin
   useEffect(() => {
     setLoaded(!!ref.current?.complete);
@@ -30,14 +38,18 @@ export function Img({
         alt={alt}
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
-        className={loaded ? '' : 'loading'}
+        className={cx(!loaded && 'loading', placeholder && 'ph')}
         onLoad={() => setLoaded(true)}
-        onError={() => setLoaded(true)}
-        style={{
-          objectPosition: `${f.x}% ${f.y}%`,
-          transform: f.zoom && f.zoom !== 1 ? `scale(${f.zoom})` : undefined,
-          transformOrigin: `${f.x}% ${f.y}%`,
-        }}
+        onError={() => (url === LOGO ? setLoaded(true) : setFailed((list) => [...list, url]))}
+        style={
+          placeholder
+            ? undefined
+            : {
+                objectPosition: `${f.x}% ${f.y}%`,
+                transform: f.zoom && f.zoom !== 1 ? `scale(${f.zoom})` : undefined,
+                transformOrigin: `${f.x}% ${f.y}%`,
+              }
+        }
         draggable={false}
       />
     </div>

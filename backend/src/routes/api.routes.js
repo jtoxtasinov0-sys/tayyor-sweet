@@ -47,6 +47,11 @@ a.post('/products/:id/story', admin.storyFromProduct);
 a.post('/import-folder', admin.runImport);
 a.get('/price-list', admin.priceList);
 
+a.get('/stock', admin.stock);
+a.get('/stock/:id/moves', admin.stockMoves);
+a.post('/stock/:id/move', admin.stockMove);
+a.patch('/stock/:id', admin.stockConfig);
+
 a.get('/categories', admin.categories);
 a.post('/categories', admin.createCategory);
 a.patch('/categories/:id', admin.updateCategory);

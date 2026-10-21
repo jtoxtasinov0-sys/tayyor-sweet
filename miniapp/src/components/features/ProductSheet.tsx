@@ -86,6 +86,8 @@ export function ProductSheet() {
 
   const images = p ? [p.image_id, ...(p.gallery || [])].filter(Boolean) as number[] : [];
   const price = p ? p.variants.find((v) => v.name === variant)?.price ?? p.price : 0;
+  // Ombor hisobidagi mahsulot: qoldiqdan ko'p tanlab bo'lmaydi
+  const maxQty = p?.stock != null ? Math.max(1, Math.min(99, p.stock)) : 99;
 
   const onAdd = () => {
     if (!p) return;
@@ -104,7 +106,7 @@ export function ProductSheet() {
       footer={
         p && !zoom && (
           <div className="row">
-            <Qty value={qty} onChange={(v) => setQty(Math.max(1, Math.min(99, v)))} />
+            <Qty value={qty} onChange={(v) => setQty(Math.max(1, Math.min(maxQty, v)))} />
             <button className="btn btn-primary" style={{ flex: 1 }} disabled={!p.in_stock} onClick={onAdd}>
               {p.in_stock ? `${t.add_to_cart} · ${won(price * qty)}` : t.out_of_stock}
             </button>
@@ -184,6 +186,13 @@ export function ProductSheet() {
                   ))}
                 </div>
               </>
+            )}
+
+            {p.in_stock && p.stock != null && p.stock > 0 && p.stock <= 5 && (
+              <div className="note">
+                <span>🔥</span>
+                <span>{t.only_left(p.stock)}</span>
+              </div>
             )}
 
             {p.preorder_days > 0 && (

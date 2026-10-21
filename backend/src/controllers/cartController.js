@@ -4,6 +4,8 @@ const Product = require('../models/Product');
 const Setting = require('../models/Setting');
 const Image = require('../models/Image');
 const User = require('../models/User');
+const Stock = require('../models/Stock');
+const db = require('../database/connection');
 const notify = require('./notifyController');
 const cache = require('../utils/cache');
 const { trackingUrl, COURIERS } = require('../utils/format');
@@ -31,6 +33,9 @@ async function quote(rawItems, method) {
     const qty = Math.min(Math.max(parseInt(i.qty, 10) || 0, 0), 99);
     if (!p || !p.active || !qty) continue;
     if (!p.in_stock) throw Object.assign(new Error(`${p.name_uz} hozir mavjud emas`), { status: 409 });
+    if (p.stock !== null && qty > p.stock) {
+      throw Object.assign(new Error(`${p.name_uz}: omborda faqat ${p.stock} ta qoldi`), { status: 409 });
+    }
     const variant = (p.variants || []).find((v) => v.name === i.variant);
     const color = (p.colors || []).find((c) => c.name === i.color);
     lines.push({
@@ -66,19 +71,27 @@ async function create(req, res) {
 
   const desired = /^\d{4}-\d{2}-\d{2}$/.test(b.desired_date || '') ? b.desired_date : null;
   if (User.isGuest(req.user.id)) await User.saveGuest(req.user.id, name, phone);
-  const order = await Order.create({
-    user_id: req.user.id,
-    ...q,
-    delivery_method: method,
-    customer_name: name,
-    phone,
-    address: String(b.address || '').trim().slice(0, 300),
-    postal_code: String(b.postal_code || '').trim().slice(0, 12),
-    desired_date: desired,
-    comment: String(b.comment || '').trim().slice(0, 500),
+  // Buyurtma va ombor qoldig'i birga: qoldiq yetmasa buyurtma ham yozilmaydi
+  const { order, low } = await db.tx(async (c) => {
+    const o = await Order.create(
+      {
+        user_id: req.user.id,
+        ...q,
+        delivery_method: method,
+        customer_name: name,
+        phone,
+        address: String(b.address || '').trim().slice(0, 300),
+        postal_code: String(b.postal_code || '').trim().slice(0, 12),
+        desired_date: desired,
+        comment: String(b.comment || '').trim().slice(0, 500),
+      },
+      c
+    );
+    return { order: o, low: await Stock.reserve(c, o) };
   });
   cache.clear();
   notify.newOrder({ ...order, username: req.user.username }).catch((e) => logger.warn('notify:', e.message));
+  if (low.length) notify.lowStock(low).catch((e) => logger.warn('notify:', e.message));
   res.status(201).json(withTracking(order));
 }
 

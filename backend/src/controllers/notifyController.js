@@ -102,6 +102,13 @@ async function receiptUploaded(order, image) {
   );
 }
 
+// Buyurtmadan keyin qoldig'i "kam qoldi" chegarasiga tushgan mahsulotlar
+async function lowStock(products) {
+  const lines = products.map((p) => `• ${esc(p.name_uz)} — ${p.stock > 0 ? `<b>${p.stock}</b> ta qoldi` : '<b>tugadi</b>'}`);
+  const text = `⚠️ <b>Omborda kam qoldi</b>\n\n${lines.join('\n')}\n\nAdmin panel → 🏬 Ombor`;
+  await toAdmins((id) => bot.telegram.sendMessage(id, text, { parse_mode: 'HTML' }));
+}
+
 async function statusChanged(order) {
   if (!order.user_id || User.isGuest(order.user_id)) return;
   const user = await User.get(order.user_id);
@@ -167,4 +174,4 @@ async function runBroadcast({ text, image_id, button }) {
   return rec;
 }
 
-module.exports = { orderSummary, newOrder, receiptUploaded, statusChanged, runBroadcast };
+module.exports = { orderSummary, newOrder, receiptUploaded, lowStock, statusChanged, runBroadcast };

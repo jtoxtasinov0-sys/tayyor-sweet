@@ -2,6 +2,7 @@
 const config = require('../config/default');
 const User = require('../models/User');
 const Order = require('../models/Order');
+const Stock = require('../models/Stock');
 const { t } = require('../utils/i18n');
 const { won, STATUS_TEXT } = require('../utils/format');
 const kb = require('../utils/keyboards');
@@ -76,6 +77,7 @@ async function orderAction(ctx) {
   const [, id, status] = ctx.match;
   const order = await Order.setStatus(Number(id), status);
   if (!order) return ctx.answerCbQuery('Topilmadi');
+  await Stock.syncOrder(order);
   cache.clear();
   await ctx.answerCbQuery(STATUS_TEXT.uz[status]);
   const full = await Order.getWithUser(order.id);

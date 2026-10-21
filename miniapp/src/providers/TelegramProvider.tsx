@@ -2,7 +2,7 @@
 // Mini App yuklanganini tekshiruvchi provayder: Telegram sozlamalari + boshlang'ich ma'lumotlar
 import { useEffect, type ReactNode } from 'react';
 import { tg } from '@/hooks/useTelegram';
-import { api } from '@/lib/api';
+import { api, setFolderFiles } from '@/lib/api';
 import { useApp } from '@/store/appStore';
 import type { Bootstrap, Lang } from '@/lib/types';
 
@@ -13,7 +13,7 @@ export function TelegramProvider({ children, initialData }: { children: ReactNod
 
   useEffect(() => {
     // Serverda tayyorlangan ma'lumot — ilova backend javobini kutmasdan ochiladi
-    if (initialData && !useApp.getState().data) set({ data: initialData });
+    if (initialData && !useApp.getState().data) setData(initialData);
 
     const w = tg();
     if (w) {
@@ -52,12 +52,18 @@ export function TelegramProvider({ children, initialData }: { children: ReactNod
   return <>{children}</>;
 }
 
+// Rasm fayllari xaritasi ma'lumot bilan birga (rasmlar chizilishidan oldin) o'rnatiladi
+function setData(data: Bootstrap) {
+  setFolderFiles(data.image_files);
+  useApp.getState().set({ data });
+}
+
 export function loadBootstrap(attempt = 0) {
   const set = useApp.getState().set;
   set({ loadError: false });
   api
     .bootstrap()
-    .then((data) => set({ data }))
+    .then(setData)
     .catch(() => {
       // Ma'lumot allaqachon bor — xato ekrani kerak emas
       if (useApp.getState().data) return;

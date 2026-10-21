@@ -10,6 +10,7 @@ interface Dash {
   daily: { day: string; orders: number; revenue: number }[];
   top: { name: string; qty: number; sum: number }[];
   latest: Order[];
+  stock?: { tracked: number; low: number; empty: number };
 }
 
 export function Dashboard({ go }: { go: (section: string, orderId?: number) => void }) {
@@ -39,6 +40,22 @@ export function Dashboard({ go }: { go: (section: string, orderId?: number) => v
           </div>
         ))}
       </div>
+
+      {!!data.stock && data.stock.low + data.stock.empty > 0 && (
+        <div className="adm-card stock-alert">
+          <span style={{ fontSize: 26 }}>⚠️</span>
+          <div>
+            <b>Omborda kam qolgan mahsulotlar bor</b>
+            <span className="muted" style={{ fontSize: 13 }}>
+              {data.stock.empty > 0 && `${data.stock.empty} ta tugagan`}
+              {data.stock.empty > 0 && data.stock.low > 0 && ' · '}
+              {data.stock.low > 0 && `${data.stock.low} ta kam qoldi`}
+            </span>
+          </div>
+          <span className="spacer" />
+          <button className="btn btn-soft btn-sm" onClick={() => go('stock')}>🏬 Omborga →</button>
+        </div>
+      )}
 
       <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginTop: 14 }}>
         <div className="adm-card">

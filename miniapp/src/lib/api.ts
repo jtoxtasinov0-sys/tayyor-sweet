@@ -4,7 +4,19 @@ import type { Bootstrap, Me, Order, DeliveryMethod } from './types';
 // Bo'sh bo'lsa — o'sha domen (/api/* next.config.mjs orqali backendga proksi qilinadi)
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
 
-export const imageUrl = (id?: number | null) => (id ? `${API_URL}/api/images/${id}` : '/images/logo.png');
+// Papkadan yuklangan rasmlar (rasmlar/NN_nomi.jpg) mini ilovaning o'zida ham bor (public/rasmlar):
+// ular Vercel CDN'dan darhol ochiladi va backend uxlab qolsa ham ko'rinadi. Xarita bootstrap'dan keladi
+let folderFiles: Record<string, string> = {};
+export const setFolderFiles = (files?: Record<string, string> | null) => {
+  folderFiles = files || {};
+};
+
+export const backendImageUrl = (id: number) => `${API_URL}/api/images/${id}`;
+
+export const imageUrl = (id?: number | null) => {
+  if (!id) return '/images/logo.png';
+  return folderFiles[id] ? `/rasmlar/${folderFiles[id]}` : backendImageUrl(id);
+};
 
 export class ApiError extends Error {
   constructor(public status: number, message: string, public data?: Record<string, unknown>) {

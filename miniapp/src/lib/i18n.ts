@@ -1,13 +1,14 @@
 import type { Lang, OrderStatus, DeliveryMethod } from './types';
 
 const uz = {
-  home: 'Bosh sahifa', catalog: 'Katalog', cart: 'Savat', orders: 'Buyurtmalar', profile: 'Profil',
+  home: 'Asosiy', catalog: 'Katalog', cart: 'Savat', orders: 'Buyurtmalar', profile: 'Profil',
   hello: 'Salom', search: 'Tort, somsa, manti...', stories: 'Storylar', categories: 'Kategoriyalar',
   popular: 'Hammasi', all: 'Hammasi', see_all: "Barchasi", add: "Qo'shish", add_to_cart: "Savatga qo'shish",
   added: "Savatga qo'shildi", in_cart: 'Savatda', out_of_stock: 'Tugagan', order_now: 'Buyurtma berish',
   size: "O'lcham", color: 'Bezak rangi', size_table: "O'lcham jadvali", diameter: 'Diametr', weight: "Og'irlik",
   servings: 'Kishi', tap_zoom: '🔍 Kattalashtirish', zoom_tip: "Ikki marta bosing yoki barmoq bilan kattalashtiring",
   preorder: (d: number) => `Bu mahsulot ${d}–${d + 1} kun oldin buyurtma qilinadi`,
+  only_left: (n: number) => `Omborda faqat ${n} ta qoldi`,
   description: 'Tavsif', qty: 'Soni', total: 'Jami', subtotal: 'Mahsulotlar', delivery: 'Yetkazish', free: 'Bepul',
   cart_empty: "Savat bo'sh", cart_empty_text: "Mazali narsalarni tanlang — biz tayyorlab beramiz 🍰", go_shop: "Xarid qilish",
   upsell: "Bunga ham qo'shing 💕", remove: "O'chirish", checkout: 'Rasmiylashtirish', clear: 'Tozalash',
@@ -44,6 +45,7 @@ const ru: Dict = {
   size: 'Размер', color: 'Цвет декора', size_table: 'Таблица размеров', diameter: 'Диаметр', weight: 'Вес',
   servings: 'Персон', tap_zoom: '🔍 Увеличить', zoom_tip: 'Двойной тап или жест щипка для увеличения',
   preorder: (d: number) => `Этот товар заказывается за ${d}–${d + 1} дня`,
+  only_left: (n: number) => `Осталось всего ${n} шт.`,
   description: 'Описание', qty: 'Кол-во', total: 'Итого', subtotal: 'Товары', delivery: 'Доставка', free: 'Бесплатно',
   cart_empty: 'Корзина пуста', cart_empty_text: 'Выберите вкусное — мы приготовим 🍰', go_shop: 'К покупкам',
   upsell: 'Добавьте к заказу 💕', remove: 'Удалить', checkout: 'Оформить', clear: 'Очистить',

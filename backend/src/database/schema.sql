@@ -124,3 +124,22 @@ CREATE TABLE IF NOT EXISTS broadcasts (
   status      TEXT NOT NULL DEFAULT 'running',
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Ombor: qoldiq hisobi. stock = NULL — hisob yuritilmaydi (masalan, buyurtmaga tayyorlanadigan tortlar)
+ALTER TABLE products ADD COLUMN IF NOT EXISTS stock     INT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_min INT NOT NULL DEFAULT 0;  -- "kam qoldi" chegarasi
+
+-- Kirim/chiqim tarixi. reason: in (kirim) | out (chiqim) | adjust (sanoq) | order (buyurtma) | cancel (bekor)
+CREATE TABLE IF NOT EXISTS stock_moves (
+  id          SERIAL PRIMARY KEY,
+  product_id  INT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  delta       INT NOT NULL,              -- + kirim, - chiqim
+  balance     INT NOT NULL,              -- harakatdan keyingi qoldiq
+  reason      TEXT NOT NULL,
+  order_id    INT REFERENCES orders(id) ON DELETE SET NULL,
+  note        TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS stock_moves_product_idx ON stock_moves(product_id, id DESC);
+CREATE INDEX IF NOT EXISTS stock_moves_order_idx ON stock_moves(order_id);

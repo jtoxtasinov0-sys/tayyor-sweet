@@ -1,0 +1,959 @@
+{
+ "shop": {
+  "name": "Tayyor & Sweet",
+  "phone": "",
+  "title": "Korea yarimtayyor maxsulotlar",
+  "address": "경기도 안산시 상록구 이화로 34사동",
+  "about_ru": "🍰 Сладости · 🍱 Полуфабрикаты · 🛒 Продуктовый магазин · 🚚 배달 가능. Торты заказываются за 2–3 дня.",
+  "about_uz": "🍰 Shirinliklar · 🍱 Yarim tayyor mahsulotlar · 🛒 Oziq-ovqat do'koni · 🚚 배달 가능. Tortlar 2–3 kun oldin buyurtma qilinadi.",
+  "instagram": "@koreya_yarimtayyor_mahsulotlar",
+  "owner_link": "",
+  "short_name": "TS",
+  "working_hours": "09:00 – 21:00",
+  "bot_username": "tayyorsweet_bot"
+ },
+ "payment": {
+  "note_uz": "To'lovdan so'ng chek (skrinshot) yuboring — buyurtmangiz tasdiqlanadi.",
+  "note_ru": "После оплаты отправьте чек (скриншот) — заказ будет подтверждён."
+ },
+ "delivery": {
+  "bus_fee": 0,
+  "free_from": 80000,
+  "min_order": 0,
+  "pickup_fee": 0,
+  "bus_note_uz": "Kremli tortlar 버스터미널 orqali yuboriladi (yo'l haqi qabul qiluvchidan).",
+  "taekbae_fee": 4000,
+  "pickup_note_uz": "Do'kondan olib ketish: 경기도 안산시 상록구 이화로 34사동",
+  "taekbae_note_uz": "Koreya bo'ylab pochta (택배) — 1–2 kun."
+ },
+ "app": {
+  "onboarding": true,
+  "announcement_ru": "",
+  "announcement_uz": ""
+ },
+ "categories": [
+  {
+   "id": 1,
+   "name_uz": "Tortlar",
+   "name_ru": "Торты",
+   "emoji": "🎂",
+   "sort": 1,
+   "active": true,
+   "products_count": 9
+  },
+  {
+   "id": 2,
+   "name_uz": "Shirinliklar",
+   "name_ru": "Сладости",
+   "emoji": "🧁",
+   "sort": 2,
+   "active": true,
+   "products_count": 11
+  },
+  {
+   "id": 3,
+   "name_uz": "Yarim tayyor",
+   "name_ru": "Полуфабрикаты",
+   "emoji": "🥟",
+   "sort": 3,
+   "active": true,
+   "products_count": 4
+  }
+ ],
+ "products": [
+  {
+   "id": 1,
+   "category_id": 2,
+   "name_uz": "Paxlava",
+   "name_ru": "Пахлава",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "2 dona",
+   "unit_ru": "2 шт",
+   "price": 9000,
+   "old_price": null,
+   "image_id": 1,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 1,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 2,
+   "category_id": 2,
+   "name_uz": "Sinnabon",
+   "name_ru": "Синнабон",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "4 dona",
+   "unit_ru": "4 шт",
+   "price": 12000,
+   "old_price": null,
+   "image_id": 2,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 2,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 3,
+   "category_id": 1,
+   "name_uz": "Mevali tort",
+   "name_ru": "Фруктовый торт",
+   "description_uz": "35 000 ₩ dan boshlanadi",
+   "description_ru": "От 35 000 ₩",
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 45000,
+   "old_price": null,
+   "image_id": 3,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [
+    {
+     "name": "Mini",
+     "price": 35000
+    },
+    {
+     "name": "Standart",
+     "price": 45000
+    }
+   ],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 3,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 4,
+   "category_id": 1,
+   "name_uz": "Kiyevskiy tort",
+   "name_ru": "Киевский торт",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 60000,
+   "old_price": null,
+   "image_id": 4,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 4,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 5,
+   "category_id": 2,
+   "name_uz": "Brauni",
+   "name_ru": "Брауни",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 porsiya",
+   "unit_ru": "1 порция",
+   "price": 8000,
+   "old_price": null,
+   "image_id": 5,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 5,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 6,
+   "category_id": 1,
+   "name_uz": "Rafaello torti",
+   "name_ru": "Торт Рафаэлло",
+   "description_uz": "35 000 / 50 000 o'lchamlari ham bor; usti va ichi buyurtmaga qarab",
+   "description_ru": "Есть размеры 35 000 / 50 000; верх и начинка — по заказу",
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 55000,
+   "old_price": null,
+   "image_id": 6,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [
+    {
+     "name": "Kichik",
+     "price": 35000
+    },
+    {
+     "name": "O'rta",
+     "price": 50000
+    },
+    {
+     "name": "Katta",
+     "price": 55000
+    }
+   ],
+   "colors": [
+    {
+     "hex": "#FFFFFF",
+     "name": "Oq"
+    },
+    {
+     "hex": "#F8A0D0",
+     "name": "Pushti"
+    },
+    {
+     "hex": "#5B3A29",
+     "name": "Shokoladli"
+    }
+   ],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 6,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 7,
+   "category_id": 2,
+   "name_uz": "San-Sebastyan (bo'lak)",
+   "name_ru": "Сан-Себастьян (кусок)",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 bo'lak",
+   "unit_ru": "1 кусок",
+   "price": 7000,
+   "old_price": null,
+   "image_id": 7,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 7,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 8,
+   "category_id": 3,
+   "name_uz": "Ko'k somsa",
+   "name_ru": "Сомса с зеленью",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "10 dona",
+   "unit_ru": "10 шт",
+   "price": 30000,
+   "old_price": null,
+   "image_id": 8,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 8,
+   "category_name": "Yarim tayyor"
+  },
+  {
+   "id": 9,
+   "category_id": 2,
+   "name_uz": "Trayfl mevali",
+   "name_ru": "Трайфл фруктовый",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 stakan",
+   "unit_ru": "1 стакан",
+   "price": 8000,
+   "old_price": null,
+   "image_id": 9,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 9,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 10,
+   "category_id": 1,
+   "name_uz": "Medovik",
+   "name_ru": "Медовик",
+   "description_uz": "Kattasi 30 000 ₩ dan; kichigi 6 000 ₩",
+   "description_ru": "Большой от 30 000 ₩; маленький 6 000 ₩",
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 30000,
+   "old_price": null,
+   "image_id": 10,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [
+    {
+     "name": "Kichik",
+     "price": 6000
+    },
+    {
+     "name": "Katta",
+     "price": 30000
+    }
+   ],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 10,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 11,
+   "category_id": 1,
+   "name_uz": "Snikers torti",
+   "name_ru": "Торт Сникерс",
+   "description_uz": "Karamel, yeryong'oq, qulupnay; narxi kattaligiga qarab",
+   "description_ru": "Карамель, арахис, клубника; цена зависит от размера",
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 45000,
+   "old_price": null,
+   "image_id": 11,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 11,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 12,
+   "category_id": 2,
+   "name_uz": "Spartak",
+   "name_ru": "Спартак",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "390–400 g",
+   "unit_ru": "390–400 г",
+   "price": 12000,
+   "old_price": null,
+   "image_id": 12,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 12,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 13,
+   "category_id": 1,
+   "name_uz": "Shokoladli medovik",
+   "name_ru": "Шоколадный медовик",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 50000,
+   "old_price": null,
+   "image_id": 13,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 13,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 14,
+   "category_id": 1,
+   "name_uz": "Afg'oncha napoleon",
+   "name_ru": "Афганский наполеон",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "20 sm",
+   "unit_ru": "20 см",
+   "price": 50000,
+   "old_price": null,
+   "image_id": 14,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [
+    {
+     "size": "Standart",
+     "weight": "",
+     "diameter": "20 sm",
+     "servings": ""
+    }
+   ],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 14,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 15,
+   "category_id": 2,
+   "name_uz": "Matilda",
+   "name_ru": "Матильда",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 bo'lak",
+   "unit_ru": "1 кусок",
+   "price": 8000,
+   "old_price": null,
+   "image_id": 15,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 15,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 16,
+   "category_id": 2,
+   "name_uz": "Molochnaya devochka",
+   "name_ru": "Молочная девочка",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 bo'lak",
+   "unit_ru": "1 кусок",
+   "price": 9000,
+   "old_price": null,
+   "image_id": 16,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 16,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 17,
+   "category_id": 1,
+   "name_uz": "San-Sebastyan tort",
+   "name_ru": "Торт Сан-Себастьян",
+   "description_uz": "Mini — 35 000 ₩",
+   "description_ru": "Мини — 35 000 ₩",
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 50000,
+   "old_price": null,
+   "image_id": 17,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [
+    {
+     "name": "Mini",
+     "price": 35000
+    },
+    {
+     "name": "Standart",
+     "price": 50000
+    }
+   ],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 17,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 18,
+   "category_id": 2,
+   "name_uz": "Tvorojniy",
+   "name_ru": "Творожный",
+   "description_uz": "Butuni 40 000 ₩",
+   "description_ru": "Целый 40 000 ₩",
+   "unit_uz": "1 bo'lak",
+   "unit_ru": "1 кусок",
+   "price": 7000,
+   "old_price": null,
+   "image_id": 18,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [
+    {
+     "name": "1 bo'lak",
+     "price": 7000
+    },
+    {
+     "name": "Butun",
+     "price": 40000
+    }
+   ],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 18,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 19,
+   "category_id": 3,
+   "name_uz": "Chuchvara",
+   "name_ru": "Чучвара",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 kg",
+   "unit_ru": "1 кг",
+   "price": 17000,
+   "old_price": null,
+   "image_id": 19,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 19,
+   "category_name": "Yarim tayyor"
+  },
+  {
+   "id": 20,
+   "category_id": 2,
+   "name_uz": "Rogalik",
+   "name_ru": "Рогалик",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 kg",
+   "unit_ru": "1 кг",
+   "price": 38000,
+   "old_price": null,
+   "image_id": 20,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 20,
+   "category_name": "Shirinliklar"
+  },
+  {
+   "id": 21,
+   "category_id": 3,
+   "name_uz": "Yog'li patir",
+   "name_ru": "Масляный патыр",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "2 dona",
+   "unit_ru": "2 шт",
+   "price": 10000,
+   "old_price": null,
+   "image_id": 21,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 21,
+   "category_name": "Yarim tayyor"
+  },
+  {
+   "id": 22,
+   "category_id": 3,
+   "name_uz": "Manti",
+   "name_ru": "Манты",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "10 dona",
+   "unit_ru": "10 шт",
+   "price": 20000,
+   "old_price": null,
+   "image_id": 22,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 22,
+   "category_name": "Yarim tayyor"
+  },
+  {
+   "id": 23,
+   "category_id": 1,
+   "name_uz": "Maxroviy tort",
+   "name_ru": "Махровый торт",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "butun tort",
+   "unit_ru": "целый торт",
+   "price": 45000,
+   "old_price": null,
+   "image_id": 23,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 2,
+   "in_stock": true,
+   "active": true,
+   "sort": 23,
+   "category_name": "Tortlar"
+  },
+  {
+   "id": 24,
+   "category_id": 2,
+   "name_uz": "Chizkeyk (bo'lak)",
+   "name_ru": "Чизкейк (кусок)",
+   "description_uz": null,
+   "description_ru": null,
+   "unit_uz": "1 bo'lak",
+   "unit_ru": "1 кусок",
+   "price": 8000,
+   "old_price": null,
+   "image_id": 24,
+   "gallery": [],
+   "frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "variants": [],
+   "colors": [],
+   "size_table": [],
+   "badge": null,
+   "preorder_days": 0,
+   "in_stock": true,
+   "active": true,
+   "sort": 24,
+   "category_name": "Shirinliklar"
+  }
+ ],
+ "stories": [
+  {
+   "id": 5,
+   "title": "San-Sebastyan tort",
+   "text": "Mini — 35 000 ₩",
+   "image_id": 17,
+   "product_id": 17,
+   "active": true,
+   "sort": 0,
+   "created_at": "2026-10-09T01:02:17.074Z",
+   "cover_id": 17,
+   "product_name": "San-Sebastyan tort",
+   "product_frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "product_price": 50000
+  },
+  {
+   "id": 4,
+   "title": "Manti",
+   "text": "10 dona",
+   "image_id": 22,
+   "product_id": 22,
+   "active": true,
+   "sort": 0,
+   "created_at": "2026-10-09T01:02:16.898Z",
+   "cover_id": 22,
+   "product_name": "Manti",
+   "product_frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "product_price": 20000
+  },
+  {
+   "id": 3,
+   "title": "Sinnabon",
+   "text": "4 dona",
+   "image_id": 2,
+   "product_id": 2,
+   "active": true,
+   "sort": 0,
+   "created_at": "2026-10-09T01:02:16.725Z",
+   "cover_id": 2,
+   "product_name": "Sinnabon",
+   "product_frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "product_price": 12000
+  },
+  {
+   "id": 2,
+   "title": "Medovik",
+   "text": "Kattasi 30 000 ₩ dan; kichigi 6 000 ₩",
+   "image_id": 10,
+   "product_id": 10,
+   "active": true,
+   "sort": 0,
+   "created_at": "2026-10-09T01:02:16.533Z",
+   "cover_id": 10,
+   "product_name": "Medovik",
+   "product_frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "product_price": 30000
+  },
+  {
+   "id": 1,
+   "title": "Rafaello torti",
+   "text": "35 000 / 50 000 o'lchamlari ham bor; usti va ichi buyurtmaga qarab",
+   "image_id": 6,
+   "product_id": 6,
+   "active": true,
+   "sort": 0,
+   "created_at": "2026-10-09T01:02:16.357Z",
+   "cover_id": 6,
+   "product_name": "Rafaello torti",
+   "product_frame": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+   },
+   "product_price": 55000
+  }
+ ],
+ "banners": [
+  {
+   "id": 1,
+   "title": "Tortlar 2–3 kun oldin",
+   "subtitle": "Bayramingiz uchun buyurtma bering 🎂",
+   "image_id": null,
+   "product_id": 4,
+   "category_id": null,
+   "active": true,
+   "sort": 0,
+   "cover_id": 4
+  },
+  {
+   "id": 2,
+   "title": "Yarim tayyor mahsulotlar",
+   "subtitle": "Uydagidek mazali — 택배 orqali 🚚",
+   "image_id": null,
+   "product_id": 19,
+   "category_id": null,
+   "active": true,
+   "sort": 0,
+   "cover_id": 19
+  },
+  {
+   "id": 3,
+   "title": "Shirinliklar",
+   "subtitle": "Choy uchun eng yaxshi hamroh ☕️",
+   "image_id": null,
+   "product_id": 1,
+   "category_id": null,
+   "active": true,
+   "sort": 0,
+   "cover_id": 1
+  }
+ ],
+ "image_files": {
+  "1": "01_paxlava.jpg",
+  "2": "02_sinnabon.jpg",
+  "3": "03_mevali_tort.jpg",
+  "4": "04_kiyevskiy_tort.jpg",
+  "5": "05_brauni.jpg",
+  "6": "06_rafaello_tort.jpg",
+  "7": "07_san_sebastyan_bolak.jpg",
+  "8": "08_kok_somsa.jpg",
+  "9": "09_trayfl.jpg",
+  "10": "10_medovik.jpg",
+  "11": "11_snikers_tort.jpg",
+  "12": "12_spartak.jpg",
+  "13": "13_shokoladli_medovik.jpg",
+  "14": "14_afgoncha_napoleon.jpg",
+  "15": "15_matilda.jpg",
+  "16": "16_molochnaya_devochka.jpg",
+  "17": "17_san_sebastyan_tort.jpg",
+  "18": "18_tvorojniy.jpg",
+  "19": "19_chuchvara.jpg",
+  "20": "20_rogalik.jpg",
+  "21": "21_yogli_patir.jpg",
+  "22": "22_manti.jpg",
+  "23": "23_maxroviy_tort.jpg",
+  "24": "24_chizkeyk_bolak.jpg"
+ }
+}

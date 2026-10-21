@@ -1,10 +1,11 @@
 'use client';
-// Admin panel: kirish (parol yoki Telegram admin), 7 ta bo'lim
+// Admin panel: kirish (parol yoki Telegram admin), 8 ta bo'lim
 import { useCallback, useEffect, useState } from 'react';
 import { AdminContext, useLoad } from './common';
 import { Dashboard } from './Dashboard';
 import { OrdersAdmin } from './OrdersAdmin';
 import { ProductsAdmin } from './ProductsAdmin';
+import { StockAdmin } from './StockAdmin';
 import { CategoriesAdmin, PromoAdmin, CustomersAdmin, SettingsAdmin } from './Sections';
 import { adminLogin, ApiError } from '@/lib/api';
 import { tg } from '@/hooks/useTelegram';
@@ -16,6 +17,7 @@ const SECTIONS = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'orders', icon: '📦', label: 'Buyurtmalar' },
   { id: 'products', icon: '🧁', label: 'Mahsulotlar' },
+  { id: 'stock', icon: '🏬', label: 'Ombor' },
   { id: 'categories', icon: '🗂', label: 'Kategoriyalar' },
   { id: 'promo', icon: '📸', label: 'Story va bannerlar' },
   { id: 'customers', icon: '👥', label: 'Mijozlar va rassilka' },
@@ -70,7 +72,10 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
 function Shell() {
   const [section, setSection] = useState<SectionId>('dashboard');
   const [openOrder, setOpenOrder] = useState<number | null>(null);
-  const { data: counts, reload } = useLoad<{ stats: { receipts: number; to_ship: number } }>('/dashboard');
+  const { data: counts, reload } = useLoad<{
+    stats: { receipts: number; to_ship: number };
+    stock?: { low: number; empty: number };
+  }>('/dashboard');
 
   useEffect(() => {
     const id = setInterval(reload, 60_000);
@@ -84,6 +89,7 @@ function Shell() {
   };
   const current = SECTIONS.find((s) => s.id === section)!;
   const pending = (counts?.stats.receipts || 0) + (counts?.stats.to_ship || 0);
+  const stockAlerts = (counts?.stock?.low || 0) + (counts?.stock?.empty || 0);
 
   return (
     <AdminContext.Consumer>
@@ -98,6 +104,7 @@ function Shell() {
               <button key={s.id} className={cx('adm-nav', section === s.id && 'on')} onClick={() => go(s.id)}>
                 <span>{s.icon}</span>{s.label}
                 {s.id === 'orders' && pending > 0 && <span className="cnt">{pending}</span>}
+                {s.id === 'stock' && stockAlerts > 0 && <span className="cnt">{stockAlerts}</span>}
               </button>
             ))}
             <button className="adm-nav logout" style={{ marginTop: 'auto' }} onClick={() => (window.location.href = '/')}>🛍 Do&apos;konga</button>
@@ -108,6 +115,7 @@ function Shell() {
             {section === 'dashboard' && <Dashboard go={go} />}
             {section === 'orders' && <OrdersAdmin openId={openOrder} onOpened={() => setOpenOrder(null)} />}
             {section === 'products' && <ProductsAdmin />}
+            {section === 'stock' && <StockAdmin onChange={reload} />}
             {section === 'categories' && <CategoriesAdmin />}
             {section === 'promo' && <PromoAdmin />}
             {section === 'customers' && <CustomersAdmin />}

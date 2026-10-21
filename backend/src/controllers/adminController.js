@@ -1,4 +1,4 @@
-// Admin API: statistika, buyurtmalar, mahsulotlar, kategoriyalar, story/banner, mijozlar, rassilka, sozlamalar
+// Admin API: statistika, buyurtmalar, mahsulotlar, ombor, kategoriyalar, story/banner, mijozlar, rassilka, sozlamalar
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -6,6 +6,7 @@ const Setting = require('../models/Setting');
 const Image = require('../models/Image');
 const User = require('../models/User');
 const Broadcast = require('../models/Broadcast');
+const Stock = require('../models/Stock');
 const { stories, banners } = require('../models/Story');
 const { STATUSES, COURIERS } = require('../utils/format');
 const notify = require('./notifyController');
@@ -22,13 +23,14 @@ const num = (v) => (v === '' || v == null ? null : Number(v));
 
 // 1. Dashboard
 async function dashboard(req, res) {
-  const [stats, daily, top, latest] = await Promise.all([
+  const [stats, daily, top, latest, stock] = await Promise.all([
     Order.stats(),
     Order.daily(14),
     Order.topProducts(5),
     Order.list({ limit: 6 }),
+    Stock.stats(),
   ]);
-  res.json({ stats, daily, top, latest: latest.rows });
+  res.json({ stats, daily, top, latest: latest.rows, stock });
 }
 
 // 2. Buyurtmalar
@@ -53,6 +55,7 @@ async function updateOrder(req, res) {
   if (!STATUSES.includes(status)) return res.status(400).json({ error: 'bad_status' });
   if (courier && !COURIERS[courier]) return res.status(400).json({ error: 'bad_courier' });
   const o = await Order.setStatus(id, status, { courier, tracking_number, admin_note });
+  if (status !== before.status) await Stock.syncOrder(o);
   const trackingChanged = tracking_number && tracking_number !== before.tracking_number;
   if (doNotify && (status !== before.status || trackingChanged)) await notify.statusChanged(o);
   changed(res, withTracking(o));
@@ -105,8 +108,28 @@ async function priceList(req, res) {
   res.json({ text: await buildPriceList('uz') });
 }
 
+// 3b. Ombor
+async function stock(req, res) {
+  const [products, stats, moves] = await Promise.all([Stock.list(), Stock.stats(), Stock.moves({ limit: 30 })]);
+  res.json({ products, stats, moves });
+}
+
+const stockMoves = async (req, res) => res.json(await Stock.moves({ productId: Number(req.params.id), limit: 100 }));
+
+async function stockMove(req, res) {
+  const { type, qty, note } = req.body || {};
+  changed(res, await Stock.move(Number(req.params.id), type, qty, String(note || '').trim().slice(0, 200) || null));
+}
+
+async function stockConfig(req, res) {
+  const { tracked, stock_min } = req.body || {};
+  const p = await Stock.configure(Number(req.params.id), { tracked, stock_min });
+  if (!p) return res.status(404).json({ error: 'not_found' });
+  changed(res, p);
+}
+
 // 4. Kategoriyalar
-const categories = async (req, res) => res.json(await Category.list(true));
+const categories =async (req, res) => res.json(await Category.list(true));
 async function createCategory(req, res) {
   if (!req.body?.name_uz) return res.status(400).json({ error: 'Nomini kiriting' });
   changed(res, await Category.create(req.body));
@@ -179,6 +202,7 @@ async function upload(req, res) {
 module.exports = {
   dashboard, orders, order, updateOrder,
   products, createProduct, updateProduct, deleteProduct, runImport, priceList,
+  stock, stockMoves, stockMove, stockConfig,
   categories, createCategory, updateCategory, deleteCategory,
   listStories, createStory, updateStory, deleteStory, storyFromProduct,
   listBanners, createBanner, updateBanner, deleteBanner,
