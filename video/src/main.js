@@ -88,7 +88,7 @@ let SC = null;
 function buildIphone(tl) {
   const I = L.ios, tg = L.tg;
   const T = {
-    phoneIn: 2.0, s1: 2.6, tapInstall: 4.2, userMsg: 4.4, botMsg: 5.0, zoomLink: 6.3,
+    phoneIn: 2.0, s1: 2.6, tapInstall: 4.2, botMsg: 4.75, zoomLink: 6.3,
     s2: 7.2, hold0: 8.0, hold1: 8.7, sheet: 8.75, tapCopy: 10.0, toast: 10.2, swipe: 11.6,
     s3: 12.3, tapSafari: 13.3, tapBar: 14.6, tapField: 15.6, tapPaste: 16.3, load: 16.5, page: 17.2,
     s4: 19.0, tapMore: 20.2, tapShare: 21.3,
@@ -128,7 +128,7 @@ function buildIphone(tl) {
     .to(T.shop + 0.4, T.phoneOut - 0.3, 1.08, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
-  cue(T.userMsg, 'send'); cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
+  cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
   cue(T.tapSafari + 0.1, 'open'); cue(T.tapBar + 0.05, 'key'); cue(T.tapField + 0.1, 'pop', 0.6);
   cue(T.load, 'load'); cue(T.page + 0.2, 'ding'); cue(T.tapMore + 0.05, 'pop', 0.7);
   cue(T.tapShare + 0.15, 'sheet'); cue(T.tapAddRow + 0.15, 'sheet'); cue(T.homeBack, 'swipe');
@@ -137,9 +137,9 @@ function buildIphone(tl) {
 
   const drawTg = (c, t) => {
     UI.tgChat(c, tl, tg, {
-      msgs: [1, 1, pr(t, T.userMsg, T.userMsg + 0.35), pr(t, T.botMsg, T.botMsg + 0.45)],
-      kbGlow: vis(t, 3.1, 4.25, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
-      kbPress: t >= T.tapInstall && t < T.tapInstall + 0.16,
+      msgs: [1, pr(t, T.botMsg, T.botMsg + 0.45)],
+      btnGlow: vis(t, 3.1, 4.25, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
+      btnPress: t >= T.tapInstall && t < T.tapInstall + 0.16,
       linkHL: vis(t, T.hold0 + 0.1, T.tapCopy + 0.2, 0.3, 0.3),
     });
     const mp = vis(t, T.sheet, T.tapCopy + 0.12, 0.3, 0.25);
@@ -208,7 +208,7 @@ function buildIphone(tl) {
 function buildSamsung(tl, pageBtn) {
   const A = L.and, tg = L.tg;
   const T = {
-    phoneIn: 2.0, s1: 2.6, tapInstall: 4.2, userMsg: 4.4, botMsg: 5.0, zoomLink: 6.3,
+    phoneIn: 2.0, s1: 2.6, tapInstall: 4.2, botMsg: 4.75, zoomLink: 6.3,
     s2: 7.2, hold0: 8.0, hold1: 8.7, sheet: 8.75, tapCopy: 10.0, toast: 10.2, swipe: 11.6,
     s3: 12.3, tapChrome: 13.3, tapOmni: 14.6, tapSuggest: 15.9, load: 16.1, page: 16.8,
     s4: 18.4, tapBtn: 19.7, sheet2: 19.8,
@@ -247,7 +247,7 @@ function buildSamsung(tl, pageBtn) {
     .to(T.shop + 0.4, T.phoneOut - 0.3, 1.08, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
-  cue(T.userMsg, 'send'); cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
+  cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
   cue(T.tapChrome + 0.1, 'open'); cue(T.tapOmni + 0.05, 'key');
   cue(T.load, 'load'); cue(T.page + 0.2, 'ding'); cue(T.sheet2, 'sheet');
   cue(T.installing, 'load', 0.7); cue(T.added, 'ding', 0.8);
@@ -256,9 +256,9 @@ function buildSamsung(tl, pageBtn) {
 
   const drawTg = (c, t) => {
     UI.tgChat(c, tl, tg, {
-      msgs: [1, 1, pr(t, T.userMsg, T.userMsg + 0.35), pr(t, T.botMsg, T.botMsg + 0.45)],
-      kbGlow: vis(t, 3.1, 4.25, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
-      kbPress: t >= T.tapInstall && t < T.tapInstall + 0.16,
+      msgs: [1, pr(t, T.botMsg, T.botMsg + 0.45)],
+      btnGlow: vis(t, 3.1, 4.25, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
+      btnPress: t >= T.tapInstall && t < T.tapInstall + 0.16,
       linkHL: vis(t, T.hold0 + 0.1, T.tapCopy + 0.2, 0.3, 0.3),
     });
     const mp = vis(t, T.sheet, T.tapCopy + 0.12, 0.3, 0.25);
@@ -727,6 +727,7 @@ export async function init() {
   await loadImages({
     logo: '/miniapp/public/images/logo.png',
     icon: '/miniapp/public/icons/icon-512.png',
+    welcome: '/miniapp/public/og.jpg',
     pageIos: `/video/assets/shots/ilova-ios-${LANG}.png`,
     pageAnd: `/video/assets/shots/ilova-android-${LANG}.png`,
     shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-${LANG}.png`,

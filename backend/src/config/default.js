@@ -56,4 +56,6 @@ module.exports = {
   rasmlarDir: path.resolve(__dirname, '../..', env.RASMLAR_DIR || '../rasmlar'),
   // "Ilovani o'rnatish" video qo'llanmalari (mini ilova bilan bitta papkada: miniapp/public/video)
   videoDir: path.resolve(__dirname, '../../../miniapp/public/video'),
+  // /start dagi rasm (do'kon banneri; link ulashilganda ham shu rasm chiqadi)
+  welcomePhoto: path.resolve(__dirname, '../../../miniapp/public/og.jpg'),
 };

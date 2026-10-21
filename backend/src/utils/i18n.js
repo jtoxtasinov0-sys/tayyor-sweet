@@ -3,7 +3,7 @@ const T = {
   uz: {
     choose_lang: "🇺🇿 Tilni tanlang\n🇷🇺 Выберите язык",
     welcome: (name, shop) =>
-      `Assalomu alaykum, <b>${name}</b>! 👋\n\n<b>${shop}</b> do'koniga xush kelibsiz 🍰\nShirinliklar, tortlar va yarim tayyor mahsulotlar — Koreya bo'ylab 택배 orqali.`,
+      `Assalomu alaykum, <b>${name}</b>! 👋\n\n<b>${shop}</b> do'koniga xush kelibsiz 🍰\nShirinliklar, tortlar va yarim tayyor mahsulotlar — Koreya bo'ylab 택배 orqali.\n\n🛍 Do'kondagi mahsulotlarni ko'ring 👇`,
     ask_phone: "📱 Buyurtmalar uchun telefon raqamingizni yuboring (pastdagi tugma).",
     send_phone: '📱 Raqamni yuborish',
     phone_saved: "✅ Rahmat! Raqamingiz saqlandi.",
@@ -45,7 +45,7 @@ const T = {
   ru: {
     choose_lang: "🇺🇿 Tilni tanlang\n🇷🇺 Выберите язык",
     welcome: (name, shop) =>
-      `Здравствуйте, <b>${name}</b>! 👋\n\nДобро пожаловать в <b>${shop}</b> 🍰\nСладости, торты и полуфабрикаты — доставка 택배 по всей Корее.`,
+      `Здравствуйте, <b>${name}</b>! 👋\n\nДобро пожаловать в <b>${shop}</b> 🍰\nСладости, торты и полуфабрикаты — доставка 택배 по всей Корее.\n\n🛍 Смотрите товары магазина 👇`,
     ask_phone: '📱 Отправьте номер телефона для заказов (кнопка ниже).',
     send_phone: '📱 Отправить номер',
     phone_saved: '✅ Спасибо! Номер сохранён.',

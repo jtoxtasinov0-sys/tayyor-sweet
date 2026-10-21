@@ -15,22 +15,42 @@ const { Markup } = require('telegraf');
 const langOf = (ctx) => ctx.state.user?.lang || 'uz';
 
 async function start(ctx) {
-  const user = ctx.state.user;
-  if (!user?.lang) return ctx.reply(T.uz.choose_lang, kb.langKeyboard());
+  // Til tanlanmagan bo'lsa — Telegram tilidan (keyin xabar ostidagi tugmalar bilan almashtiriladi)
+  if (!ctx.state.user?.lang) ctx.state.user = await User.setLang(ctx.from.id, ctx.from.language_code === 'ru' ? 'ru' : 'uz');
   return greet(ctx);
 }
+
+// Eski pastki menyu (reply klaviatura) — endi barcha tugmalar xabar ostida. Bir marta olib tashlanadi
+const keyboardCleared = new Set();
+async function hideReplyKeyboard(ctx) {
+  if (keyboardCleared.has(ctx.from.id)) return;
+  keyboardCleared.add(ctx.from.id);
+  const m = await ctx.reply('…', { ...Markup.removeKeyboard(), disable_notification: true }).catch(() => null);
+  if (m) await ctx.deleteMessage(m.message_id).catch(() => {});
+}
+
+// Rasm Telegram'ga bir marta yuklanadi, keyin file_id bilan yuboriladi
+let welcomePhotoId = null;
 
 async function greet(ctx) {
   const user = ctx.state.user;
   const lang = langOf(ctx);
   const L = t(lang);
-  const shop = (await Setting.get('shop')).name || config.shop.name;
-  await ctx.reply(L.welcome(esc(ctx.from.first_name || ''), esc(shop)), {
-    parse_mode: 'HTML',
-    ...kb.openShopInline(lang),
-  });
+  const shop = await Setting.get('shop');
+  const caption = L.welcome(esc(ctx.from.first_name || ''), esc(shop.name || config.shop.name));
+  const extra = { parse_mode: 'HTML', ...kb.welcomeInline(lang, shop.instagram) };
+  if (user?.phone) await hideReplyKeyboard(ctx);
+  const photo =
+    welcomePhotoId ||
+    (fs.existsSync(config.welcomePhoto) ? { source: config.welcomePhoto } : config.miniappUrl ? `${config.miniappUrl}/og.jpg` : null);
+  try {
+    if (!photo) throw new Error('rasm yo\'q');
+    const msg = await ctx.replyWithPhoto(photo, { caption, ...extra });
+    welcomePhotoId = msg.photo?.[msg.photo.length - 1]?.file_id || welcomePhotoId;
+  } catch {
+    await ctx.reply(caption, extra);
+  }
   if (!user?.phone) return ctx.reply(L.ask_phone, kb.phoneKeyboard(lang));
-  return ctx.reply(L.main_menu, kb.mainKeyboard(lang));
 }
 
 async function chooseLang(ctx) {
@@ -53,7 +73,8 @@ async function contact(ctx) {
   if (!phone.startsWith('+')) phone = `+${phone}`;
   ctx.state.user = await User.setPhone(ctx.from.id, phone);
   const lang = langOf(ctx);
-  return ctx.reply(t(lang).phone_saved, kb.mainKeyboard(lang));
+  keyboardCleared.add(ctx.from.id);
+  return ctx.reply(t(lang).phone_saved, Markup.removeKeyboard());
 }
 
 async function buildPriceList(lang = 'uz') {
@@ -152,7 +173,14 @@ async function guideVideo(ctx) {
   if (msg.video?.file_id) videoIds.set(name, msg.video.file_id);
 }
 
-// Pastki menyu matnli tugmalari (ikkala tilda)
+// /start xabari ostidagi tugmalar
+const MENU = { install, orders: myOrders, contact: contactInfo };
+async function menuAction(ctx) {
+  await ctx.answerCbQuery().catch(() => {});
+  return MENU[ctx.match[1]](ctx);
+}
+
+// Eski pastki menyu matnli tugmalari (ikkala tilda) — tugmasi qolgan foydalanuvchilar uchun
 const menuMatchers = {
   prices: [T.uz.menu_prices, T.ru.menu_prices],
   orders: [T.uz.menu_orders, T.ru.menu_orders],
@@ -166,4 +194,4 @@ async function photo(ctx) {
   return ctx.reply(t(langOf(ctx)).send_receipt_hint, kb.openShopInline(langOf(ctx)));
 }
 
-module.exports = { start, greet, chooseLang, askLang, contact, prices, myOrders, contactInfo, install, guideVideo, menuMatchers, buildPriceList, photo };
+module.exports = { start, greet, chooseLang, askLang, contact, prices, myOrders, contactInfo, install, guideVideo, menuAction, menuMatchers, buildPriceList, photo };

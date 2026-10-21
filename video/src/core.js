@@ -502,6 +502,20 @@ export const G = {
     c.stroke();
     c.restore();
   },
+  arrowUpRight(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.lineWidth = s * 0.14;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x - s * 0.3, y + s * 0.3);
+    c.lineTo(x + s * 0.3, y - s * 0.3);
+    c.moveTo(x - s * 0.15, y - s * 0.3);
+    c.lineTo(x + s * 0.3, y - s * 0.3);
+    c.lineTo(x + s * 0.3, y + s * 0.15);
+    c.stroke();
+    c.restore();
+  },
   reload(c, x, y, s, col) {
     c.save();
     c.strokeStyle = col;

@@ -26,6 +26,28 @@ function mainKeyboard(lang) {
   return Markup.keyboard(rows).resize();
 }
 
+// /start xabari ostidagi tugmalar
+function welcomeInline(lang, instagram) {
+  const L = t(lang);
+  const rows = [];
+  const url = webAppUrl();
+  if (url && url.startsWith('https://')) rows.push([Markup.button.webApp(L.open_shop, url)]);
+  rows.push([Markup.button.callback(L.menu_install, 'menu:install')]);
+  rows.push([Markup.button.callback(L.menu_orders, 'menu:orders'), Markup.button.callback(L.menu_contact, 'menu:contact')]);
+  const ig = instagramUrl(instagram);
+  if (ig) rows.push([Markup.button.url('📸 Instagram', ig)]);
+  rows.push([Markup.button.callback("🇺🇿 O'zbekcha", 'lang:uz'), Markup.button.callback('🇷🇺 Русский', 'lang:ru')]);
+  return Markup.inlineKeyboard(rows);
+}
+
+// "@nom" yoki to'liq link → https://instagram.com/nom
+function instagramUrl(v) {
+  const s = String(v || '').trim();
+  if (!s) return null;
+  if (/^https?:\/\//.test(s)) return s;
+  return `https://instagram.com/${s.replace(/^@/, '')}`;
+}
+
 // Ilovani o'rnatish: qaysi telefon uchun video qo'llanma
 function installInline(lang) {
   const L = t(lang);
@@ -62,4 +84,4 @@ function orderAdminInline(order) {
   return rows.length ? Markup.inlineKeyboard(rows) : undefined;
 }
 
-module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, openShopInline, installInline, adminInline, orderAdminInline, webAppUrl };
+module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, welcomeInline, openShopInline, installInline, adminInline, orderAdminInline, webAppUrl };

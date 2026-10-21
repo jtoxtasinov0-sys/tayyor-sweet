@@ -67,11 +67,11 @@ zaxira ma'lumot bilan yig'iladi: katalog, narxlar va rasmlar ko'rinadi (buyurtma
 
 | Buyruq | Vazifasi |
 |---|---|
-| `/start` | til tanlash → telefon raqam → do'kon tugmasi |
+| `/start` | rasm (do'kon banneri `miniapp/public/og.jpg`) + matn, ostida tugmalar: do'kon, ilovani o'rnatish, buyurtmalar, aloqa, Instagram, til. Til Telegram tilidan tanlanadi; raqami yo'qlardan telefon so'raladi |
 | `/narxlar` | narxlar jadvali (bazadan) |
 | `/buyurtmalar` | oxirgi buyurtmalar va holati |
 | `/til` | tilni o'zgartirish |
-| `/ilova` | ilovani telefonga o'rnatish: link + iPhone / Samsung video qo'llanma (pastki menyuda ham bor) |
+| `/ilova` | ilovani telefonga o'rnatish: link + iPhone / Samsung video qo'llanma (/start xabari ostida ham bor) |
 | `/admin parol` | admin huquqini olish (5 xato → 15 daqiqa blok) |
 | `/panel` | statistika + tekshirilishi kerak bo'lgan buyurtmalar (tugmalar bilan) |
 
@@ -86,7 +86,7 @@ Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzati
 
 Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegram'siz ochiladi (mehmon rejimida buyurtma).
 
-- Botda **📲 Ilovani o'rnatish** tugmasi (`/ilova`) → link `…/ilova` + iPhone / Samsung video tugmalari.
+- Botda /start xabari ostidagi **📲 Ilovani o'rnatish** tugmasi (yoki `/ilova`) → link `…/ilova` + iPhone / Samsung video tugmalari.
 - `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
 - Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).

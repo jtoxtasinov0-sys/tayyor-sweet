@@ -17,6 +17,7 @@ function registerBotRoutes() {
   bot.command('id', adminBot.myId);
 
   bot.action(/^lang:(uz|ru)$/, start.chooseLang);
+  bot.action(/^menu:(install|orders|contact)$/, start.menuAction);
   bot.action(/^guide:(ios|android)$/, start.guideVideo);
   bot.action(/^ord:(\d+):(confirmed|cancelled|shipped|delivered)$/, adminBot.orderAction);
 

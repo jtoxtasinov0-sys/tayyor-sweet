@@ -109,47 +109,45 @@ function chatBg(c, x, y, w, h) {
   c.restore();
 }
 
-// Chat joylashuvi (vaqtdan mustaqil): pufakchalar, tugmalar, link o'rni
+// Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — o'rnatish linki),
+// ularning ostidagi tugmalar va bosiladigan joylar
+const BTN_H = 40, BTN_GAP = 4;
 export function tgLayout(c, os, L) {
   const { SW, SH, SB, BOT } = DEV[os];
   const ios = os === 'ios';
   const navB = ios ? SB + 44 : SB + 56;
-  const rowH = ios ? 42 : 44, gap = 6;
-  const kbH = 4 * rowH + 5 * gap + BOT;
-  const kbTop = SH - kbH;
-  const inputY = kbTop - 50;
+  const inputY = SH - BOT - 52;
   const chatB = inputY - 8;
   const size = ios ? 16.5 : 16;
   const lh = ios ? 21.5 : 21;
-  const maxW = 262;
-  const bubble = (src, out, btns) => {
+  const maxW = 278;
+  const bubble = (src, rows, photo = false) => {
     const lay = layoutRich(c, md(src), maxW, size, S);
     c.font = S(400, 12);
     const lastW = lay.lines[lay.lines.length - 1].reduce((m, s) => Math.max(m, s.x + s.w), 0);
-    const timeW = out ? 58 : 40;
-    const w = Math.max(lay.w, Math.min(maxW, lastW + timeW)) + 24;
-    const extra = lastW + timeW > maxW ? 16 : 0;
-    const h = lay.lines.length * lh + 15 + extra;
-    return { lay, w: Math.min(w, maxW + 24), h, out, btns, btnH: btns ? 40 : 0 };
+    const w = photo ? maxW + 24 : Math.max(lay.w, Math.min(maxW, lastW + 40)) + 24;
+    const photoH = photo ? Math.round((w * IMG.welcome.height) / IMG.welcome.width) : 0;
+    const extra = lastW + 40 > maxW ? 16 : 0;
+    const h = photoH + lay.lines.length * lh + 15 + extra;
+    const btnH = rows ? rows.length * (BTN_H + BTN_GAP) : 0;
+    return { lay, w: Math.min(w, maxW + 24), h, photoH, rows, btnH };
   };
-  const msgs = [bubble(L.m1, false, [L.m1btn]), bubble(L.m2, false), bubble(L.me, true), bubble(L.m4, false, L.m4btn)];
-  // klaviatura tugmalari
-  const rows = L.kb.map((row, i) => {
-    const y = kbTop + gap + i * (rowH + gap);
-    const bw = (SW - gap * (row.length + 1)) / row.length;
-    return row.map((label, j) => ({ label, x: gap + j * (bw + gap), y, w: bw, h: rowH }));
-  });
-  const lay = { os, SW, SH, navB, kbTop, inputY, chatB, size, lh, msgs, rows, rowH };
-  // To'liq holatdagi (4 xabar) o'rinlar — link va tugma nishonlari uchun
-  const pos = stackPositions(lay, [1, 1, 1, 1]);
-  const m4 = msgs[3];
+  const msgs = [bubble(L.m1, L.m1btns, true), bubble(L.m4, [L.m4btn])];
+  const lay = { os, SW, SH, navB, inputY, chatB, size, lh, msgs };
+  // 1-xabar yolg'iz turganda — "Ilovani o'rnatish" tugmasi (2-qator)
+  const p0 = stackPositions(lay, [1, 0]);
+  const m1 = msgs[0];
+  const by = p0[0] + m1.h + BTN_GAP + 1 * (BTN_H + BTN_GAP);
+  lay.installBtn = { x: 8, y: by, w: m1.w, h: BTN_H };
+  // ikkala xabar — link o'rni
+  const pos = stackPositions(lay, [1, 1]);
+  const m4 = msgs[1];
   const linkLine = m4.lay.lines.findIndex((Ln) => Ln.some((s) => s.r.link));
   const segs = m4.lay.lines[linkLine].filter((s) => s.r.link);
   const lx = 8 + 12 + segs[0].x;
-  lay.link = { x: lx, y: pos[3] + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
+  lay.link = { x: lx, y: pos[1] + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
   lay.link.cx = lay.link.x + Math.min(lay.link.w, 200) / 2;
   lay.link.cy = lay.link.y + lh / 2 + 2;
-  lay.installBtn = rows[3][0];
   return lay;
 }
 
@@ -159,70 +157,87 @@ function stackPositions(lay, p) {
   let y = lay.chatB;
   for (let i = lay.msgs.length - 1; i >= 0; i--) {
     const m = lay.msgs[i];
-    const full = m.h + (m.btns ? m.btnH + 4 : 0);
     const k = E.out3(clamp(p[i]));
-    y -= full * k;
+    y -= (m.h + m.btnH) * k;
     ys[i] = y;
-    const gap = i > 0 && lay.msgs[i - 1].out !== m.out ? 10 : 6;
-    y -= gap * k;
+    y -= 8 * k;
   }
   return ys;
 }
 
-function drawBubble(c, lay, m, y, p, hl) {
-  const { SW } = lay;
+// hl — linkni belgilash, btn: { row, glow, press } — tugmani ajratib ko'rsatish
+function drawBubble(c, lay, m, y, p, hl, btn) {
   const ios = lay.os === 'ios';
-  const x = m.out ? SW - 8 - m.w : 8;
+  const x = 8;
   c.save();
-  // paydo bo'lish: pastki burchakdan kattalashadi
+  // paydo bo'lish: pastki chap burchakdan kattalashadi
   const k = E.back(clamp(p));
-  const ox = m.out ? x + m.w : x, oy = y + m.h;
-  c.translate(ox, oy);
+  const oy = y + m.h;
+  c.translate(x, oy);
   c.scale(lerp(0.6, 1, k), lerp(0.6, 1, k));
-  c.translate(-ox, -oy);
+  c.translate(-x, -oy);
   c.globalAlpha = clamp(p * 2.5);
   shadow(c, 1.5, 'rgba(0,0,0,0.12)', 1);
-  c.fillStyle = m.out ? (ios ? '#E1FEC6' : '#EFFFDE') : '#fff';
+  c.fillStyle = '#fff';
   c.beginPath();
   const r = ios ? 17 : 13, rs = 5;
-  if (m.out) c.roundRect(x, y, m.w, m.h, [r, r, rs, r]);
-  else c.roundRect(x, y, m.w, m.h, [r, r, r, rs]);
+  c.roundRect(x, y, m.w, m.h, [r, r, r, rs]);
   c.fill();
   noShadow(c);
-  drawRich(c, m.lay, x + 12, y + 8 + lay.size, lay.lh, '#000', ios ? '#007AFF' : '#2481CC', hl > 0 ? `rgba(0,122,255,${0.18 * hl})` : null);
-  // vaqt va belgi
-  const tx = x + m.w - 10;
-  const ty = y + m.h - 7;
-  if (m.out) {
-    text(c, '12:41', tx - 18, ty, S(400, 11.5), '#3FAE4F', 'right');
-    G.check(c, tx - 9, ty - 4, 9, '#3FAE4F', 0.16);
-    G.check(c, tx - 4, ty - 4, 9, '#3FAE4F', 0.16);
-  } else text(c, '12:41', tx, ty, S(400, 11.5), '#9AA0A6', 'right');
-  // inline tugmalar
-  if (m.btns) {
-    const by = y + m.h + 4;
-    const bw = (m.w - (m.btns.length - 1) * 4) / m.btns.length;
-    m.btns.forEach((b, i) => {
-      fillRR(c, x + i * (bw + 4), by, bw, m.btnH, ios ? 9 : 7, 'rgba(70,110,75,0.42)');
-      c.font = S(600, 14);
-      text(c, ellipsize(c, b, bw - 10), x + i * (bw + 4) + bw / 2, by + 25, S(600, 14), '#fff', 'center');
-    });
+  if (m.photoH) {
+    c.save();
+    c.beginPath();
+    c.roundRect(x + 2, y + 2, m.w - 4, m.photoH - 2, [r - 2, r - 2, 3, 3]);
+    c.clip();
+    c.drawImage(IMG.welcome, x + 2, y + 2, m.w - 4, m.photoH - 2);
+    c.restore();
   }
+  drawRich(c, m.lay, x + 12, y + m.photoH + 8 + lay.size, lay.lh, '#000', ios ? '#007AFF' : '#2481CC', hl > 0 ? `rgba(0,122,255,${0.18 * hl})` : null);
+  text(c, '12:41', x + m.w - 10, y + m.h - 7, S(400, 11.5), '#9AA0A6', 'right');
+  // xabar ostidagi tugmalar
+  m.rows.forEach((row, ri) => {
+    const by = y + m.h + BTN_GAP + ri * (BTN_H + BTN_GAP);
+    const bw = (m.w - (row.length - 1) * BTN_GAP) / row.length;
+    row.forEach((b, i) => {
+      const bx = x + i * (bw + BTN_GAP);
+      const sel = btn && btn.row === ri;
+      if (sel && btn.glow > 0) {
+        c.save();
+        shadow(c, 18 * btn.glow, `rgba(217,79,147,${0.9 * btn.glow})`);
+        fillRR(c, bx, by, bw, BTN_H, ios ? 10 : 8, `rgba(217,79,147,${0.5 * btn.glow})`);
+        c.restore();
+        c.save();
+        c.strokeStyle = `rgba(255,255,255,${btn.glow})`;
+        c.lineWidth = 2.5;
+        rr(c, bx, by, bw, BTN_H, ios ? 10 : 8);
+        c.stroke();
+        c.restore();
+      }
+      fillRR(c, bx, by, bw, BTN_H, ios ? 10 : 8, sel && btn.press ? 'rgba(40,70,45,0.62)' : 'rgba(70,110,75,0.42)');
+      c.font = S(600, 14.5);
+      text(c, ellipsize(c, b, bw - 14), bx + bw / 2, by + 25, S(600, 14.5), '#fff', 'center');
+      // Telegram belgilari: veb-ilova (kvadrat) va tashqi link (↗)
+      if (b.startsWith('🛍')) {
+        c.strokeStyle = 'rgba(255,255,255,0.9)';
+        c.lineWidth = 1.3;
+        rr(c, bx + bw - 15, by + 5, 9, 8, 2);
+        c.stroke();
+      } else if (b.includes('Instagram')) G.arrowUpRight(c, bx + bw - 11, by + 10, 10, 'rgba(255,255,255,0.9)');
+    });
+  });
   c.restore();
 }
 
-// st: { msgs:[p,p,p,p], kbGlow, kbPress, linkHL }
+// st: { msgs:[p,p], btnGlow, btnPress, linkHL }
 export function tgChat(c, lay, L, st) {
-  const { SW, SH, navB, kbTop, inputY, os } = lay;
+  const { SW, SH, navB, inputY, os } = lay;
   const ios = os === 'ios';
   chatBg(c, 0, 0, SW, SH);
-  // xabarlar
   const ys = stackPositions(lay, st.msgs);
   c.save();
   c.beginPath();
   c.rect(0, navB, SW, inputY - navB);
   c.clip();
-  // sana
   const dateY = ys[0] - 34;
   c.font = S(500, 13);
   const dw = c.measureText(L.today).width + 20;
@@ -230,7 +245,7 @@ export function tgChat(c, lay, L, st) {
   text(c, L.today, SW / 2, dateY + 15.5, S(500, 13), '#fff', 'center');
   lay.msgs.forEach((m, i) => {
     if (st.msgs[i] <= 0) return;
-    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 3 ? st.linkHL || 0 : 0);
+    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 1 ? st.linkHL || 0 : 0, i === 0 ? { row: 1, glow: st.btnGlow || 0, press: st.btnPress } : null);
   });
   c.restore();
 
@@ -259,54 +274,29 @@ export function tgChat(c, lay, L, st) {
     statusBar(c, 'and', true);
   }
 
-  // yozish qatori
+  // yozish qatori: chapda bot menyusi tugmasi (veb-ilova), keyin maydon
+  c.fillStyle = ios ? '#F7F7F7' : '#fff';
+  c.fillRect(0, inputY, SW, SH - inputY);
+  c.fillStyle = 'rgba(0,0,0,0.12)';
+  c.fillRect(0, inputY, SW, 0.5);
+  c.font = S(600, 14.5);
+  const mw = c.measureText(L.menu).width + 24;
+  fillRR(c, 8, inputY + 9, mw, 34, 17, ios ? '#3A8DF5' : '#4E8FD0');
+  text(c, L.menu, 8 + mw / 2, inputY + 31, S(600, 14.5), '#fff', 'center');
+  const fx = 8 + mw + 8;
   if (ios) {
-    c.fillStyle = '#F7F7F7';
-    c.fillRect(0, inputY, SW, 50);
-    c.fillStyle = 'rgba(0,0,0,0.15)';
-    c.fillRect(0, inputY, SW, 0.5);
-    G.clip(c, 22, inputY + 25, 26, '#8E8E93');
-    fillRR(c, 44, inputY + 8, SW - 92, 34, 17, '#fff');
+    fillRR(c, fx, inputY + 9, SW - fx - 44, 34, 17, '#fff');
     c.strokeStyle = 'rgba(0,0,0,0.12)';
     c.lineWidth = 0.8;
-    rr(c, 44, inputY + 8, SW - 92, 34, 17);
+    rr(c, fx, inputY + 9, SW - fx - 44, 34, 17);
     c.stroke();
-    text(c, L.input, 58, inputY + 31, S(400, 16.5), '#A3A3A8');
-    G.mic(c, SW - 24, inputY + 25, 26, '#8E8E93');
+    text(c, L.input, fx + 14, inputY + 31, S(400, 16.5), '#A3A3A8');
+    G.mic(c, SW - 22, inputY + 26, 26, '#8E8E93');
   } else {
-    c.fillStyle = '#fff';
-    c.fillRect(0, inputY, SW, 50);
-    G.smile(c, 26, inputY + 25, 26, '#8A9096');
-    text(c, L.input, 56, inputY + 31, S(400, 17), '#A0A4A8');
-    G.clip(c, SW - 64, inputY + 25, 26, '#8A9096');
-    G.mic(c, SW - 26, inputY + 25, 26, '#8A9096');
+    text(c, L.input, fx + 6, inputY + 32, S(400, 17), '#A0A4A8');
+    G.clip(c, SW - 62, inputY + 26, 26, '#8A9096');
+    G.mic(c, SW - 24, inputY + 26, 26, '#8A9096');
   }
-  // bot klaviaturasi
-  c.fillStyle = ios ? '#D3D5DB' : '#ECEFF2';
-  c.fillRect(0, kbTop, SW, SH - kbTop);
-  lay.rows.forEach((row, i) =>
-    row.forEach((b) => {
-      const isInstall = i === 3;
-      const pressed = isInstall && st.kbPress;
-      if (isInstall && st.kbGlow > 0) {
-        c.save();
-        shadow(c, 18 * st.kbGlow, `rgba(217,79,147,${0.9 * st.kbGlow})`);
-        fillRR(c, b.x, b.y, b.w, b.h, ios ? 7 : 6, '#fff');
-        c.restore();
-        c.save();
-        c.strokeStyle = `rgba(217,79,147,${st.kbGlow})`;
-        c.lineWidth = 2.5;
-        rr(c, b.x - 1, b.y - 1, b.w + 2, b.h + 2, 8);
-        c.stroke();
-        c.restore();
-      }
-      c.save();
-      shadow(c, 0, 'rgba(0,0,0,0.3)', 1);
-      fillRR(c, b.x, b.y, b.w, b.h, ios ? 7 : 6, pressed ? '#C3C6CE' : '#fff');
-      c.restore();
-      text(c, b.label, b.x + b.w / 2, b.y + b.h / 2 + 6, S(500, ios ? 16 : 15.5), '#111', 'center');
-    })
-  );
   homeBar(c, os);
 }
 
