@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://tayyor-sweet.vercel.app'),
   title: 'Tayyor & Sweet',
   description,
-  icons: { icon: '/images/logo.png', apple: '/icons/apple-touch-icon.png' },
+  icons: { icon: '/images/logo.png', apple: '/icons/apple-touch-icon.png?v=2' },
   // iPhone: "Bosh ekranga qo'shish" dan keyin alohida ilova bo'lib ochiladi
   appleWebApp: { capable: true, title: 'Tayyor&Sweet', statusBarStyle: 'default' },
   openGraph: {

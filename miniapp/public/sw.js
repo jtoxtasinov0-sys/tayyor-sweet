@@ -1,7 +1,7 @@
 // Service worker: ilovani o'rnatish mumkin bo'lishi va internet yo'qda ham ochilishi uchun.
 // Sahifalar — avval internetdan (yangi narxlar), bo'lmasa keshdan. Statik fayllar — keshdan.
 // /api va videolar keshlanmaydi.
-const CACHE = 'ts-v1';
+const CACHE = 'ts-v2';
 const STATIC = /^\/(_next\/static|rasmlar|images|icons)\//;
 
 self.addEventListener('install', () => self.skipWaiting());
