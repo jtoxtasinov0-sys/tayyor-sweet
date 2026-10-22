@@ -34,6 +34,10 @@ export const ORDER_IMAGES = {
   ),
 };
 
+// Ovozli matn asl yozuvdan shuncha marta tez qo'yiladi (audio.py: atempo, ohang o'zgarmaydi).
+// Ssenariy asl yozuv vaqtida yozilgan — butun sahna ham shuncha tezlashadi
+const VOICE_TEMPO = 1.15;
+
 // cubic-bezier(0.22, 1, 0.36, 1) ga yaqin — mini ilovadagi oyna ochilishi
 const easeApp = E.out5;
 
@@ -44,8 +48,19 @@ function slide(t, open, close = Infinity) {
   return 1 - easeApp(pr(t, open, open + 0.42));
 }
 
-export function buildOrder({ touch, cam, cue }, tl, lay) {
+export function buildOrder(env, tl, lay) {
   const DS = lay.dsf;
+  // Quyidagi barcha vaqtlar — asl ovoz vaqti; barmoq, kamera va ovoz effektlariga haqiqiy vaqtda uzatiladi
+  const real = (x) => x / VOICE_TEMPO;
+  const touch = {
+    show: (t, p) => (env.touch.show(real(t), p), touch),
+    move: (a, b, p) => (env.touch.move(real(a), real(b), p), touch),
+    tap: (t) => (env.touch.tap(real(t)), touch),
+    hide: (t) => (env.touch.hide(real(t)), touch),
+    swipe: (a, b, p0, p1) => (env.touch.swipe(real(a), real(b), p0, p1), touch),
+  };
+  const cam = { to: (a, b, s, fy) => (env.cam.to(real(a), real(b), s, fy), cam) };
+  const cue = (t, s, g) => env.cue(real(t), s, g);
   // Vaqtlar ovozli matnga bog'langan (assets/voice/buyurtma-uz.flac): har qadam o'z jumlasi boshlanganda chiqadi,
   // bosishlar esa jumladagi kalit so'z ("pochta", "sanani" ...) aytilganda
   const T = {
@@ -540,21 +555,24 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
     c.restore();
   };
 
+  const RT = Object.fromEntries(Object.entries(T).map(([k, x]) => [k, real(x)]));
+  const atVoice = (f) => (c, t) => f(c, t * VOICE_TEMPO);
   return {
-    T,
-    screen,
-    behind,
-    front,
-    steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6, T.s7, T.s8, T.s9, T.s10, T.s11],
+    T: RT,
+    screen: atVoice(screen),
+    behind: atVoice(behind),
+    front: atVoice(front),
+    steps: [RT.s1, RT.s2, RT.s3, RT.s4, RT.s5, RT.s6, RT.s7, RT.s8, RT.s9, RT.s10, RT.s11],
     texts: O.steps,
     // 9 ta qadam, keyin ikki yakuniy sahna
     labels: O.steps.map((_, i) => (i < 9 ? L.step(i + 1) : '✓ TAYYOR')),
     // izoh ovozda aytilganda chiqadi
-    hintAt: { 0: T.alt, 2: 14.6, 4: 21.19, 8: 33.4, 9: 36.2 },
+    hintAt: Object.fromEntries(Object.entries({ 0: T.alt, 2: 14.6, 4: 21.19, 8: 33.4, 9: 36.2 }).map(([i, x]) => [i, real(x)])),
     intro: O.intro,
     introSub: O.intro_sub,
     sparkAt: null,
-    confetti: T.confirmed + 0.1,
+    confetti: real(T.confirmed + 0.1),
     voice: 'assets/voice/buyurtma-uz.flac', // video/ papkasiga nisbatan
+    voiceTempo: VOICE_TEMPO,
   };
 }

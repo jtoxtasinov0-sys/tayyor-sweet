@@ -785,5 +785,5 @@ export async function init() {
   cue(SC.T.phoneOut, 'whoosh');
   cue(SC.T.phoneOut + 0.6, 'outro');
   cues.sort((a, b) => a.t - b.t);
-  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO, voice: SC.voice ?? null };
+  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO, voice: SC.voice ?? null, voiceTempo: SC.voiceTempo ?? 1 };
 }

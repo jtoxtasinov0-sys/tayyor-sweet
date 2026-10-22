@@ -321,9 +321,12 @@ def music(dur, drums_from, end_at):
     return np.stack([L * g, R * g])
 
 
-def load_voice(path):
-    """Ovozli matn: 48 kHz mono, eng baland nuqta 1.0"""
-    pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', path, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True, check=True).stdout
+def load_voice(path, tempo=1.0):
+    """Ovozli matn: 48 kHz mono, eng baland nuqta 1.0; tempo — tezlik (ohang o'zgarmaydi)"""
+    cmd = ['ffmpeg', '-v', 'error', '-i', path, '-ac', '1', '-ar', str(SR)]
+    if tempo != 1:
+        cmd += ['-af', f'atempo={tempo}']
+    pcm = subprocess.run(cmd + ['-f', 's16le', '-'], capture_output=True, check=True).stdout
     v = np.frombuffer(pcm, np.int16).astype(np.float64) / 32768
     return v / max(1e-9, np.abs(v).max())
 
@@ -357,7 +360,7 @@ def main():
     mix = music(dur, drums_from, out_t - 0.1)
     voice = info.get('voice')
     if voice:
-        v = load_voice(os.path.join(os.path.dirname(os.path.abspath(__file__)), voice))
+        v = load_voice(os.path.join(os.path.dirname(os.path.abspath(__file__)), voice), info.get('voiceTempo', 1))
         mix *= duck_gain(v, mix.shape[1])
     sfx_gain = 0.6 if voice else 1.0
     cache = {}
