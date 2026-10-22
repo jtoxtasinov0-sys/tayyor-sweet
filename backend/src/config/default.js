@@ -58,4 +58,6 @@ module.exports = {
   videoDir: path.resolve(__dirname, '../../../miniapp/public/video'),
   // /start dagi rasm (do'kon banneri; link ulashilganda ham shu rasm chiqadi)
   welcomePhoto: path.resolve(__dirname, '../../../miniapp/public/og.jpg'),
+  // Botning profil rasmi (t.me/<bot> link ulashilganda shu rasm chiqadi). Telegram faqat .jpg qabul qiladi
+  botPhoto: path.resolve(__dirname, '../../../miniapp/public/images/logo.jpg'),
 };

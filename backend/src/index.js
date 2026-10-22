@@ -1,4 +1,5 @@
 // Asosiy ishga tushirish fayli: API + Telegram bot
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const config = require('./config/default');
@@ -46,6 +47,7 @@ async function setupBot() {
       menuButton: { type: 'web_app', text: "🛍 Do'kon", web_app: { url: config.miniappUrl } },
     });
   }
+  await ensureBotPhoto(me).catch((e) => logger.warn('Bot rasmi:', e.message));
 
   if (config.bot.usePolling) {
     await bot.telegram.deleteWebhook({ drop_pending_updates: false });
@@ -56,6 +58,22 @@ async function setupBot() {
     await bot.telegram.setWebhook(url, { allowed_updates: ['message', 'callback_query'] });
     logger.info(`🤖 @${me.username} webhook: ${config.bot.publicUrl}/telegram/***`);
   }
+}
+
+// t.me/<bot> linkida chiqadigan rasm — botning profil rasmi. Rasm yo'q bo'lsa logoni bir marta qo'yadi
+// (bor rasmga tegmaydi, shuning uchun har qayta ishga tushganda yangi rasm qo'shilmaydi)
+async function ensureBotPhoto(me) {
+  if (!fs.existsSync(config.botPhoto)) return;
+  const { total_count } = await bot.telegram.getUserProfilePhotos(me.id, 0, 1);
+  if (total_count > 0) return;
+  const form = new FormData();
+  form.append('photo', JSON.stringify({ type: 'static', photo: 'attach://logo' }));
+  form.append('logo', new Blob([fs.readFileSync(config.botPhoto)], { type: 'image/jpeg' }), 'logo.jpg');
+  const url = new URL(`./bot${config.bot.token}/setMyProfilePhoto`, bot.telegram.options.apiRoot);
+  const res = await fetch(url, { method: 'POST', body: form, signal: AbortSignal.timeout(30_000) });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.description);
+  logger.info('🖼 Bot profil rasmi qo‘yildi');
 }
 
 // Render bepul tarifi 15 daqiqa so'rov kelmasa serverni uxlatadi — keyin birinchi ochilish ~1 daqiqa kutadi.
