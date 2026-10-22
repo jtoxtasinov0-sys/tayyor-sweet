@@ -33,6 +33,9 @@ async function quote(rawItems, method) {
     const qty = Math.min(Math.max(parseInt(i.qty, 10) || 0, 0), 99);
     if (!p || !p.active || !qty) continue;
     if (!p.in_stock) throw Object.assign(new Error(`${p.name_uz} hozir mavjud emas`), { status: 409 });
+    if (p.pickup_only && method === 'taekbae') {
+      throw Object.assign(new Error(`${p.name_uz}: faqat olib ketish mumkin — pochta qilinsa tort ezilib ketadi`), { status: 409 });
+    }
     if (p.stock !== null && qty > p.stock) {
       throw Object.assign(new Error(`${p.name_uz}: omborda faqat ${p.stock} ta qoldi`), { status: 409 });
     }

@@ -32,7 +32,7 @@ const round500 = (n: number) => Math.max(500, Math.round(n / 500) * 500);
 const EMPTY: Partial<Product> = {
   name_uz: '', name_ru: '', unit_uz: '', unit_ru: '', description_uz: '', description_ru: '',
   price: 0, old_price: null, category_id: null, image_id: null, gallery: [], frame: { x: 50, y: 50, zoom: 1 },
-  variants: [], colors: [], size_table: [], badge: null, preorder_days: 0, in_stock: true, active: true, sort: 0,
+  variants: [], colors: [], size_table: [], badge: null, preorder_days: 0, pickup_only: false, in_stock: true, active: true, sort: 0,
 };
 
 export function ProductsAdmin() {
@@ -89,6 +89,7 @@ export function ProductsAdmin() {
               <div className="flags">
                 {!p.active && <span className="badge badge-sale">Yashirin</span>}
                 {!p.in_stock && <span className="badge badge-hit">Tugagan</span>}
+                {p.pickup_only && <span className="badge badge-pickup" title="Faqat olib ketish">🏠</span>}
                 {p.stock != null && <span className="badge badge-new" title="Omborda">📦 {p.stock}</span>}
                 {p.badge && <span className="badge badge-new">{p.badge.toUpperCase()}</span>}
               </div>
@@ -270,7 +271,13 @@ function ProductEditor({ initial, cats, onClose, onSaved }: { initial: Partial<P
         <div className="row" style={{ marginTop: 14, gap: 20, flexWrap: 'wrap' }}>
           <Switch checked={!!p.active} onChange={(v) => up('active', v)} label="Ko'rinadi" />
           <Switch checked={!!p.in_stock} onChange={(v) => up('in_stock', v)} label="Mavjud" />
+          <Switch checked={!!p.pickup_only} onChange={(v) => up('pickup_only', v)} label="🏠 Pochta qilib bo'lmaydi (faqat olib ketish)" />
         </div>
+        {p.pickup_only && (
+          <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>
+            Mijozga &quot;Olib ketish kerak — pochta qilinsa tort ezilib ketadi&quot; yozuvi chiqadi, buyurtmada 택배 tanlab bo&apos;lmaydi.
+          </p>
+        )}
       </div>
 
       <div className="box">

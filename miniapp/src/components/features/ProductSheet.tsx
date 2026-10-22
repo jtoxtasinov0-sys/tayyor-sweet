@@ -195,6 +195,13 @@ export function ProductSheet() {
               </div>
             )}
 
+            {p.pickup_only && (
+              <div className="note warn">
+                <span>🏠</span>
+                <span><b>{t.pickup_only}.</b> {t.pickup_only_note}</span>
+              </div>
+            )}
+
             {p.preorder_days > 0 && (
               <div className="note">
                 <span>⏰</span>

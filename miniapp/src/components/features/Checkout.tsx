@@ -9,7 +9,7 @@ import { useTelegram, haptic } from '@/hooks/useTelegram';
 import { api, ApiError } from '@/lib/api';
 import { METHOD_ICON } from '@/lib/i18n';
 import type { DeliveryMethod, Order } from '@/lib/types';
-import { won, cx, copyText, compressImage, todayPlus } from '@/lib/utils';
+import { won, cx, copyText, compressImage, todayPlus, pName } from '@/lib/utils';
 
 const FORM_KEY = 'ts-checkout';
 
@@ -20,6 +20,7 @@ export function CheckoutSheet() {
   const close = useApp((s) => s.close);
   const open = useApp((s) => s.open);
   const me = useApp((s) => s.me);
+  const lang = useApp((s) => s.lang);
   const data = useApp((s) => s.data);
   const set = useApp((s) => s.set);
   const showToast = useApp((s) => s.showToast);
@@ -28,7 +29,7 @@ export function CheckoutSheet() {
   const isOpen = overlay?.type === 'checkout';
 
   const [form, setForm] = useState({ name: '', phone: '', address: '', date: '', comment: '' });
-  const [method, setMethod] = useState<DeliveryMethod>('taekbae');
+  const [picked, setMethod] = useState<DeliveryMethod>('taekbae');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
@@ -48,8 +49,11 @@ export function CheckoutSheet() {
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const d = data?.delivery;
-  const methods: { id: DeliveryMethod; title: string; desc: string }[] = [
-    { id: 'taekbae', title: t.taekbae, desc: d?.taekbae_note_uz || t.taekbae_d },
+  // Savatda "faqat olib ketish" torti bo'lsa, pochta (택배) yopiladi — ezilib ketadi
+  const pickupOnly = items.filter((i) => i.product.pickup_only).map((i) => pName(i.product, lang));
+  const method: DeliveryMethod = pickupOnly.length ? 'pickup' : picked;
+  const methods: { id: DeliveryMethod; title: string; desc: string; off?: boolean }[] = [
+    { id: 'taekbae', title: t.taekbae, desc: pickupOnly.length ? t.pickup_only_note : d?.taekbae_note_uz || t.taekbae_d, off: pickupOnly.length > 0 },
     { id: 'pickup', title: t.pickup, desc: d?.pickup_note_uz || t.pickup_d },
   ];
   const deliveryFee = fee(method);
@@ -104,7 +108,7 @@ export function CheckoutSheet() {
 
         <div className="opt-title">{t.method}</div>
         {methods.map((m) => (
-          <button key={m.id} className={cx('method', method === m.id && 'on')} onClick={() => { haptic.select(); setMethod(m.id); }}>
+          <button key={m.id} className={cx('method', method === m.id && 'on')} disabled={m.off} onClick={() => { haptic.select(); setMethod(m.id); }}>
             <span className="ic">{METHOD_ICON[m.id]}</span>
             <span>
               <b>{m.title}</b>
@@ -113,6 +117,12 @@ export function CheckoutSheet() {
             <span className="fee">{fee(m.id) ? won(fee(m.id)) : t.free}</span>
           </button>
         ))}
+        {pickupOnly.length > 0 && (
+          <div className="note warn" style={{ marginTop: 0 }}>
+            <span>🏠</span>
+            <span>{t.pickup_only_cart(pickupOnly.join(', '))}</span>
+          </div>
+        )}
 
         <div className="opt-title">{t.your_info}</div>
         <label className="label">{t.name} *</label>

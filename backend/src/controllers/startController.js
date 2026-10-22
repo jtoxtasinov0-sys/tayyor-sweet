@@ -92,10 +92,11 @@ async function buildPriceList(lang = 'uz') {
       const variants = (p.variants || []).length
         ? ` <i>(${p.variants.map((v) => `${esc(v.name)} ${won(v.price)}`).join(' / ')})</i>`
         : '';
-      parts.push(`  ${esc(name)}${unit ? ` · ${esc(unit)}` : ''} — <b>${won(p.price)}</b>${variants}${p.in_stock ? '' : ' ⛔️'}`);
+      parts.push(`  ${esc(name)}${unit ? ` · ${esc(unit)}` : ''} — <b>${won(p.price)}</b>${variants}${p.pickup_only ? ' 🏠' : ''}${p.in_stock ? '' : ' ⛔️'}`);
     }
     parts.push('');
   }
+  if (products.some((p) => p.pickup_only)) parts.push(L.pickup_only_note);
   return parts.join('\n');
 }
 

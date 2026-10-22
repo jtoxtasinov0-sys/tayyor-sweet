@@ -60,6 +60,7 @@ export function ProductCard({ p, index = 0 }: { p: Product; index?: number }) {
         {p.badge === 'hit' && <span className="badge badge-hit">🔥 HIT</span>}
         {p.badge === 'new' && <span className="badge badge-new">NEW</span>}
         {(p.badge === 'sale' || (p.old_price && p.old_price > p.price)) && <span className="badge badge-sale">SALE</span>}
+        {p.pickup_only && <span className="badge badge-pickup" title={t.pickup_only}>🏠 {t.pickup}</span>}
       </div>
       {!p.in_stock && <div className="out-of-stock">{t.out_of_stock}</div>}
       <div className="pcard-body">

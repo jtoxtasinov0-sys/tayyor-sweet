@@ -143,3 +143,6 @@ CREATE TABLE IF NOT EXISTS stock_moves (
 
 CREATE INDEX IF NOT EXISTS stock_moves_product_idx ON stock_moves(product_id, id DESC);
 CREATE INDEX IF NOT EXISTS stock_moves_order_idx ON stock_moves(order_id);
+
+-- Faqat olib ketish: pochta (택배) qilinsa ezilib ketadigan tortlar
+ALTER TABLE products ADD COLUMN IF NOT EXISTS pickup_only BOOLEAN NOT NULL DEFAULT false;

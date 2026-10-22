@@ -114,6 +114,8 @@ Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` da. Ovoz e
 1. **Dashboard** — bugungi buyurtmalar, tushum, 14 kunlik grafik, top mahsulotlar
 2. **Buyurtmalar** — filtr, chekni ko'rish, holat, kuryer + trek raqam, mijozga izoh
 3. **Mahsulotlar** — rasm ramkasini sozlash, tezkor o'lcham tugmalari, ranglar, o'lcham jadvali, "📸 Story qilish", papkadan yuklash, narxlar jadvali
+   **🏠 Pochta qilib bo'lmaydi** tugmasi — kremli tortlar uchun: mijozga "Olib ketish kerak — pochta qilinsa tort ezilib ketadi" yozuvi chiqadi,
+   savatda shunday tort bo'lsa buyurtmada 택배 yopiladi va faqat "Olib ketish" tanlanadi (server ham tekshiradi).
 4. **Ombor** — qoldiqlar, kirim / chiqim / sanoq, "kam qoldi" chegarasi, harakatlar tarixi.
    Buyurtmada qoldiq o'zi kamayadi, bekor qilinsa qaytadi, tugasa mahsulot "Tugagan" bo'ladi, kam qolsa adminga xabar boradi.
    Hisob yuritilmagan mahsulotlar (masalan, buyurtmaga tayyorlanadigan tortlar) avvalgidek cheklovsiz sotiladi.

@@ -4,7 +4,7 @@ const db = require('../database/connection');
 const FIELDS = [
   'category_id', 'name_uz', 'name_ru', 'description_uz', 'description_ru', 'unit_uz', 'unit_ru',
   'price', 'old_price', 'image_id', 'gallery', 'frame', 'variants', 'colors', 'size_table',
-  'badge', 'preorder_days', 'in_stock', 'active', 'sort', 'source',
+  'badge', 'preorder_days', 'pickup_only', 'in_stock', 'active', 'sort', 'source',
 ];
 const JSON_FIELDS = new Set(['frame', 'variants', 'colors', 'size_table']);
 

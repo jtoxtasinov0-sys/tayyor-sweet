@@ -73,6 +73,7 @@ export function Cart() {
 
   const freeFrom = Number(delivery?.free_from || 0);
   const left = Math.max(0, freeFrom - subtotal);
+  const pickupOnly = items.filter((i) => i.product.pickup_only);
 
   return (
     <div className="page">
@@ -103,11 +104,18 @@ export function Cart() {
         </div>
       ))}
 
+      {pickupOnly.length > 0 && (
+        <div className="note warn">
+          <span>🏠</span>
+          <span>{t.pickup_only_cart(pickupOnly.map((i) => pName(i.product, lang)).join(', '))}</span>
+        </div>
+      )}
+
       <Upsell />
 
       <div className="summary">
         <div className="line"><span className="muted">{t.subtotal}</span><b>{won(subtotal)}</b></div>
-        {freeFrom > 0 && (
+        {freeFrom > 0 && !pickupOnly.length && (
           <div className="progress-free">
             {left > 0 ? t.free_left(won(left)) : t.free_ok}
             <div className="bar"><i style={{ width: `${Math.min(100, (subtotal / freeFrom) * 100)}%` }} /></div>

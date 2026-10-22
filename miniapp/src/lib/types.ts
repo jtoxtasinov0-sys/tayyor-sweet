@@ -35,6 +35,7 @@ export interface Product {
   size_table: SizeRow[];
   badge: 'hit' | 'new' | 'sale' | null;
   preorder_days: number;
+  pickup_only?: boolean;     // faqat olib ketish: pochta qilinsa ezilib ketadi
   in_stock: boolean;
   stock?: number | null;      // omborda qoldiq (null — hisob yuritilmaydi)
   stock_min?: number;         // faqat admin: "kam qoldi" chegarasi
