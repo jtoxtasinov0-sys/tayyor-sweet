@@ -8,7 +8,7 @@ tayyor_sweet/
 ├── backend/        Node.js: Telegram bot (Telegraf) + API (Express) + PostgreSQL (Neon)
 ├── miniapp/        Next.js (App Router) + Zustand: mini ilova (/) va admin panel (/admin)
 ├── rasmlar/        Mahsulot rasmlari — "Papkadan yuklash" shu yerdan o'qiydi (nusxasi: miniapp/public/rasmlar)
-├── video/          Video qo'llanmalarni yasovchi kod: ilovani o'rnatish, qanday buyurtma beriladi (kanvas + ovoz sintezi)
+├── video/          Video qo'llanmalarni yasovchi kod: ilovani o'rnatish, qanday buyurtma beriladi, admin panel (kanvas + ovoz sintezi)
 ├── 1_setup.bat     Paketlarni o'rnatish + bazaga 24 ta mahsulotni yuklash
 ├── 2_start.bat     Backend va mini ilovani ishga tushirish
 ├── 3_tunnel.bat    Telefonda sinash uchun https tunnel (cloudflared)
@@ -104,6 +104,11 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   tasdiqlash → to'lov cheki → holat va bot xabari. Ovozli matn: `video/assets/voice/buyurtma-uz.flac` — sahnalar va bosishlar
   uning jumlalariga moslangan (`video/src/order.js` dagi vaqtlar), musiqa ovoz ostida pasayadi. Mini ilova ekranlari
   haqiqiy sahifadan olinadi (`shots-order.mjs`, backend kerak emas — so'rovlarga namuna javob; rekvizitlar xiralashtiriladi).
+- **Admin panel qo'llanmasi** videosi (do'kon egasi uchun, iPhone, ~1.5 daqiqa): `miniapp/public/video/admin-uz.mp4` — kirish →
+  dashboard → yangi mahsulot (rasm, ramka, nomi va narxi, o'lchov, «Pochta qilib bo'lmaydi», o'lchamlar, saqlash) → buyurtma
+  (chekni tasdiqlash, trek raqam) → ombor (kirim) → kategoriyalar, story va bannerlar → rassilka → sozlamalar. Ovozli matn va
+  musiqa yo'q — faqat ovoz effektlari (-18 LUFS). Admin panel ekranlari haqiqiy sahifadan olinadi (`shots-admin.mjs`, backend
+  kerak emas; bank rekvizitlari soxta va xira), sahnalar va bosishlar vaqti — `video/src/admin.js`.
 
 **Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
 
@@ -112,13 +117,15 @@ npm i                                  # playwright (Chromium) o'rnatiladi
 (cd ../miniapp && npm run build && npx next start -p 3100)   # alohida oynada
 node shots.mjs                         # sahifa rasmlari (videodagi /ilova va do'kon)
 node shots-order.mjs                   # buyurtma videosi uchun mini ilova ekranlari (qatlamlar)
-./build.sh                             # 3 ta video: o'rnatish (iPhone, Samsung) va buyurtma → ovoz → -15 LUFS → mp4
-./build.sh buyurtma                    # faqat buyurtma videosi
+node shots-admin.mjs                   # admin panel videosi uchun ekranlar (qatlamlar)
+./build.sh                             # 4 ta video: o'rnatish (iPhone, Samsung), buyurtma, admin → ovoz → LUFS → mp4
+./build.sh buyurtma                    # faqat buyurtma videosi (yoki: ./build.sh admin)
 ./preview.sh iphone 0 10               # tez tekshiruv: oraliq kadrlari bitta rasmda
 VIDEO=buyurtma ./preview.sh iphone 0 10
+VIDEO=admin ./preview.sh iphone 0 24
 ```
 
-Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` (o'rnatish) va `video/src/order.js` (buyurtma) da. Ovoz effektlari va fon musiqasi
+Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` (o'rnatish), `video/src/order.js` (buyurtma) va `video/src/admin.js` (admin panel) da. Ovoz effektlari va fon musiqasi
 `video/audio.py` da kod bilan sintez qilinadi — tashqi fayl va litsenziya talab qilinmaydi. Shrift: Onest (OFL).
 
 ## Admin panel (8 bo'lim)

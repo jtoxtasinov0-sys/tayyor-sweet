@@ -3,10 +3,12 @@ import { W, H, C, E, F, S, clamp, lerp, pr, vis, rng, rr, fillRR, text, IMG, loa
 import { L } from './strings.js';
 import * as UI from './ui.js';
 import { buildOrder, ORDER_IMAGES } from './order.js';
+import { buildAdmin, ADMIN_IMAGES } from './admin.js';
 
 const Q = new URLSearchParams(location.search);
-// video: "ilova" — ilovani o'rnatish (iPhone/Samsung), "buyurtma" — qanday buyurtma beriladi (iPhone)
-const VIDEO = Q.get('video') === 'buyurtma' ? 'buyurtma' : 'ilova';
+// video: "ilova" — ilovani o'rnatish (iPhone/Samsung), "buyurtma" — qanday buyurtma beriladi (iPhone),
+// "admin" — admin panel qo'llanmasi (iPhone)
+const VIDEO = ['buyurtma', 'admin'].includes(Q.get('video')) ? Q.get('video') : 'ilova';
 const DEVICE = VIDEO === 'ilova' && Q.get('device') === 'samsung' ? 'samsung' : 'iphone';
 const OS = DEVICE === 'iphone' ? 'ios' : 'and';
 const D = UI.DEV[OS];
@@ -532,7 +534,7 @@ function outro(c, t) {
   const p0 = T.phoneOut + 0.5;
   if (t < p0) return;
   floaters(c, t, p0 + 0.3);
-  const [l1, l2] = L.outro;
+  const [l1, l2] = SC.outro ?? L.outro;
   const maxW = SAFE.x1 - SAFE.x0;
   [[l1, fitFont(c, l1, 800, 74, maxW), C.plum, 1050], [l2, fitFont(c, l2, 600, 38, maxW), C.muted, 1122]].forEach(([s, font, col, y], i) => {
     const p = E.out3(pr(t, p0 + 0.15 + i * 0.18, p0 + 0.6 + i * 0.18));
@@ -759,6 +761,7 @@ export async function init() {
     logoRound: '/video/assets/logo-round.png',
   };
   if (VIDEO === 'buyurtma') await loadImages({ ...common, ...ORDER_IMAGES });
+  else if (VIDEO === 'admin') await loadImages({ ...common, ...ADMIN_IMAGES });
   else
     await loadImages({
       ...common,
@@ -772,6 +775,9 @@ export async function init() {
   if (VIDEO === 'buyurtma') {
     const layout = await fetch('/video/assets/shots/order/layout.json').then((r) => r.json());
     SC = buildOrder({ touch, cam, cue }, tl, layout);
+  } else if (VIDEO === 'admin') {
+    const layout = await fetch('/video/assets/shots/admin/layout.json').then((r) => r.json());
+    SC = buildAdmin({ touch, cam, cue }, layout);
   } else {
     const layout = await fetch('/video/assets/shots/layout.json').then((r) => r.json());
     const b = layout['ilova-android-uz'];
@@ -785,5 +791,5 @@ export async function init() {
   cue(SC.T.phoneOut, 'whoosh');
   cue(SC.T.phoneOut + 0.6, 'outro');
   cues.sort((a, b) => a.t - b.t);
-  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO, voice: SC.voice ?? null, voiceTempo: SC.voiceTempo ?? 1 };
+  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO, voice: SC.voice ?? null, voiceTempo: SC.voiceTempo ?? 1, music: SC.music ?? true };
 }

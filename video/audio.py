@@ -2,7 +2,8 @@
 """Ovoz: effektlar (SFX) va yengil fon musiqasi — hammasi kodda sintez qilinadi (tashqi fayl/litsenziya yo'q).
 Ovozli matn (voice) berilgan bo'lsa — u asosiy, musiqa va effektlar uning ostida pasaytiriladi.
 Ishlatish: python3 audio.py cues.json chiqish.wav
-cues.json — render.mjs --cues bergan fayl: {dur, cues:[{t, s, g}], voice: fayl|null, ...}"""
+cues.json — render.mjs --cues bergan fayl: {dur, cues:[{t, s, g}], voice: fayl|null, music: true|false, ...}
+music: false — fon musiqasisiz, faqat effektlar"""
 import json
 import os
 import subprocess
@@ -357,7 +358,7 @@ def main():
     out_t = next((c['t'] for c in cues if c['s'] == 'outro'), dur - 2.5)
     whooshes = [c['t'] for c in cues if c['s'] == 'whoosh']
     drums_from = whooshes[0] if whooshes else 2.0
-    mix = music(dur, drums_from, out_t - 0.1)
+    mix = music(dur, drums_from, out_t - 0.1) if info.get('music', True) else np.zeros((2, int(dur * SR) + SR))
     voice = info.get('voice')
     if voice:
         v = load_voice(os.path.join(os.path.dirname(os.path.abspath(__file__)), voice), info.get('voiceTempo', 1))
