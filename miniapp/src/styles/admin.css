@@ -33,11 +33,15 @@
 .tbl tr.click { cursor: pointer; transition: background 0.15s; }
 .tbl tr.click:hover { background: #fff7fb; }
 .tbl .thumb { width: 44px; height: 44px; border-radius: 10px; }
+.tbl .nw { white-space: nowrap; }
 .tbl-wrap { overflow-x: auto; }
+.tbl-orders .c-items { max-width: 240px; }
 
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.toolbar .tabs { margin: 0; }
 .toolbar .input, .toolbar .select { height: 42px; width: auto; min-width: 200px; font-size: 14px; }
+.save-bar { position: sticky; bottom: 0; z-index: 5; margin-top: 16px; padding: 12px 0 calc(12px + var(--safe-b)); background: linear-gradient(rgba(255, 240, 247, 0), var(--bg) 35%); }
 
 /* Drawer (o'ng tomondan) */
 .drawer-bg { position: fixed; inset: 0; background: rgba(74, 36, 68, 0.4); z-index: 70; animation: fadeIn 0.2s; }
@@ -134,22 +138,115 @@
 .pre { white-space: pre-wrap; background: var(--plum); color: #ffe3f1; padding: 14px; border-radius: 12px; font-size: 13px; max-height: 420px; overflow: auto; }
 
 @media (max-width: 860px) {
-  .adm { grid-template-columns: 1fr; }
-  .adm-side { position: sticky; top: 0; z-index: 40; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; gap: 6px; scrollbar-width: none; }
+  /* Menyu tepada; sahifa qisqa bo'lsa ham cho'zilmaydi */
+  .adm { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .adm-side { position: sticky; top: 0; z-index: 40; height: auto; flex-direction: row; overflow-x: auto; padding: max(8px, env(safe-area-inset-top)) 10px 8px; gap: 6px; scrollbar-width: none; }
   .adm-side::-webkit-scrollbar { display: none; }
   .adm-brand { display: none; }
   .adm-nav { white-space: nowrap; padding: 8px 12px; font-size: 13px; flex: none; }
   .adm-nav.logout { margin-top: 0 !important; }
-  .adm-main { padding: 16px 14px 80px; }
-  .fgrid { grid-template-columns: 1fr; }
-  .frame-editor { grid-template-columns: 1fr; }
-  .frame-previews { flex-direction: row; justify-content: center; }
-  .frame-previews .frame { width: 100px; height: 100px; }
+  .adm-main { padding: 14px 14px 80px; }
+  .adm-head { margin-bottom: 14px; }
+  .adm-head h1 { font-size: 21px; }
+  .fgrid { grid-template-columns: minmax(0, 1fr); }
+  /* Rasm ramkasi: oldindan ko'rishlar rasm ostida, bir qatorda */
+  .frame-editor { grid-template-columns: minmax(0, 1fr); }
+  .frame-previews { display: grid; grid-template-rows: auto auto; grid-auto-flow: column; justify-content: space-around; justify-items: center; align-items: center; gap: 6px 10px; }
+  .frame-previews .frame { width: 80px; height: 80px; }
+  .frame-previews .frame.round { width: 56px; height: 56px; }
+  .frame-previews .frame.wide { width: 100px; height: 54px; }
+  .box h4 { flex-wrap: wrap; row-gap: 2px; }
   .hide-sm { display: none; }
   .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .stat { padding: 12px; }
   .stat b { font-size: 19px; }
   .stat .ic { font-size: 18px; top: 10px; right: 10px; }
   .stock-alert { flex-wrap: wrap; }
-  .toolbar .input { min-width: 0; flex: 1 1 100%; }
+  .toolbar .input, .toolbar .select { min-width: 0; flex: 1 1 100%; }
+  .toolbar .spacer { display: none; }
+  /* Bir nechta tugma bo'lsa qatorni teng to'ldiradi */
+  .toolbar .btn:not(:only-of-type) { flex: 1 1 auto; }
+  /* Filtrlar bir qatorda, yonga suriladi */
+  .tabs { flex-wrap: nowrap; overflow-x: auto; margin: 0 -14px 12px; padding: 0 14px 2px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .toolbar .tabs { flex: 0 0 calc(100% + 28px); margin: 0 -14px; }
+  .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pitem .b { padding: 8px 10px; }
+  .pitem .flags { flex-wrap: wrap; right: 8px; }
+  .list-row .input { padding: 0 10px; }
+  /* Drawer: tugmalar sig'masa ikkinchi qatorga o'tadi */
+  .drawer-head { padding: 12px 14px; }
+  .drawer-body { padding: 14px 14px 120px; }
+  .drawer-foot { flex-wrap: wrap; gap: 8px; padding: 10px 14px calc(10px + var(--safe-b)); }
+  .drawer-foot .spacer { display: none; }
+  .drawer-foot .btn { flex: 1 1 auto; white-space: nowrap; }
+  .save-bar .btn { width: 100%; }
+}
+
+/* Telefonda jadval qatorlari kartochka bo'lib ko'rinadi (ustunlar torayib cho'zilib ketmaydi) */
+@media (max-width: 640px) {
+  .tbl-cards thead { display: none; }
+  .tbl-cards, .tbl-cards tbody { display: block; }
+  .tbl-cards tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; padding: 12px 8px; border-bottom: 1px solid var(--line); }
+  .tbl-cards tr:last-child { border-bottom: 0; }
+  .tbl-cards td { display: block; padding: 0; border: 0; min-width: 0; }
+  .tbl-cards td.hide-sm { display: none; }
+  .tbl-cards td[colspan] { grid-column: 1 / -1; }
+  .tbl-cards td[data-label]::before { content: attr(data-label) ' '; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .tbl-cards .c-sum, .tbl-cards .c-status, .tbl-cards .c-method, .tbl-cards .c-delta, .tbl-cards .c-bal,
+  .tbl-cards .c-st, .tbl-cards .c-orders, .tbl-cards .c-act { justify-self: end; text-align: right; }
+
+  .tbl-orders tr { grid-template-areas: 'num sum' 'cust status' 'items method'; }
+  .tbl-orders.short tr { grid-template-areas: 'num sum' 'cust status'; }
+  .tbl-orders .c-num { grid-area: num; }
+  .tbl-orders .c-num, .tbl-orders .c-cust { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+  .tbl-orders .c-num div, .tbl-orders .c-cust div { white-space: nowrap; }
+  .tbl-orders .c-sum { grid-area: sum; white-space: nowrap; font-size: 15px; }
+  .tbl-orders .c-cust { grid-area: cust; }
+  .tbl-orders .c-status { grid-area: status; white-space: nowrap; }
+  .tbl-orders .c-items { grid-area: items; max-width: none; font-size: 13px; color: var(--muted); }
+  .tbl-orders .c-method { grid-area: method; font-size: 13px; white-space: nowrap; }
+
+  /* Ombor: 1-qator — mahsulot va qoldiq, 2-qator — holat va tugmalar */
+  .stock-tbl tr { grid-template-areas: 'prod qty' 'lvl act'; gap: 8px 12px; }
+  .stock-tbl .c-prod { grid-area: prod; }
+  .stock-tbl .thumb { flex: none; }
+  .stock-tbl .c-qty { grid-area: qty; text-align: right; }
+  .stock-tbl td.c-lvl { grid-area: lvl; display: block; }
+  .stock-tbl .lvl { white-space: normal; }
+  .stock-tbl .c-act { grid-area: act; }
+  .stock-tbl .c-act .btn.hide-sm { display: inline-flex; }
+
+  .tbl-moves tr { grid-template-areas: 'prod delta' 'reason bal' 'date date'; gap: 2px 12px; }
+  .tbl-moves .c-prod { grid-area: prod; }
+  .tbl-moves .c-delta { grid-area: delta; }
+  .tbl-moves .c-reason { grid-area: reason; font-size: 13px; }
+  .tbl-moves .c-bal { grid-area: bal; font-size: 13px; }
+  .tbl-moves .c-date { grid-area: date; font-size: 12px !important; }
+
+  .tbl-cats tr { grid-template-columns: 56px minmax(0, 1fr) auto auto; grid-template-areas: 'emoji uz uz uz' 'ru ru ru sort' 'count count active act'; gap: 8px; }
+  .tbl-cats .c-emoji { grid-area: emoji; width: auto !important; }
+  .tbl-cats .c-emoji .input { padding: 0; text-align: center; font-size: 18px; }
+  .tbl-cats .c-uz { grid-area: uz; }
+  .tbl-cats .c-ru { grid-area: ru; }
+  .tbl-cats tr.add .c-ru { grid-column: 1 / -1; }
+  .tbl-cats .c-sort { grid-area: sort; width: auto !important; display: flex; align-items: center; gap: 6px; }
+  .tbl-cats .c-sort .input { width: 64px; padding: 0 10px; }
+  .tbl-cats .c-count { grid-area: count; white-space: nowrap; }
+  .tbl-cats .c-active { grid-area: active; }
+  .tbl-cats .c-act { grid-area: act; }
+
+  .tbl-users tr { grid-template-areas: 'user sum' 'phone orders' 'seen act'; }
+  .tbl-users .c-user { grid-area: user; }
+  .tbl-users .c-sum { grid-area: sum; font-weight: 800; white-space: nowrap; }
+  .tbl-users .c-phone { grid-area: phone; font-size: 14px; }
+  .tbl-users .c-orders { grid-area: orders; font-size: 14px; white-space: nowrap; }
+  .tbl-users .c-seen { grid-area: seen; font-size: 12px; }
+  .tbl-users .c-act { grid-area: act; }
+
+  .tbl-bc tr { grid-template-areas: 'date st' 'text text' 'count count'; gap: 2px 12px; padding: 10px 0; }
+  .tbl-bc .c-date { grid-area: date; font-size: 12px; }
+  .tbl-bc .c-st { grid-area: st; }
+  .tbl-bc .c-text { grid-area: text; max-width: none !important; }
+  .tbl-bc .c-count { grid-area: count; font-size: 13px; }
 }

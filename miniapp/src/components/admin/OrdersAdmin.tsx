@@ -48,19 +48,19 @@ export function OrdersAdmin({ openId, onOpened }: { openId?: number | null; onOp
         {loading && !data ? (
           <Spinner />
         ) : (
-          <table className="tbl">
+          <table className="tbl tbl-cards tbl-orders">
             <thead>
               <tr><th>Raqam</th><th>Mijoz</th><th>Mahsulotlar</th><th>Yetkazish</th><th>Holat</th><th style={{ textAlign: 'right' }}>Summa</th></tr>
             </thead>
             <tbody>
               {data?.rows.map((o) => (
                 <tr key={o.id} className="click" onClick={() => setSelected(o.id)}>
-                  <td><b>#{o.number}</b><div className="muted" style={{ fontSize: 12 }}>{fmtDate(o.created_at, 'uz')}</div></td>
-                  <td>{o.customer_name}<div className="muted" style={{ fontSize: 12 }}>{o.phone}</div></td>
-                  <td style={{ maxWidth: 240 }}>{o.items.map((i) => `${i.name} ×${i.qty}`).join(', ')}</td>
-                  <td>{METHOD_UZ[o.delivery_method]}</td>
-                  <td><span className={`status st-${o.status}`}>{STATUS_UZ[o.status]}</span>{o.receipt_image_id ? ' 🧾' : ''}</td>
-                  <td style={{ textAlign: 'right' }}><b>{won(o.total)}</b></td>
+                  <td className="c-num"><b>#{o.number}</b><div className="muted" style={{ fontSize: 12 }}>{fmtDate(o.created_at, 'uz')}</div></td>
+                  <td className="c-cust">{o.customer_name}<div className="muted" style={{ fontSize: 12 }}>{o.phone}</div></td>
+                  <td className="c-items">{o.items.map((i) => `${i.name} ×${i.qty}`).join(', ')}</td>
+                  <td className="c-method">{METHOD_UZ[o.delivery_method]}</td>
+                  <td className="c-status"><span className={`status st-${o.status}`}>{STATUS_UZ[o.status]}</span>{o.receipt_image_id ? ' 🧾' : ''}</td>
+                  <td className="c-sum nw" style={{ textAlign: 'right' }}><b>{won(o.total)}</b></td>
                 </tr>
               ))}
               {!data?.rows.length && <tr><td colSpan={6} className="muted" style={{ textAlign: 'center', padding: 30 }}>Buyurtmalar yo&apos;q</td></tr>}
@@ -173,8 +173,8 @@ function OrderDrawer({ id, couriers, onClose, onSaved }: { id: number; couriers:
                   <tr key={k}>
                     <td style={{ width: 52 }}><img className="thumb" src={imgSrc(i.image_id)} alt="" style={{ objectFit: 'cover' }} /></td>
                     <td>{i.name}<div className="muted" style={{ fontSize: 12 }}>{[i.variant, i.color, i.unit].filter(Boolean).join(' · ')}</div></td>
-                    <td>×{i.qty}</td>
-                    <td style={{ textAlign: 'right' }}>{won(i.price * i.qty)}</td>
+                    <td className="nw">×{i.qty}</td>
+                    <td className="nw" style={{ textAlign: 'right' }}>{won(i.price * i.qty)}</td>
                   </tr>
                 ))}
               </tbody>

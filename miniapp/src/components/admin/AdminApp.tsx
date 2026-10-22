@@ -1,6 +1,6 @@
 'use client';
 // Admin panel: kirish (parol yoki Telegram admin), 8 ta bo'lim
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AdminContext, useLoad } from './common';
 import { Dashboard } from './Dashboard';
 import { OrdersAdmin } from './OrdersAdmin';
@@ -122,6 +122,7 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
 function Shell() {
   const [section, setSection] = useState<SectionId>('dashboard');
   const [openOrder, setOpenOrder] = useState<number | null>(null);
+  const nav = useRef<HTMLElement>(null);
   const { data: counts, reload } = useLoad<{
     stats: { receipts: number; to_ship: number };
     stock?: { low: number; empty: number };
@@ -131,6 +132,11 @@ function Shell() {
     const id = setInterval(reload, 60_000);
     return () => clearInterval(id);
   }, [reload]);
+
+  // Telefonda menyu yonga suriladi — tanlangan bo'lim doim ko'rinib tursin
+  useEffect(() => {
+    nav.current?.querySelector('.adm-nav.on')?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [section]);
 
   const go = (s: string, orderId?: number) => {
     setSection(s as SectionId);
@@ -145,7 +151,7 @@ function Shell() {
     <AdminContext.Consumer>
       {({ logout }) => (
         <div className="adm">
-          <nav className="adm-side">
+          <nav className="adm-side" ref={nav}>
             <div className="adm-brand">
               <img src="/images/logo.png" alt="" />
               <div><b>Tayyor &amp; Sweet</b><small>ADMIN</small></div>

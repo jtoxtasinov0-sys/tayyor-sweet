@@ -138,7 +138,7 @@ export function StockAdmin({ onChange }: { onChange?: () => void }) {
 
       <div className="toolbar" style={{ marginTop: 16 }}>
         <input className="input" placeholder="🔎 Mahsulot qidirish" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="tabs" style={{ margin: 0 }}>
+        <div className="tabs">
           {FILTERS.map((f) => (
             <button key={f.id} className={cx('chip', filter === f.id && 'active')} onClick={() => setFilter(f.id)}>
               {f.label}
@@ -148,7 +148,7 @@ export function StockAdmin({ onChange }: { onChange?: () => void }) {
       </div>
 
       <div className="adm-card tbl-wrap">
-        <table className="tbl stock-tbl">
+        <table className="tbl tbl-cards stock-tbl">
           <thead>
             <tr>
               <th>Mahsulot</th>
@@ -164,7 +164,7 @@ export function StockAdmin({ onChange }: { onChange?: () => void }) {
               const lv = level(p);
               return (
                 <tr key={p.id} className={cx('click', !p.active && 'off')} onClick={() => setOpen({ id: p.id, type: 'in' })}>
-                  <td>
+                  <td className="c-prod">
                     <div className="row" style={{ gap: 10 }}>
                       <Img id={p.image_id} frame={p.frame} className="thumb" />
                       <div style={{ minWidth: 0 }}>
@@ -177,13 +177,13 @@ export function StockAdmin({ onChange }: { onChange?: () => void }) {
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td className="c-qty">
                     {p.stock === null ? <span className="muted">—</span> : <span className={cx('stock-num', `n-${lv}`)}>{p.stock}</span>}
                   </td>
-                  <td className="hide-sm"><span className={`lvl lvl-${lv}`}>{LEVEL[lv]}</span></td>
+                  <td className="c-lvl hide-sm"><span className={`lvl lvl-${lv}`}>{LEVEL[lv]}</span></td>
                   <td className="hide-sm muted">{p.stock === null ? '—' : p.stock_min}</td>
                   <td className="hide-sm muted" style={{ fontSize: 13 }}>{p.last_move_at ? fmtDate(p.last_move_at, 'uz') : '—'}</td>
-                  <td>
+                  <td className="c-act">
                     <div className="stock-actions" onClick={(e) => e.stopPropagation()}>
                       <button className="btn btn-soft" title="Kirim" onClick={() => setOpen({ id: p.id, type: 'in' })}>⬆️<span className="hide-sm"> Kirim</span></button>
                       <button className="btn btn-soft" disabled={p.stock === null} title="Chiqim" onClick={() => setOpen({ id: p.id, type: 'out' })}>⬇️<span className="hide-sm"> Chiqim</span></button>
@@ -206,19 +206,19 @@ export function StockAdmin({ onChange }: { onChange?: () => void }) {
         <h3 style={{ fontSize: 16, marginBottom: 8 }}>🕘 So&apos;nggi harakatlar</h3>
         {!data.moves.length && <p className="muted">Hali kirim-chiqim yo&apos;q</p>}
         <div className="tbl-wrap">
-          <table className="tbl">
+          <table className="tbl tbl-cards tbl-moves">
             <tbody>
               {data.moves.map((m) => (
                 <tr key={m.id} className="click" onClick={() => setOpen({ id: m.product_id, type: 'in' })}>
-                  <td className="muted" style={{ whiteSpace: 'nowrap', fontSize: 13 }}>{fmtDate(m.created_at, 'uz')}</td>
-                  <td><b>{m.product_name}</b></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>
+                  <td className="c-date muted" style={{ whiteSpace: 'nowrap', fontSize: 13 }}>{fmtDate(m.created_at, 'uz')}</td>
+                  <td className="c-prod"><b>{m.product_name}</b></td>
+                  <td className="c-reason" style={{ whiteSpace: 'nowrap' }}>
                     {REASON[m.reason] || m.reason}
                     {m.order_number && <span className="muted"> #{m.order_number}</span>}
                   </td>
                   <td className="hide-sm muted">{m.note}</td>
-                  <td style={{ textAlign: 'right' }}><Delta n={m.delta} /></td>
-                  <td className="muted" style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>= {m.balance}</td>
+                  <td className="c-delta" style={{ textAlign: 'right' }}><Delta n={m.delta} /></td>
+                  <td className="c-bal muted" style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>= {m.balance}</td>
                 </tr>
               ))}
             </tbody>

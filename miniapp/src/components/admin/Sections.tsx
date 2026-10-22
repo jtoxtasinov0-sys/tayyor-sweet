@@ -32,27 +32,27 @@ export function CategoriesAdmin() {
   if (!data) return <Spinner />;
   return (
     <div className="adm-card tbl-wrap">
-      <table className="tbl">
+      <table className="tbl tbl-cards tbl-cats">
         <thead><tr><th>Emoji</th><th>Nomi (uz)</th><th>Nomi (ru)</th><th>Tartib</th><th>Mahsulot</th><th>Faol</th><th /></tr></thead>
         <tbody>
           {data.map((c) => (
             <tr key={c.id}>
-              <td style={{ width: 70 }}><input className="input" style={{ height: 40 }} value={c.emoji || ''} onChange={(e) => patch(c.id, { emoji: e.target.value })} /></td>
-              <td><input className="input" style={{ height: 40 }} value={c.name_uz} onChange={(e) => patch(c.id, { name_uz: e.target.value })} /></td>
-              <td><input className="input" style={{ height: 40 }} value={c.name_ru || ''} onChange={(e) => patch(c.id, { name_ru: e.target.value })} /></td>
-              <td style={{ width: 80 }}><input className="input" style={{ height: 40 }} type="number" value={c.sort} onChange={(e) => patch(c.id, { sort: Number(e.target.value) })} /></td>
-              <td className="muted">{c.products_count}</td>
-              <td><Switch checked={c.active} onChange={(v) => patch(c.id, { active: v })} label="" /></td>
-              <td style={{ whiteSpace: 'nowrap' }}>
+              <td className="c-emoji" style={{ width: 70 }}><input className="input" style={{ height: 40 }} value={c.emoji || ''} onChange={(e) => patch(c.id, { emoji: e.target.value })} /></td>
+              <td className="c-uz"><input className="input" style={{ height: 40 }} value={c.name_uz} onChange={(e) => patch(c.id, { name_uz: e.target.value })} /></td>
+              <td className="c-ru"><input className="input" style={{ height: 40 }} placeholder="Ruscha" value={c.name_ru || ''} onChange={(e) => patch(c.id, { name_ru: e.target.value })} /></td>
+              <td className="c-sort" data-label="Tartib" style={{ width: 80 }}><input className="input" style={{ height: 40 }} type="number" value={c.sort} onChange={(e) => patch(c.id, { sort: Number(e.target.value) })} /></td>
+              <td className="c-count muted" data-label="Mahsulot:">{c.products_count}</td>
+              <td className="c-active"><Switch checked={c.active} onChange={(v) => patch(c.id, { active: v })} label="" /></td>
+              <td className="c-act" style={{ whiteSpace: 'nowrap' }}>
                 <button className="btn btn-dark btn-sm" onClick={() => save(c)}>💾</button>{' '}
                 <button className="x-btn" onClick={() => remove(c)}>×</button>
               </td>
             </tr>
           ))}
-          <tr>
-            <td><input className="input" style={{ height: 40 }} value={add.emoji} onChange={(e) => setAdd({ ...add, emoji: e.target.value })} /></td>
-            <td><input className="input" style={{ height: 40 }} placeholder="Yangi kategoriya" value={add.name_uz} onChange={(e) => setAdd({ ...add, name_uz: e.target.value })} /></td>
-            <td><input className="input" style={{ height: 40 }} placeholder="Ruscha" value={add.name_ru} onChange={(e) => setAdd({ ...add, name_ru: e.target.value })} /></td>
+          <tr className="add">
+            <td className="c-emoji"><input className="input" style={{ height: 40 }} value={add.emoji} onChange={(e) => setAdd({ ...add, emoji: e.target.value })} /></td>
+            <td className="c-uz"><input className="input" style={{ height: 40 }} placeholder="Yangi kategoriya" value={add.name_uz} onChange={(e) => setAdd({ ...add, name_uz: e.target.value })} /></td>
+            <td className="c-ru"><input className="input" style={{ height: 40 }} placeholder="Ruscha" value={add.name_ru} onChange={(e) => setAdd({ ...add, name_ru: e.target.value })} /></td>
             <td colSpan={4}><button className="btn btn-primary btn-sm" onClick={create}>+ Qo&apos;shish</button></td>
           </tr>
         </tbody>
@@ -95,7 +95,7 @@ function PromoList({ kind }: { kind: 'stories' | 'banners' }) {
         <button className="btn btn-primary btn-sm" onClick={create}>+ Qo&apos;shish</button>
       </div>
       {kind === 'stories' && <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>Maslahat: Mahsulotlar bo&apos;limida mahsulotni ochib &quot;📸 Story qilish&quot; tugmasini bossangiz, bir bosishda story tayyor bo&apos;ladi.</p>}
-      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))' }}>
         {data.map((x) => {
           const product = products?.find((p) => p.id === x.product_id);
           return (
@@ -215,18 +215,20 @@ export function CustomersAdmin() {
           <button className="btn btn-primary btn-sm" disabled={busy} onClick={sendBroadcast}>🚀 Yuborish</button>
         </div>
         {!!history?.length && (
-          <table className="tbl" style={{ marginTop: 14 }}>
-            <tbody>
-              {history.slice(0, 5).map((b) => (
-                <tr key={b.id}>
-                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(b.created_at, 'uz')}</td>
-                  <td style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.text}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>✅ {b.sent} · ❌ {b.failed} / {b.total}</td>
-                  <td>{b.status === 'running' ? '⏳' : '✔︎'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="tbl-wrap" style={{ marginTop: 14 }}>
+            <table className="tbl tbl-cards tbl-bc">
+              <tbody>
+                {history.slice(0, 5).map((b) => (
+                  <tr key={b.id}>
+                    <td className="c-date muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(b.created_at, 'uz')}</td>
+                    <td className="c-text" style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.text}</td>
+                    <td className="c-count" style={{ whiteSpace: 'nowrap' }}>✅ {b.sent} · ❌ {b.failed} / {b.total}</td>
+                    <td className="c-st">{b.status === 'running' ? '⏳' : '✔︎'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -235,21 +237,21 @@ export function CustomersAdmin() {
         <span className="muted">{data?.total ?? 0} ta mijoz</span>
       </div>
       <div className="adm-card tbl-wrap" style={{ padding: 6 }}>
-        <table className="tbl">
-          <thead><tr><th>Mijoz</th><th>Telefon</th><th>Til</th><th>Buyurtma</th><th>Xarid</th><th>Oxirgi faollik</th><th /></tr></thead>
+        <table className="tbl tbl-cards tbl-users">
+          <thead><tr><th>Mijoz</th><th>Telefon</th><th className="hide-sm">Til</th><th>Buyurtma</th><th>Xarid</th><th>Oxirgi faollik</th><th /></tr></thead>
           <tbody>
             {data?.rows.map((u) => (
               <tr key={u.id}>
-                <td>
+                <td className="c-user">
                   <b>{u.first_name || '—'}</b> {u.is_admin && <span className="badge badge-hit">ADMIN</span>} {u.bot_blocked && <span className="badge badge-sale">bloklagan</span>}
                   <div className="muted" style={{ fontSize: 12 }}>{u.username ? <a href={`https://t.me/${u.username}`} target="_blank" rel="noreferrer">@{u.username}</a> : Number(u.id) < 0 ? '🌐 Sayt' : u.id}</div>
                 </td>
-                <td>{u.phone || '—'}</td>
-                <td>{u.lang || '—'}</td>
-                <td>{u.orders_count}</td>
-                <td>{won(u.orders_sum)}</td>
-                <td className="muted">{fmtDate(u.last_seen, 'uz')}</td>
-                <td>{Number(u.id) > 0 && <button className="btn btn-ghost btn-sm" onClick={() => toggleAdmin(u)}>{u.is_admin ? 'Adminlikdan olish' : 'Admin qilish'}</button>}</td>
+                <td className="c-phone">{u.phone || '—'}</td>
+                <td className="hide-sm">{u.lang || '—'}</td>
+                <td className="c-orders" data-label="Buyurtma:">{u.orders_count}</td>
+                <td className="c-sum nw">{won(u.orders_sum)}</td>
+                <td className="c-seen muted">{fmtDate(u.last_seen, 'uz')}</td>
+                <td className="c-act">{Number(u.id) > 0 && <button className="btn btn-ghost btn-sm" onClick={() => toggleAdmin(u)}>{u.is_admin ? 'Adminlikdan olish' : 'Admin qilish'}</button>}</td>
               </tr>
             ))}
           </tbody>
@@ -349,7 +351,7 @@ export function SettingsAdmin() {
         </div>
       </div>
 
-      <div style={{ marginTop: 16 }}>
+      <div className="save-bar">
         <button className="btn btn-primary" disabled={busy} onClick={save}>💾 Saqlash</button>
       </div>
       <p className="muted" style={{ fontSize: 12 }}>Logo: <code>miniapp/public/images/logo.png</code> · rasm: <img src={imgSrc(null)} alt="" style={{ width: 20, height: 20, borderRadius: 99, display: 'inline', verticalAlign: 'middle' }} /></p>

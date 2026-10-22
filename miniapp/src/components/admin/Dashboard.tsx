@@ -57,7 +57,7 @@ export function Dashboard({ go }: { go: (section: string, orderId?: number) => v
         </div>
       )}
 
-      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginTop: 14 }}>
+      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', marginTop: 14 }}>
         <div className="adm-card">
           <h3 style={{ fontSize: 16 }}>So&apos;nggi 14 kun — buyurtmalar</h3>
           <div className="bars">
@@ -79,8 +79,8 @@ export function Dashboard({ go }: { go: (section: string, orderId?: number) => v
                 <tr key={t.name}>
                   <td style={{ width: 24 }}><b>{i + 1}</b></td>
                   <td>{t.name}</td>
-                  <td className="muted">{t.qty} ta</td>
-                  <td style={{ textAlign: 'right' }}><b>{won(t.sum)}</b></td>
+                  <td className="muted nw">{t.qty} ta</td>
+                  <td className="nw" style={{ textAlign: 'right' }}><b>{won(t.sum)}</b></td>
                 </tr>
               ))}
             </tbody>
@@ -95,14 +95,14 @@ export function Dashboard({ go }: { go: (section: string, orderId?: number) => v
           <button className="btn btn-soft btn-sm" onClick={() => go('orders')}>Barchasi →</button>
         </div>
         <div className="tbl-wrap">
-          <table className="tbl">
+          <table className="tbl tbl-cards tbl-orders short">
             <tbody>
               {data.latest.map((o) => (
                 <tr key={o.id} className="click" onClick={() => go('orders', o.id)}>
-                  <td><b>#{o.number}</b><div className="muted" style={{ fontSize: 12 }}>{fmtDate(o.created_at, 'uz')}</div></td>
-                  <td>{o.customer_name}</td>
-                  <td><span className={`status st-${o.status}`}>{STATUS_UZ[o.status]}</span></td>
-                  <td style={{ textAlign: 'right' }}><b>{won(o.total)}</b></td>
+                  <td className="c-num"><b>#{o.number}</b><div className="muted" style={{ fontSize: 12 }}>{fmtDate(o.created_at, 'uz')}</div></td>
+                  <td className="c-cust">{o.customer_name}</td>
+                  <td className="c-status"><span className={`status st-${o.status}`}>{STATUS_UZ[o.status]}</span></td>
+                  <td className="c-sum nw" style={{ textAlign: 'right' }}><b>{won(o.total)}</b></td>
                 </tr>
               ))}
             </tbody>
