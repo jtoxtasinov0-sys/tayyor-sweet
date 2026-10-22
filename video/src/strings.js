@@ -26,6 +26,31 @@ export const L = {
     ],
   },
   outro: ['Yoqimli ishtaha! 🍰', "Savol bo'lsa — botga yozing 💬"],
+  // "Qanday buyurtma beriladi" videosi (iPhone; mini ilova o'zbekcha, Telegram ruscha)
+  order: {
+    intro: ['Qanday qilib', 'buyurtma beriladi?'],
+    intro_sub: '6 ta oson qadam',
+    steps: [
+      ["Botda «Do'konni ochish» ni bosing", 'yoki telefondagi ilovani oching 📲'],
+      ['Yoqqan mahsulotni tanlang', "Rasmini bosing — batafsil ma'lumot ochiladi"],
+      ["O'lchamni tanlang va «Savatga qo'shish» ni bosing", "Narx tanlangan o'lchamga qarab o'zgaradi"],
+      ['Savatni oching va «Rasmiylashtirish» ni bosing', 'Mahsulot, soni va narxini tekshiring'],
+      ['Manzilni yozing va «Buyurtmani tasdiqlash» ni bosing', "Yetkazish: 택배 (pochta) yoki do'kondan olib ketish"],
+      ["Pul o'tkazing va «Chekni yuborish» ni bosing", "To'lov skrinshotini chek sifatida yuklang"],
+      ['Tayyor! Buyurtma qabul qilindi 🎉', 'Tasdiqlansa — bot sizga xabar yuboradi 🔔'],
+    ],
+    app: '📲 Ilova',
+    tgClose: 'Закрыть',
+    added: "✓ Savatga qo'shildi",
+    created: '🎉 Buyurtma qabul qilindi!',
+    sent: '🧾 Chek yuborildi! Tez orada tasdiqlaymiz.',
+    notifTitle: 'Tayyor & Sweet',
+    // bot xabari (backend: status_changed) — iPhone bildirishnomasida
+    notif: ["🔔 Buyurtma #TS-261022-4821 holati o'zgardi:", '✅ Tasdiqlandi'],
+    now: 'сейчас',
+    phone: '010-5523-7788',
+    address: '경기도 안산시 단원구 고잔동 123',
+  },
   homeSearch: 'Поиск',
   // Telegram: ilova ruscha, bot xabarlari o'zbekcha
   tg: {

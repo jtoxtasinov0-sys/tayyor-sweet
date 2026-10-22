@@ -2,9 +2,12 @@
 import { W, H, C, E, F, S, clamp, lerp, pr, vis, rng, rr, fillRR, text, IMG, loadImages, shadow, noShadow } from './core.js';
 import { L } from './strings.js';
 import * as UI from './ui.js';
+import { buildOrder, ORDER_IMAGES } from './order.js';
 
 const Q = new URLSearchParams(location.search);
-const DEVICE = Q.get('device') === 'samsung' ? 'samsung' : 'iphone';
+// video: "ilova" — ilovani o'rnatish (iPhone/Samsung), "buyurtma" — qanday buyurtma beriladi (iPhone)
+const VIDEO = Q.get('video') === 'buyurtma' ? 'buyurtma' : 'ilova';
+const DEVICE = VIDEO === 'ilova' && Q.get('device') === 'samsung' ? 'samsung' : 'iphone';
 const OS = DEVICE === 'iphone' ? 'ios' : 'and';
 const D = UI.DEV[OS];
 
@@ -207,8 +210,10 @@ function buildIphone(tl) {
     drawApp(c, t);
   };
   const sparkAt = { t: T.fresh, pt: { x: freshRect.cx, y: freshRect.cy } };
-  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6], sparkAt, confetti: T.shop + 0.1 };
+  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6], sparkAt, confetti: T.shop + 0.1, ...installTexts() };
 }
+
+const installTexts = () => ({ texts: L.steps[DEVICE], intro: L.intro[DEVICE], introSub: L.intro_sub });
 
 function buildSamsung(tl, pageBtn) {
   const A = L.and, tg = L.tg;
@@ -322,7 +327,7 @@ function buildSamsung(tl, pageBtn) {
     drawApp(c, t);
   };
   const sparkAt = { t: T.fresh, pt: { x: freshRect.cx, y: freshRect.cy } };
-  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6], sparkAt, confetti: T.shop + 0.1 };
+  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6], sparkAt, confetti: T.shop + 0.1, ...installTexts() };
 }
 
 // ---------- Fon, sarlavha, matnlar ----------
@@ -389,7 +394,7 @@ function caption(c, t) {
   const t0 = steps[i];
   const next = steps[i + 1] ?? SC.T.phoneOut;
   const out = pr(t, next - 0.3, next);
-  const [txt, hint] = L.steps[DEVICE][i];
+  const [txt, hint] = SC.texts[i];
   const final = i === steps.length - 1;
   c.save();
   c.globalAlpha = 1 - E.in2(out);
@@ -430,7 +435,8 @@ function caption(c, t) {
     }
   });
   // izoh
-  const hp = E.out3(pr(t, t0 + 0.5, t0 + 0.9));
+  const h0 = SC.hintAt?.[i] ?? t0 + 0.5;
+  const hp = E.out3(pr(t, h0, h0 + 0.4));
   if (hp > 0) {
     c.globalAlpha *= hp;
     const hf = fitFont(c, hint, 600, 26, SAFE.x1 - SAFE.x0);
@@ -468,7 +474,7 @@ function intro(c, t) {
   c.save();
   c.globalAlpha = 1 - out;
   c.translate(0, -60 * out);
-  const [l1, l2] = L.intro[DEVICE];
+  const [l1, l2] = SC.intro;
   const maxW = SAFE.x1 - SAFE.x0;
   const items = [
     [l1, fitFont(c, l1, 800, 84, maxW), C.accent, 1045],
@@ -486,14 +492,14 @@ function intro(c, t) {
   const sp = E.back(pr(t, 0.95, 1.35));
   if (sp > 0) {
     c.font = F(700, 38);
-    const w = c.measureText(L.intro_sub).width + 60;
+    const w = c.measureText(SC.introSub).width + 60;
     c.save();
     c.translate(540, 1238);
     c.scale(sp, sp);
     shadow(c, 16, 'rgba(217,79,147,0.25)', 6);
     fillRR(c, -w / 2, -34, w, 68, 34, '#fff');
     noShadow(c);
-    text(c, L.intro_sub, 0, 13, F(700, 38), C.accent, 'center');
+    text(c, SC.introSub, 0, 13, F(700, 38), C.accent, 'center');
     c.restore();
   }
   floaters(c, t, 0.2);
@@ -623,6 +629,7 @@ function finger(c, t, toCanvas) {
 
 function sparkles(c, t, toCanvas) {
   const s = SC.sparkAt;
+  if (!s) return;
   const age = t - s.t;
   if (age < 0 || age > 1.2) return;
   const p = toCanvas(s.pt.x * K + SCR.x, s.pt.y * K + SCR.y);
@@ -684,6 +691,7 @@ export function drawFrame(c, t) {
   intro(c, t);
   outro(c, t);
   caption(c, t);
+  SC.behind?.(c, t);
   const off = phoneOffset(t);
   const cm = cam.at(t);
   const toCanvas = (x, y) => ({ x: ANCHOR.x + (x - ANCHOR.x) * cm.s, y: ANCHOR.y + (y - cm.fy) * cm.s + off });
@@ -717,6 +725,7 @@ export function drawFrame(c, t) {
       c.restore();
     }
     sparkles(c, t, toCanvas);
+    SC.front?.(c, t);
     finger(c, t, toCanvas);
   }
   logo(c, t);
@@ -740,22 +749,32 @@ function layerCtx(c) {
 }
 
 export async function init() {
-  await loadImages({
+  const common = {
     logo: '/miniapp/public/images/logo.png',
     icon: '/miniapp/public/icons/icon-512.png',
     welcome: '/miniapp/public/og.jpg',
     logoRound: '/video/assets/logo-round.png',
-    pageIos: '/video/assets/shots/ilova-ios-uz.png',
-    pageAnd: '/video/assets/shots/ilova-android-uz.png',
-    shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-uz.png`,
-  });
+  };
+  if (VIDEO === 'buyurtma') await loadImages({ ...common, ...ORDER_IMAGES });
+  else
+    await loadImages({
+      ...common,
+      pageIos: '/video/assets/shots/ilova-ios-uz.png',
+      pageAnd: '/video/assets/shots/ilova-android-uz.png',
+      shop: `/video/assets/shots/shop-${OS === 'ios' ? 'ios' : 'android'}-uz.png`,
+    });
   await document.fonts.ready;
-  const layout = await fetch('/video/assets/shots/layout.json').then((r) => r.json());
   const c = document.getElementById('c').getContext('2d');
   const tl = UI.tgLayout(c, OS, L.tg);
-  const b = layout['ilova-android-uz'];
-  const pageBtn = { x: b.x, y: b.y, w: b.width, h: b.height, cx: b.x + b.width / 2, cy: b.y + b.height / 2 };
-  SC = DEVICE === 'iphone' ? buildIphone(tl) : buildSamsung(tl, pageBtn);
+  if (VIDEO === 'buyurtma') {
+    const layout = await fetch('/video/assets/shots/order/layout.json').then((r) => r.json());
+    SC = buildOrder({ touch, cam, cue }, tl, layout);
+  } else {
+    const layout = await fetch('/video/assets/shots/layout.json').then((r) => r.json());
+    const b = layout['ilova-android-uz'];
+    const pageBtn = { x: b.x, y: b.y, w: b.width, h: b.height, cx: b.x + b.width / 2, cy: b.y + b.height / 2 };
+    SC = DEVICE === 'iphone' ? buildIphone(tl) : buildSamsung(tl, pageBtn);
+  }
   // qadam almashganda yumshoq "whoosh"
   cue(0.05, 'pop'); cue(0.38, 'swish', 0.8); cue(0.95, 'tick', 0.8);
   cue(SC.T.phoneIn, 'whoosh');
@@ -763,5 +782,5 @@ export async function init() {
   cue(SC.T.phoneOut, 'whoosh');
   cue(SC.T.phoneOut + 0.6, 'outro');
   cues.sort((a, b) => a.t - b.t);
-  return { dur: SC.T.dur, cues, device: DEVICE };
+  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO };
 }

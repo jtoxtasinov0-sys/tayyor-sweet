@@ -8,7 +8,7 @@ tayyor_sweet/
 ├── backend/        Node.js: Telegram bot (Telegraf) + API (Express) + PostgreSQL (Neon)
 ├── miniapp/        Next.js (App Router) + Zustand: mini ilova (/) va admin panel (/admin)
 ├── rasmlar/        Mahsulot rasmlari — "Papkadan yuklash" shu yerdan o'qiydi (nusxasi: miniapp/public/rasmlar)
-├── video/          "Ilovani o'rnatish" video qo'llanmalarini yasovchi kod (kanvas + ovoz sintezi)
+├── video/          Video qo'llanmalarni yasovchi kod: ilovani o'rnatish, qanday buyurtma beriladi (kanvas + ovoz sintezi)
 ├── 1_setup.bat     Paketlarni o'rnatish + bazaga 24 ta mahsulotni yuklash
 ├── 2_start.bat     Backend va mini ilovani ishga tushirish
 ├── 3_tunnel.bat    Telefonda sinash uchun https tunnel (cloudflared)
@@ -95,6 +95,9 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
   `miniapp/public/video/ilova-<iphone|samsung>-uz.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
   Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
+- **Qanday buyurtma beriladi** videosi (iPhone, Reels uchun): `miniapp/public/video/buyurtma-uz.mp4` — botda
+  «Do'konni ochish» → mahsulot → o'lcham → savat → manzil → to'lov cheki → holat va bot xabari. Mini ilova ekranlari
+  haqiqiy sahifadan olinadi (`shots-order.mjs`, backend kerak emas — so'rovlarga namuna javob; rekvizitlar xiralashtiriladi).
 
 **Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
 
@@ -102,11 +105,14 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
 npm i                                  # playwright (Chromium) o'rnatiladi
 (cd ../miniapp && npm run build && npx next start -p 3100)   # alohida oynada
 node shots.mjs                         # sahifa rasmlari (videodagi /ilova va do'kon)
-./build.sh                             # 2 ta video (iPhone, Samsung): kadrlar → ovoz → -15 LUFS → mp4
+node shots-order.mjs                   # buyurtma videosi uchun mini ilova ekranlari (qatlamlar)
+./build.sh                             # 3 ta video: o'rnatish (iPhone, Samsung) va buyurtma → ovoz → -15 LUFS → mp4
+./build.sh buyurtma                    # faqat buyurtma videosi
 ./preview.sh iphone 0 10               # tez tekshiruv: oraliq kadrlari bitta rasmda
+VIDEO=buyurtma ./preview.sh iphone 0 10
 ```
 
-Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` da. Ovoz effektlari va fon musiqasi
+Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` (o'rnatish) va `video/src/order.js` (buyurtma) da. Ovoz effektlari va fon musiqasi
 `video/audio.py` da kod bilan sintez qilinadi — tashqi fayl va litsenziya talab qilinmaydi. Shrift: Onest (OFL).
 
 ## Admin panel (8 bo'lim)

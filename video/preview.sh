@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tez tekshiruv: oraliqni kichik o'lchamda chizib, bitta varaqqa (contact sheet) yig'adi
-# ./preview.sh iphone 0 6 [fps=4] [cols=6] [scale=0.3] [outdir]
+# ./preview.sh iphone 0 6 [fps=4] [cols=6] [scale=0.3] [outdir]   (buyurtma videosi: VIDEO=buyurtma ./preview.sh iphone ...)
 set -e
 D=$1; FROM=$2; TO=$3; FPS=${4:-4}; COLS=${5:-6}; SC=${6:-0.3}; OUT=${7:-renders/previews}
 cd "$(dirname "$0")"

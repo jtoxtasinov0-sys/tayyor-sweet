@@ -139,6 +139,7 @@ export function tgLayout(c, os, L) {
   const m1 = msgs[0];
   const by = p0[0] + m1.h + BTN_GAP + 1 * (BTN_H + BTN_GAP);
   lay.installBtn = { x: 8, y: by, w: m1.w, h: BTN_H };
+  lay.shopBtn = { x: 8, y: by - (BTN_H + BTN_GAP), w: m1.w, h: BTN_H };
   // ikkala xabar — link o'rni
   const pos = stackPositions(lay, [1, 1]);
   const m4 = msgs[1];
@@ -228,7 +229,7 @@ function drawBubble(c, lay, m, y, p, hl, btn) {
   c.restore();
 }
 
-// st: { msgs:[p,p], btnGlow, btnPress, linkHL }
+// st: { msgs:[p,p], btnRow (ajratiladigan tugma qatori, standart — "Ilovani o'rnatish"), btnGlow, btnPress, linkHL }
 export function tgChat(c, lay, L, st) {
   const { SW, SH, navB, inputY, os } = lay;
   const ios = os === 'ios';
@@ -245,7 +246,7 @@ export function tgChat(c, lay, L, st) {
   text(c, L.today, SW / 2, dateY + 15.5, S(500, 13), '#fff', 'center');
   lay.msgs.forEach((m, i) => {
     if (st.msgs[i] <= 0) return;
-    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 1 ? st.linkHL || 0 : 0, i === 0 ? { row: 1, glow: st.btnGlow || 0, press: st.btnPress } : null);
+    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 1 ? st.linkHL || 0 : 0, i === 0 ? { row: st.btnRow ?? 1, glow: st.btnGlow || 0, press: st.btnPress } : null);
   });
   c.restore();
 
