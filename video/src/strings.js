@@ -26,6 +26,40 @@ export const L = {
     ],
   },
   outro: ['Yoqimli ishtaha! 🍰', "Savol bo'lsa — botga yozing 💬"],
+  // "Qanday buyurtma beriladi" videosi (iPhone; mini ilova o'zbekcha, Telegram ruscha).
+  // Yozuvlar ovozli matnga mos (video/assets/voice/buyurtma-uz.flac)
+  order: {
+    intro: ['Buyurtma berish', 'endi juda oson!'],
+    intro_sub: 'Tortlar va yarim tayyor mahsulotlar',
+    steps: [
+      ["Botda «Do'konni ochish» tugmasini bosing", 'yoki ilovani telefoningizdan oching 📲'],
+      ['Yoqqan mahsulotni tanlang', "Rasmini bosing — batafsil ma'lumot ochiladi"],
+      ["O'lchami va bezak rangini belgilang", "so'ng «Savatga qo'shish» ni bosing"],
+      ['Savatda «Rasmiylashtirish» ni bosing', 'Mahsulot, soni va narxini tekshiring'],
+      ['Yetkazish usulini tanlang', "📦 Pochta (택배) yoki 🏠 olib ketish"],
+      ['Ism, telefon va manzilni yozing', "Ism Telegram'dan o'zi olinadi ✨"],
+      ["Tort bo'lsa, kerakli sanani tanlang", 'Tortlar 2–3 kun oldin buyurtma qilinadi'],
+      ['«Buyurtmani tasdiqlash» ni bosing', 'Jami summani tekshiring'],
+      ["Hisob raqamiga pul o'tkazing va chekni yuklang", "So'ng «Chekni yuborish» ni bosing"],
+      ['Qolganini biz qilamiz 💕', "Tekshiramiz, tasdiqlaymiz, tayyorlaymiz va jo'natamiz"],
+      ["Buyurtma holati haqida Telegram'da xabar olasiz", "🔔 Har bir o'zgarishda bot yozadi"],
+    ],
+    app: '📲 Ilova',
+    tgClose: 'Закрыть',
+    added: "✓ Savatga qo'shildi",
+    created: '🎉 Buyurtma qabul qilindi!',
+    sent: '🧾 Chek yuborildi! Tez orada tasdiqlaymiz.',
+    notifTitle: 'Tayyor & Sweet',
+    // bot xabari (backend: status_changed) — iPhone bildirishnomasida
+    notif: ["🔔 Buyurtma #TS-261022-4821 holati o'zgardi:", "🚚 Jo'natildi"],
+    now: 'сейчас',
+    phone: '010-5523-7788',
+    address: '경기도 안산시 단원구 고잔동 123',
+    // iOS sana tanlagichi (ruscha): 2026-yil oktabr, eng erta — bugundan 2 kun keyin
+    month: 'октябрь 2026 г.',
+    weekdays: ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'],
+    date: '25 окт. 2026 г.',
+  },
   homeSearch: 'Поиск',
   // Telegram: ilova ruscha, bot xabarlari o'zbekcha
   tg: {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bir nechta alohida kadr: ./frames.sh iphone outdir 4.2 8.4 ...
+# Bir nechta alohida kadr: ./frames.sh iphone outdir 4.2 8.4 ...   (buyurtma videosi: VIDEO=buyurtma ./frames.sh ...)
 set -e
 D=$1; OUT=$2; shift 2
 cd "$(dirname "$0")"

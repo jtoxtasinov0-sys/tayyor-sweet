@@ -1,5 +1,5 @@
 // Kadrlarni Chromium'da chizib ffmpeg'ga uzatadi.
-// node render.mjs --device iphone|samsung [--from s] [--to s] [--fps 30] [--scale 1]
+// node render.mjs [--video ilova|buyurtma] --device iphone|samsung [--from s] [--to s] [--fps 30] [--scale 1]
 //   [--out kadrlar_papkasi --jpg]   — alohida JPEG kadrlar (oldindan ko'rish uchun)
 //   [--mp4 fayl.mp4]                — ovozsiz video
 //   [--cues fayl.json]              — ovoz effektlari vaqtlari
@@ -15,6 +15,7 @@ const opt = (k, d) => {
   const i = a.indexOf('--' + k);
   return i >= 0 ? a[i + 1] : d;
 };
+const video = opt('video', process.env.VIDEO || 'ilova');
 const device = opt('device', 'iphone');
 const fps = +opt('fps', 30);
 const scale = +opt('scale', 1);
@@ -25,8 +26,9 @@ const server = createServer(async (req, res) => {
   try {
     const p = join(root, decodeURIComponent(new URL(req.url, 'http://x').pathname));
     if (!p.startsWith(root)) throw new Error('forbidden');
+    const body = await readFile(p);
     res.writeHead(200, { 'Content-Type': TYPES[extname(p)] || 'application/octet-stream' });
-    res.end(await readFile(p));
+    res.end(body);
   } catch {
     res.writeHead(404);
     res.end();
@@ -39,7 +41,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: Math.round(1080 * scale), height: Math.round(1920 * scale) } });
 page.on('pageerror', (e) => console.error('page error:', e.message));
 page.on('console', (m) => m.type() === 'error' && console.error('console:', m.text()));
-await page.goto(`http://127.0.0.1:${port}/video/index.html?device=${device}&scale=${scale}`);
+await page.goto(`http://127.0.0.1:${port}/video/index.html?video=${video}&device=${device}&scale=${scale}`);
 const info = await page.evaluate(() => window.ready);
 const from = +opt('from', 0);
 const to = Math.min(+opt('to', info.dur), info.dur);
