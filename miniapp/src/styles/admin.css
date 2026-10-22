@@ -127,6 +127,10 @@
 .login { min-height: 100dvh; display: grid; place-items: center; background: var(--grad); padding: 20px; }
 .login .adm-card { width: min(380px, 100%); text-align: center; padding: 30px 24px; }
 .login img { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 14px; border: 3px solid var(--pink); }
+.pass { position: relative; }
+.pass .input { padding-right: 54px; }
+.pass button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; font-size: 20px; }
+.pass button:active { background: var(--soft); }
 .pre { white-space: pre-wrap; background: var(--plum); color: #ffe3f1; padding: 14px; border-radius: 12px; font-size: 13px; max-height: 420px; overflow: auto; }
 
 @media (max-width: 860px) {

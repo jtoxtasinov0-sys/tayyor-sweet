@@ -7,7 +7,7 @@ import { OrdersAdmin } from './OrdersAdmin';
 import { ProductsAdmin } from './ProductsAdmin';
 import { StockAdmin } from './StockAdmin';
 import { CategoriesAdmin, PromoAdmin, CustomersAdmin, SettingsAdmin } from './Sections';
-import { adminLogin, ApiError } from '@/lib/api';
+import { adminLogin, wakeServer, ApiError } from '@/lib/api';
 import { tg } from '@/hooks/useTelegram';
 import { cx } from '@/lib/utils';
 
@@ -26,10 +26,21 @@ const SECTIONS = [
 
 type SectionId = (typeof SECTIONS)[number]['id'];
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Server uyg'onayotganda: tarmoq xatosi yoki Vercel/Render'ning 502/503/504 javobi
+const isWaking = (e: unknown) => !(e instanceof ApiError) || [502, 503, 504].includes(e.status);
+
 function Login({ onToken }: { onToken: (t: string) => void }) {
   const [password, setPassword] = useState('');
+  const [show, setShow] = useState(true);
   const [err, setErr] = useState('');
+  const [waking, setWaking] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // Sahifa ochilishi bilan serverni uyg'otamiz — parol terilguncha tayyor bo'ladi
+  useEffect(() => {
+    wakeServer();
+  }, []);
 
   // Telegram ichida admin bo'lsa — parolsiz kirish
   useEffect(() => {
@@ -43,14 +54,26 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
     setBusy(true);
     setErr('');
     try {
-      const r = await adminLogin({ password });
-      onToken(r.token);
+      // Server uxlab qolgan bo'lsa, uyg'onguncha (~1.5 daqiqa) o'zi qayta urinadi
+      const until = Date.now() + 90_000;
+      for (;;) {
+        try {
+          const r = await adminLogin({ password });
+          return onToken(r.token);
+        } catch (e) {
+          if (!isWaking(e) || Date.now() > until) throw e;
+          setWaking(true);
+          await sleep(5000);
+        }
+      }
     } catch (e) {
       const d = e instanceof ApiError ? e.data : undefined;
+      const code = e instanceof ApiError && e.status ? ` (${e.status})` : '';
       if (d?.error === 'blocked') setErr(`⛔️ Juda ko'p xato urinish. ${d.minutes} daqiqadan keyin qayta urinib ko'ring.`);
       else if (d?.error === 'wrong_password') setErr(`❌ Parol noto'g'ri. Qolgan urinishlar: ${d.left}`);
-      else setErr('Server bilan aloqa yo‘q');
+      else setErr(`Server bilan aloqa yo‘q${code}. Birozdan so'ng qayta urinib ko'ring.`);
     } finally {
+      setWaking(false);
       setBusy(false);
     }
   };
@@ -61,9 +84,28 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
         <img src="/images/logo.png" alt="" />
         <h2 style={{ fontSize: 22 }}>Admin panel</h2>
         <p className="muted" style={{ marginTop: 6 }}>Tayyor &amp; Sweet</p>
-        <input className="input" type="password" autoFocus placeholder="Parol" value={password} onChange={(e) => setPassword(e.target.value)} />
-        {err && <p style={{ color: 'var(--danger)', fontSize: 14, fontWeight: 600 }}>{err}</p>}
-        <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy || !password}>Kirish</button>
+        <div className="pass">
+          <input
+            className="input"
+            type={show ? 'text' : 'password'}
+            autoFocus
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="current-password"
+            placeholder="Parol"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? 'Parolni yashirish' : "Parolni ko'rsatish"}>
+            {show ? '🙈' : '👁'}
+          </button>
+        </div>
+        {waking && <p className="muted" style={{ fontSize: 14, fontWeight: 600 }}>⏳ Server uyg&apos;onmoqda, biroz kuting...</p>}
+        {err && !waking && <p style={{ color: 'var(--danger)', fontSize: 14, fontWeight: 600 }}>{err}</p>}
+        <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy || !password}>
+          {busy ? 'Kirilmoqda...' : 'Kirish'}
+        </button>
       </form>
     </div>
   );

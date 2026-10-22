@@ -57,7 +57,13 @@ async function request<T>(path: string, opts: RequestInit & { token?: string } =
   else if (typeof window !== 'undefined') headers['X-Guest-Token'] = guestToken();
   const res = await fetch(API_URL + path, { ...opts, headers });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    // JSON emas — Vercel/Render xato sahifasi (masalan, server uxlab qolgan va uyg'onmoqda)
+    throw new ApiError(res.status, res.statusText || 'bad_response');
+  }
   if (!res.ok) throw new ApiError(res.status, data?.error || res.statusText, data);
   return data as T;
 }
@@ -92,6 +98,9 @@ export const api = {
 // Admin panel uchun umumiy so'rov
 export const adminRequest = <T>(path: string, token: string, opts: RequestInit = {}) =>
   request<T>(`/api/admin${path}`, { ...opts, token });
+
+// Render bepul tarifda server uxlab qoladi — oldindan uyg'otib qo'yish uchun
+export const wakeServer = () => fetch(`${API_URL}/api/health`).catch(() => null);
 
 export const adminLogin = (body: { password?: string; initData?: string }) =>
   request<{ token: string }>('/api/admin/login', { method: 'POST', body: json(body), token: 'none' });
