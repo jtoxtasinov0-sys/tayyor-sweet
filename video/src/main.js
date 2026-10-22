@@ -401,7 +401,7 @@ function caption(c, t) {
   c.translate(0, -24 * E.in2(out));
   // qadam belgisi
   const pin = E.back(pr(t, t0, t0 + 0.35));
-  const label = final ? '✓ TAYYOR' : L.step(i + 1);
+  const label = SC.labels?.[i] ?? (final ? '✓ TAYYOR' : L.step(i + 1));
   c.font = F(800, 24);
   const pw = c.measureText(label).width + 40;
   c.save();
@@ -456,11 +456,13 @@ function logoAt(c, cx, cy, size, alpha) {
 }
 
 const LOGO_Y = 680;
+// intro yo'qolishi boshlanadigan vaqt
+const introOut = () => SC.T.introOut ?? 1.85;
 function logo(c, t) {
   const T = SC.T;
-  if (t < 2.4) {
+  if (t < introOut() + 0.55) {
     const pop = E.back(pr(t, 0.05, 0.6));
-    const out = E.in2(pr(t, 1.85, 2.3));
+    const out = E.in2(pr(t, introOut(), introOut() + 0.45));
     logoAt(c, 540, LOGO_Y - 60 * out, 380 * pop * (1 - 0.15 * out), 1 - out);
   } else if (t > T.phoneOut + 0.3) {
     const q = E.back(pr(t, T.phoneOut + 0.35, T.phoneOut + 0.9));
@@ -469,7 +471,7 @@ function logo(c, t) {
 }
 
 function intro(c, t) {
-  const out = E.in2(pr(t, 1.85, 2.3));
+  const out = E.in2(pr(t, introOut(), introOut() + 0.45));
   if (out >= 1) return;
   c.save();
   c.globalAlpha = 1 - out;
@@ -491,7 +493,8 @@ function intro(c, t) {
   });
   const sp = E.back(pr(t, 0.95, 1.35));
   if (sp > 0) {
-    c.font = F(700, 38);
+    const sf = fitFont(c, SC.introSub, 700, 38, SAFE.x1 - SAFE.x0 - 60);
+    c.font = sf;
     const w = c.measureText(SC.introSub).width + 60;
     c.save();
     c.translate(540, 1238);
@@ -499,7 +502,7 @@ function intro(c, t) {
     shadow(c, 16, 'rgba(217,79,147,0.25)', 6);
     fillRR(c, -w / 2, -34, w, 68, 34, '#fff');
     noShadow(c);
-    text(c, SC.introSub, 0, 13, F(700, 38), C.accent, 'center');
+    text(c, SC.introSub, 0, 13, sf, C.accent, 'center');
     c.restore();
   }
   floaters(c, t, 0.2);
@@ -782,5 +785,5 @@ export async function init() {
   cue(SC.T.phoneOut, 'whoosh');
   cue(SC.T.phoneOut + 0.6, 'outro');
   cues.sort((a, b) => a.t - b.t);
-  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO };
+  return { dur: SC.T.dur, cues, device: DEVICE, video: VIDEO, voice: SC.voice ?? null };
 }

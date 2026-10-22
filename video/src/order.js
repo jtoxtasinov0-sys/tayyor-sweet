@@ -29,7 +29,7 @@ export const ORDER_IMAGES = {
   c6: '/miniapp/public/rasmlar/09_trayfl.jpg',
   prod: '/miniapp/public/rasmlar/03_mevali_tort.jpg',
   ...Object.fromEntries(
-    ['home', 'nav0', 'nav1', 'navc', 'navo', 'ps0', 'ps1', 'pf0', 'pf1', 'cart', 'cta', 'cs0', 'cs1', 'cs2', 'cf', 'cfb', 'pay0', 'pay1', 'ord1', 'ord2', 'orders']
+    ['home', 'nav0', 'nav1', 'navc', 'navo', 'ps0', 'ps1', 'ps2', 'pf0', 'pf1', 'cart', 'cta', 'cs0', 'cs1', 'cs2', 'cf', 'cfb', 'pay0', 'pay1', 'ord1', 'ord2', 'ord3', 'orders']
       .map((k) => ['o_' + k, `/video/assets/shots/order/${k}.png`])
   ),
 };
@@ -46,19 +46,26 @@ function slide(t, open, close = Infinity) {
 
 export function buildOrder({ touch, cam, cue }, tl, lay) {
   const DS = lay.dsf;
+  // Vaqtlar ovozli matnga bog'langan (assets/voice/buyurtma-uz.flac): har qadam o'z jumlasi boshlanganda chiqadi,
+  // bosishlar esa jumladagi kalit so'z ("pochta", "sanani" ...) aytilganda
   const T = {
-    phoneIn: 2.0, s1: 2.6, msg: 2.6, tapShop: 4.3, open: 4.45, alt: 5.9,
-    s2: 7.5, scroll: 8.0, tapCard: 9.5, ps: 9.65,
-    s3: 10.7, psScroll: 11.0, tapVar: 12.1, tapAdd: 13.2,
-    s4: 14.6, tapCart: 15.4, tapCta: 16.9, cs: 17.05,
-    s5: 17.9, tapMethod: 18.6, csScroll: 19.2, tapPhone: 20.0, typePhone: 20.3, tapAddr: 21.6, typeAddr: 21.9, kbDown: 23.2,
-    csScroll2: 23.4, tapConfirm: 24.4, pay: 24.95,
-    s6: 25.6, payScroll: 26.6, tapUpload: 27.5, file: 27.9, payScroll2: 28.5, tapSend: 29.3, ord: 29.75,
-    s7: 30.4, notif: 31.3, confirmed: 31.9, phoneOut: 34.6, dur: 37.6,
+    introOut: 3.9, phoneIn: 4.1, msg: 4.75,
+    s1: 5.75, tapShop: 7.3, open: 7.45, alt: 8.2,
+    s2: 10.74, scroll: 10.95, tapCard: 12.15, ps: 12.3,
+    s3: 12.57, psScroll: 12.8, tapVar: 13.6, tapColor: 14.25, tapAdd: 15.55,
+    s4: 17.05, tapCart: 17.35, tapCta: 18.55, cs: 18.7,
+    s5: 19.47, tapMethod: 21.3, pickup: 21.7,
+    csScroll: 22.6, s6: 23.22, name: 23.25, tapPhone: 23.75, typePhone: 23.95, tapAddr: 24.85, typeAddr: 25.0, kbDown: 26.05,
+    s7: 25.69, tapDate: 26.45, tapDay: 27.25,
+    s8: 28.1, csScroll2: 28.15, tapConfirm: 29.2, pay: 29.8,
+    s9: 30.21, payScroll: 31.8, tapUpload: 32.75, file: 33.15, payScroll2: 33.5, tapSend: 34.25,
+    s10: 34.63, ord: 34.7, confirmed: 37.15, shipped: 38.3,
+    s11: 39.31, notif: 39.55, phoneOut: 41.9, dur: 46.2,
   };
-  T.typePhoneEnd = T.typePhone + O.phone.length * 0.065;
-  T.typeAddrEnd = T.typeAddr + [...O.address].length * 0.06;
+  T.typePhoneEnd = T.typePhone + O.phone.length * 0.055;
+  T.typeAddrEnd = T.typeAddr + [...O.address].length * 0.045;
   T.flyEnd = T.tapAdd + 0.75;
+  T.dateClose = T.tapDay + 0.2;
 
   // ---------- Joylashuv (ekran pt) ----------
   const ps = lay.ps, cs = lay.cs, pay = lay.pay, ord = lay.ord;
@@ -71,69 +78,81 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
   const inSheet = (g, r, scroll) => center(r, sheetTop(g) - scroll);
   const card = center(lay.home.card, AT - HOME_SCROLL);
   const cartBtn = center(lay.nav0.cart, AT);
-  const variant = inSheet(ps, ps.variant, PS_SCROLL);
+  const variant = inSheet(ps, ps.variant, PS_SCROLL), color = inSheet(ps, ps.color, PS_SCROLL);
   const addBtn = center(lay.pf.btn, AT);
   const ctaBtn = center(lay.cta.btn, AT);
-  const method = inSheet(cs, cs.method, 0);
-  const [, fPhone, fAddr] = cs.fields;
-  const phonePt = inSheet(cs, fPhone, CS_TYPE), addrPt = inSheet(cs, fAddr, CS_TYPE);
+  const [mPost, mPickup] = cs.methods;
+  const method = inSheet(cs, mPost, 0);
+  const [fName, fPhone, fAddr, fDate] = cs.fields;
+  const phonePt = inSheet(cs, fPhone, CS_TYPE), addrPt = inSheet(cs, fAddr, CS_TYPE), datePt = inSheet(cs, fDate, CS_TYPE);
   const confirmBtn = center(lay.cf.btn, AT);
   const uploadPt = inSheet(pay, pay.upload, PAY_S1);
   const sendPt = inSheet(pay, pay.btn1, PAY_S2);
   const shopBtn = center(tl.shopBtn);
+  // iOS sana tanlagichi: sana maydoni ustida. 2026-yil 1-oktabr — payshanba (dushanbadan boshlanadigan jadvalda 4-ustun)
+  const CAL = { x: 24, w: SW - 48, h: 312, first: 3, days: 31, min: 24, today: 22, pick: 25 };
+  CAL.y = datePt.y - fDate.h / 2 - 10 - CAL.h;
+  CAL.cw = (CAL.w - 16) / 7;
+  const dayAt = (d) => {
+    const i = CAL.first + d - 1;
+    return { x: CAL.x + 8 + CAL.cw * ((i % 7) + 0.5), y: CAL.y + 80 + 22 + Math.floor(i / 7) * 44 };
+  };
 
   // ---------- Barmoq ----------
-  touch.show(3.5, { x: SW / 2 + 60, y: shopBtn.y + 130 }).move(3.6, 4.05, shopBtn).tap(T.tapShop).hide(4.6);
+  touch.show(6.3, { x: SW / 2 + 60, y: shopBtn.y + 130 }).move(6.4, 6.95, shopBtn).tap(T.tapShop).hide(7.6);
   touch.swipe(T.scroll, T.scroll + 0.45, { x: 260, y: 660 }, { x: 260, y: 330 });
-  touch.show(9.0, { x: 190, y: 600 }).move(9.05, 9.35, card).tap(T.tapCard).hide(9.8);
-  touch.swipe(T.psScroll, T.psScroll + 0.4, { x: 300, y: 600 }, { x: 300, y: 450 });
-  touch.show(11.65, { x: 160, y: 720 }).move(11.7, 12.0, variant).tap(T.tapVar).move(12.55, 12.95, addBtn).tap(T.tapAdd).hide(13.45);
-  touch.show(14.95, { x: 300, y: 610 }).move(15.0, 15.25, cartBtn).tap(T.tapCart).hide(15.7);
-  touch.show(16.35, { x: 270, y: 560 }).move(16.4, 16.75, ctaBtn).tap(T.tapCta).hide(17.2);
-  touch.show(18.2, { x: 270, y: 430 }).move(18.25, 18.5, method).tap(T.tapMethod).hide(18.85);
-  touch.swipe(T.csScroll, T.csScroll + 0.45, { x: 300, y: 640 }, { x: 300, y: 390 });
-  touch.show(19.75, { x: 280, y: 520 }).move(19.8, 19.95, { x: 140, y: phonePt.y }).tap(T.tapPhone).move(21.25, 21.5, { x: 140, y: addrPt.y }).tap(T.tapAddr).hide(21.85);
-  touch.swipe(T.csScroll2, T.csScroll2 + 0.45, { x: 300, y: 600 }, { x: 300, y: 380 });
-  touch.show(24.0, { x: 290, y: 640 }).move(24.05, 24.3, confirmBtn).tap(T.tapConfirm).hide(24.7);
-  touch.swipe(T.payScroll, T.payScroll + 0.45, { x: 300, y: 640 }, { x: 300, y: 400 });
-  touch.show(27.15, { x: 270, y: 660 }).move(27.2, 27.45, uploadPt).tap(T.tapUpload).hide(27.8);
-  touch.swipe(T.payScroll2, T.payScroll2 + 0.35, { x: 300, y: 620 }, { x: 300, y: 470 });
-  touch.show(28.95, { x: 280, y: 720 }).move(29.0, 29.2, sendPt).tap(T.tapSend).hide(29.6);
+  touch.show(11.6, { x: 190, y: 600 }).move(11.65, 11.95, card).tap(T.tapCard).hide(12.45);
+  touch.swipe(T.psScroll, T.psScroll + 0.4, { x: 300, y: 620 }, { x: 300, y: 420 });
+  touch.show(13.25, { x: 170, y: 720 }).move(13.3, 13.5, variant).tap(T.tapVar).move(13.9, 14.15, color).tap(T.tapColor)
+    .move(14.9, 15.3, addBtn).tap(T.tapAdd).hide(15.8);
+  touch.show(16.75, { x: 300, y: 610 }).move(16.8, 17.15, cartBtn).tap(T.tapCart).hide(17.6);
+  touch.show(18.05, { x: 270, y: 560 }).move(18.1, 18.4, ctaBtn).tap(T.tapCta).hide(18.85);
+  touch.show(20.85, { x: 270, y: 520 }).move(20.9, 21.15, method).tap(T.tapMethod).hide(21.6);
+  touch.swipe(T.csScroll, T.csScroll + 0.4, { x: 300, y: 640 }, { x: 300, y: 400 });
+  touch.show(23.45, { x: 280, y: 520 }).move(23.5, 23.65, { x: 140, y: phonePt.y }).tap(T.tapPhone).move(24.6, 24.78, { x: 140, y: addrPt.y }).tap(T.tapAddr)
+    .move(26.1, 26.35, { x: 150, y: datePt.y }).tap(T.tapDate).move(26.85, 27.1, dayAt(CAL.pick)).tap(T.tapDay).hide(27.55);
+  touch.swipe(T.csScroll2, T.csScroll2 + 0.4, { x: 300, y: 600 }, { x: 300, y: 380 });
+  touch.show(28.75, { x: 290, y: 640 }).move(28.8, 29.05, confirmBtn).tap(T.tapConfirm).hide(29.5);
+  touch.swipe(T.payScroll, T.payScroll + 0.4, { x: 300, y: 640 }, { x: 300, y: 400 });
+  touch.show(32.4, { x: 270, y: 660 }).move(32.45, 32.65, uploadPt).tap(T.tapUpload).hide(33.05);
+  touch.swipe(T.payScroll2, T.payScroll2 + 0.3, { x: 300, y: 620 }, { x: 300, y: 470 });
+  touch.show(33.85, { x: 280, y: 720 }).move(33.9, 34.1, sendPt).tap(T.tapSend).hide(34.55);
 
   // ---------- Kamera ----------
-  cam.to(3.0, 3.7, 1.4, shopBtn.y)
+  cam.to(5.9, 6.6, 1.4, shopBtn.y)
     .to(T.open + 0.05, T.open + 0.65, 1)
-    .to(11.2, 11.8, 1.45, 690)
+    .to(12.9, 13.5, 1.45, 650)
     .to(T.tapAdd - 0.05, T.tapAdd + 0.45, 1)
-    .to(15.8, 16.4, 1.25, 450)
-    .to(T.cs - 0.05, T.cs + 0.45, 1)
-    .to(19.5, 20.1, 1.45, 440)
-    .to(23.4, 24.0, 1.3, 690)
+    .to(19.5, 20.1, 1.4, 340)
+    .to(22.6, 23.2, 1.45, 440)
+    .to(28.1, 28.7, 1.3, 690)
     .to(T.pay - 0.05, T.pay + 0.45, 1)
-    .to(25.7, 26.3, 1.35, 380)
-    .to(26.7, 27.3, 1.35, 560)
+    .to(30.3, 30.9, 1.35, 380)
+    .to(31.8, 32.4, 1.35, 560)
     .to(T.tapSend + 0.1, T.tapSend + 0.6, 1)
-    .to(30.5, 31.1, 1.35, 330)
+    .to(35.0, 35.6, 1.35, 330)
     .to(T.phoneOut - 0.6, T.phoneOut - 0.1, 1);
 
-  // ---------- Ovozlar ----------
+  // ---------- Ovozlar (ovozli matn ostida — yengil) ----------
   cue(T.msg, 'recv');
   cue(T.open, 'open'); cue(T.open + 0.55, 'ding', 0.7); cue(T.alt, 'pop');
-  cue(T.ps, 'sheet'); cue(T.tapVar + 0.03, 'pop', 0.6);
+  cue(T.ps, 'sheet'); cue(T.tapVar + 0.03, 'pop', 0.6); cue(T.tapColor + 0.03, 'pop', 0.6);
   cue(T.tapAdd + 0.05, 'swish', 0.9); cue(T.flyEnd - 0.1, 'ding', 0.8); cue(T.flyEnd - 0.05, 'sparkle', 0.7);
   cue(T.tapCart + 0.05, 'swish', 0.6); cue(T.cs, 'sheet');
-  for (let i = 0; i < O.phone.length; i++) cue(T.typePhone + i * 0.065, 'key', 0.45);
-  for (let i = 0; i < [...O.address].length; i++) cue(T.typeAddr + i * 0.06, 'key', 0.45);
+  for (let i = 0; i < O.phone.length; i++) cue(T.typePhone + i * 0.055, 'key', 0.4);
+  for (let i = 0; i < [...O.address].length; i++) cue(T.typeAddr + i * 0.045, 'key', 0.4);
   cue(T.tapPhone + 0.05, 'pop', 0.4); cue(T.kbDown, 'swish', 0.5);
+  cue(T.tapDate + 0.05, 'pop', 0.6); cue(T.tapDay + 0.03, 'pop', 0.6);
   cue(T.tapConfirm + 0.1, 'load', 0.6); cue(T.pay, 'sheet'); cue(T.pay + 0.1, 'success');
   cue(T.file, 'pop'); cue(T.tapSend + 0.1, 'send'); cue(T.ord, 'sheet', 0.7);
-  cue(T.notif, 'recv'); cue(T.confirmed, 'ding'); cue(T.confirmed + 0.1, 'confetti'); cue(T.confirmed + 0.15, 'success2');
+  cue(T.confirmed, 'ding'); cue(T.confirmed + 0.1, 'confetti'); cue(T.confirmed + 0.15, 'success2');
+  cue(T.shipped, 'ding', 0.8); cue(T.notif, 'recv');
 
   // ---------- Holatlar ----------
   const homeScroll = (t) => HOME_SCROLL * E.out3(pr(t, T.scroll, T.scroll + 1.0));
   const psScroll = (t) => PS_SCROLL * E.out3(pr(t, T.psScroll, T.psScroll + 0.6));
-  const csScroll = (t) => CS_TYPE * E.out3(pr(t, T.csScroll, T.csScroll + 0.65)) + (CS_END - CS_TYPE) * E.out3(pr(t, T.csScroll2, T.csScroll2 + 0.65));
-  const payScroll = (t) => PAY_S1 * E.out3(pr(t, T.payScroll, T.payScroll + 0.65)) + (PAY_S2 - PAY_S1) * E.out3(pr(t, T.payScroll2, T.payScroll2 + 0.55));
+  const csScroll = (t) => CS_TYPE * E.out3(pr(t, T.csScroll, T.csScroll + 0.6)) + (CS_END - CS_TYPE) * E.out3(pr(t, T.csScroll2, T.csScroll2 + 0.6));
+  const payScroll = (t) => PAY_S1 * E.out3(pr(t, T.payScroll, T.payScroll + 0.6)) + (PAY_S2 - PAY_S1) * E.out3(pr(t, T.payScroll2, T.payScroll2 + 0.5));
   const pressed = (t, t0, d = 0.18) => t >= t0 && t < t0 + d;
 
   // ---------- Chizish yordamchilari ----------
@@ -202,6 +221,64 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
     c.drawImage(im, sx, sy, 88 * DS, 88 * DS, -44, -44, 88, 88);
     c.restore();
   };
+  // Fokusdagi maydon halqasi (mini ilovadagi :focus)
+  const ring = (c, x, y, w, h) => {
+    c.save();
+    c.strokeStyle = 'rgba(248,160,208,0.28)';
+    c.lineWidth = 4;
+    rr(c, x - 2.5, y - 2.5, w + 5, h + 5, 14.5);
+    c.stroke();
+    c.strokeStyle = C.ribbon;
+    c.lineWidth = 1.5;
+    rr(c, x + 0.75, y + 0.75, w - 1.5, h - 1.5, 11.25);
+    c.stroke();
+    c.restore();
+  };
+  // E'tiborni tortish: pushti yonib-o'chuvchi chegara
+  const glow = (c, r, a, rad = 18) => {
+    if (a <= 0) return;
+    c.save();
+    shadow(c, 16 * a, `rgba(217,79,147,${0.6 * a})`);
+    c.strokeStyle = `rgba(244,143,184,${a})`;
+    c.lineWidth = 2.5;
+    rr(c, r.x - 1, r.y - 1, r.w + 2, r.h + 2, rad);
+    c.stroke();
+    c.restore();
+  };
+  const pulse = (t, a, b) => vis(t, a, b, 0.2, 0.25) * (0.7 + 0.3 * Math.sin(t * 9));
+  // iOS sana tanlagichi (ixcham kalendar): oy, hafta kunlari, kunlar; erta kunlar kulrang (min — bugun + 2 kun)
+  const datePicker = (c, t) => {
+    const p = vis(t, T.tapDate + 0.05, T.dateClose, 0.25, 0.2);
+    if (p <= 0) return;
+    const { x, y, w, h } = CAL;
+    const k = lerp(0.9, 1, E.out3(clamp(p)));
+    c.save();
+    c.globalAlpha = clamp(p);
+    c.translate(SW / 2, y + h);
+    c.scale(k, k);
+    c.translate(-SW / 2, -(y + h));
+    shadow(c, 40, 'rgba(0,0,0,0.25)', 12);
+    fillRR(c, x, y, w, h, 14, '#fff');
+    noShadow(c);
+    text(c, O.month, x + 16, y + 34, S(600, 17), '#000');
+    c.font = S(600, 17);
+    G.chevron(c, x + 16 + c.measureText(O.month).width + 10, y + 28, 13, C.ios, 1);
+    G.chevron(c, x + w - 62, y + 28, 18, C.ios, -1);
+    G.chevron(c, x + w - 24, y + 28, 18, C.ios, 1);
+    O.weekdays.forEach((d, i) => text(c, d, x + 8 + CAL.cw * (i + 0.5), y + 66, S(600, 12.5), 'rgba(60,60,67,0.3)', 'center'));
+    for (let d = 1; d <= CAL.days; d++) {
+      const pt = dayAt(d);
+      const sel = t >= T.tapDay && d === CAL.pick;
+      if (sel) {
+        c.fillStyle = 'rgba(0,122,255,0.14)';
+        c.beginPath();
+        c.arc(pt.x, pt.y, 20 * E.back(pr(t, T.tapDay, T.tapDay + 0.25)), 0, Math.PI * 2);
+        c.fill();
+      }
+      text(c, String(d), pt.x, pt.y + 7, S(sel ? 600 : 400, 20), sel ? C.ios : d < CAL.min ? 'rgba(60,60,67,0.3)' : '#000', 'center');
+    }
+    c.restore();
+  };
   // Yozilayotgan matn: keyingi (to'ldirilgan) rasmdan maydon ichi chapdan o'ngga ochiladi + kursor
   const typing = (c, field, sy, scroll, im, str, p, caret, t) => {
     const x = field.x, y = sy + field.y - scroll, w = field.w, h = field.h;
@@ -218,17 +295,7 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
       c.drawImage(im, x * DS, (field.y) * DS, w * DS, h * DS, x, y, w, h);
       c.restore();
     }
-    // fokus halqasi
-    c.save();
-    c.strokeStyle = 'rgba(248,160,208,0.28)';
-    c.lineWidth = 4;
-    rr(c, x - 2.5, y - 2.5, w + 5, h + 5, 14.5);
-    c.stroke();
-    c.strokeStyle = C.ribbon;
-    c.lineWidth = 1.5;
-    rr(c, x + 0.75, y + 0.75, w - 1.5, h - 1.5, 11.25);
-    c.stroke();
-    c.restore();
+    ring(c, x, y, w, h);
     if (caret && Math.floor(t * 2.6) % 2 === 0) {
       const ty = field.h > 60 ? y + 13 : y + h / 2 - 11;
       fillRR(c, x + 16 + tw + 1, ty, 2, 22, 1, '#007AFF');
@@ -337,8 +404,8 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
     );
     backdrop(c, bd);
     if (sP < 1) {
-      const v = E.io2(pr(t, T.tapVar + 0.05, T.tapVar + 0.2));
-      sheet(c, ps, [[IMG.o_ps0, 1], [IMG.o_ps1, v]], psScroll(t), sP);
+      const v = E.io2(pr(t, T.tapVar + 0.05, T.tapVar + 0.2)), vc = E.io2(pr(t, T.tapColor + 0.05, T.tapColor + 0.2));
+      sheet(c, ps, [[IMG.o_ps0, 1], [IMG.o_ps1, v], [IMG.o_ps2, vc]], psScroll(t), sP);
       if (t < closeP) {
         c.save();
         c.translate(0, sP * 120);
@@ -349,6 +416,7 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
         }
         c.restore();
         if (pressed(t, T.tapVar)) press(c, at(ps.variant, sheetTop(ps) - PS_SCROLL), 1, 14);
+        if (pressed(t, T.tapColor)) press(c, at(ps.color, sheetTop(ps) - PS_SCROLL), 1, 20);
         if (pressed(t, T.tapAdd, 0.25)) press(c, at(lay.pf.btn, AT), 1, 26);
       }
     }
@@ -356,7 +424,12 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
       const scroll = csScroll(t);
       const im = t < T.typePhoneEnd ? IMG.o_cs0 : t < T.typeAddrEnd ? IMG.o_cs1 : IMG.o_cs2;
       const y = sheet(c, cs, [[im, 1]], scroll, sC);
-      if (pressed(t, T.tapMethod, 0.2)) press(c, at(cs.method, y - scroll), 1, 18);
+      if (pressed(t, T.tapMethod, 0.2)) press(c, at(mPost, y - scroll), 1, 18);
+      glow(c, at(mPickup, y - scroll), pulse(t, T.pickup, T.pickup + 0.9));
+      glow(c, at(fName, y - scroll), pulse(t, T.name, T.tapPhone), 12);
+      const dy = y + fDate.y - scroll;
+      if (t >= T.dateClose) text(c, O.date, fDate.x + 16, dy + fDate.h / 2 + 6, F(400, 16), C.plum);
+      if (t >= T.tapDate + 0.05 && t < T.dateClose + 0.2) ring(c, fDate.x, dy, fDate.w, fDate.h);
       const ph = pr(t, T.typePhone, T.typePhoneEnd), ad = pr(t, T.typeAddr, T.typeAddrEnd);
       if (t >= T.tapPhone + 0.05 && t < T.tapAddr + 0.05) typing(c, fPhone, y, scroll, IMG.o_cs1, O.phone, ph, true, t);
       if (t >= T.tapAddr + 0.05 && t < T.kbDown) typing(c, fAddr, y, scroll, IMG.o_cs2, O.address, ad, true, t);
@@ -370,17 +443,18 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
         c.restore();
         if (pressed(t, T.tapConfirm)) press(c, at(lay.cf.btn, AT), 1, 26);
       }
+      datePicker(c, t);
     }
     if (sPay < 1) {
       const scroll = payScroll(t);
       const v = E.io2(pr(t, T.file, T.file + 0.25));
-      const y = sheet(c, pay, [[IMG.o_pay0, 1 - v], [IMG.o_pay1, v]], scroll, sPay);
+      const y = sheet(c, pay, [[IMG.o_pay0, 1], [IMG.o_pay1, v]], scroll, sPay);
       if (pressed(t, T.tapUpload, 0.22)) press(c, at(pay.upload, y - scroll), 1, 18);
       if (pressed(t, T.tapSend, 0.22)) press(c, at(pay.btn1, y - scroll), 1, 26);
     }
     if (sO < 1) {
-      const v = E.io2(pr(t, T.confirmed, T.confirmed + 0.35));
-      sheet(c, ord, [[IMG.o_ord1, 1 - v], [IMG.o_ord2, v]], 0, sO);
+      const v1 = E.io2(pr(t, T.confirmed, T.confirmed + 0.35)), v2 = E.io2(pr(t, T.shipped, T.shipped + 0.35));
+      sheet(c, ord, [[IMG.o_ord1, 1], [IMG.o_ord2, v1], [IMG.o_ord3, v2]], 0, sO);
     }
     // 4) uchayotgan rasm va xabarlar
     fly(c, t, { x: SW / 2, y: sheetTop(ps) + (390 - PS_SCROLL) / 2 }, cartBtn);
@@ -394,7 +468,7 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
     UI.tgChat(c, tl, L.tg, {
       msgs: [pr(t, T.msg, T.msg + 0.45), 0],
       btnRow: 0,
-      btnGlow: vis(t, 3.2, T.tapShop + 0.05, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
+      btnGlow: vis(t, T.s1 + 0.3, T.tapShop + 0.05, 0.3, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
       btnPress: pressed(t, T.tapShop, 0.16),
     });
   const screen = (c, t) => {
@@ -471,12 +545,16 @@ export function buildOrder({ touch, cam, cue }, tl, lay) {
     screen,
     behind,
     front,
-    steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6, T.s7],
+    steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6, T.s7, T.s8, T.s9, T.s10, T.s11],
     texts: O.steps,
-    hintAt: { 0: T.alt },
+    // 9 ta qadam, keyin ikki yakuniy sahna
+    labels: O.steps.map((_, i) => (i < 9 ? L.step(i + 1) : '✓ TAYYOR')),
+    // izoh ovozda aytilganda chiqadi
+    hintAt: { 0: T.alt, 2: 14.6, 4: 21.19, 8: 33.4, 9: 36.2 },
     intro: O.intro,
     introSub: O.intro_sub,
     sparkAt: null,
     confetti: T.confirmed + 0.1,
+    voice: 'assets/voice/buyurtma-uz.flac', // video/ papkasiga nisbatan
   };
 }

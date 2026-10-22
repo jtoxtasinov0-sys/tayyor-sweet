@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Ovoz: effektlar (SFX) va yengil fon musiqasi — hammasi kodda sintez qilinadi (tashqi fayl/litsenziya yo'q).
+Ovozli matn (voice) berilgan bo'lsa — u asosiy, musiqa va effektlar uning ostida pasaytiriladi.
 Ishlatish: python3 audio.py cues.json chiqish.wav
-cues.json — render.mjs --cues bergan fayl: {dur, cues:[{t, s, g}], ...}"""
+cues.json — render.mjs --cues bergan fayl: {dur, cues:[{t, s, g}], voice: fayl|null, ...}"""
 import json
+import os
+import subprocess
 import sys
 import wave
 
@@ -318,6 +321,31 @@ def music(dur, drums_from, end_at):
     return np.stack([L * g, R * g])
 
 
+def load_voice(path):
+    """Ovozli matn: 48 kHz mono, eng baland nuqta 1.0"""
+    pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', path, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True, check=True).stdout
+    v = np.frombuffer(pcm, np.int16).astype(np.float64) / 32768
+    return v / max(1e-9, np.abs(v).max())
+
+
+def duck_gain(v, n, depth=0.7, attack=0.06, release=0.45):
+    """Ovoz bor joyda musiqani pasaytiruvchi silliq egri (sidechain): 1 → 1-depth"""
+    hop = int(0.01 * SR)
+    frames = int(np.ceil(n / hop))
+    rms = np.zeros(frames)
+    for i in range(min(frames, int(np.ceil(len(v) / hop)))):
+        seg = v[i * hop : (i + 1) * hop]
+        rms[i] = np.sqrt(np.mean(seg * seg)) if len(seg) else 0
+    act = (rms > 0.02).astype(float)
+    env = np.zeros(frames)
+    a, r = 1 - np.exp(-0.01 / attack), 1 - np.exp(-0.01 / release)
+    for i in range(frames):
+        k = a if act[i] > env[i - 1 if i else 0] else r
+        env[i] = (env[i - 1] if i else 0) + k * (act[i] - (env[i - 1] if i else 0))
+    g = 1 - depth * env
+    return np.interp(np.arange(n), np.arange(frames) * hop, g)
+
+
 def main():
     info = json.load(open(sys.argv[1]))
     out = sys.argv[2]
@@ -327,6 +355,11 @@ def main():
     whooshes = [c['t'] for c in cues if c['s'] == 'whoosh']
     drums_from = whooshes[0] if whooshes else 2.0
     mix = music(dur, drums_from, out_t - 0.1)
+    voice = info.get('voice')
+    if voice:
+        v = load_voice(os.path.join(os.path.dirname(os.path.abspath(__file__)), voice))
+        mix *= duck_gain(v, mix.shape[1])
+    sfx_gain = 0.6 if voice else 1.0
     cache = {}
     for c in cues:
         s = c['s']
@@ -335,7 +368,7 @@ def main():
         if s not in cache:
             y = SFX[s]()
             cache[s] = y / np.abs(y).max() * LEVEL.get(s, 0.3)
-        y = cache[s] * c.get('g', 1)
+        y = cache[s] * c.get('g', 1) * sfx_gain
         p = PAN.get(s, 0.0)
         o = int(c['t'] * SR)
         m = min(len(y), mix.shape[1] - o)
@@ -343,6 +376,11 @@ def main():
             continue
         mix[0, o : o + m] += y[:m] * (1 - p) * 0.8
         mix[1, o : o + m] += y[:m] * (1 + p) * 0.8
+    if voice:
+        # ovoz musiqa va effektlardan ~2.5 baravar baland
+        m = min(len(v), mix.shape[1])
+        mix /= max(1e-9, np.abs(mix).max()) / 0.32
+        mix[:, :m] += v[:m] * 0.85
     mix = mix[:, : int(dur * SR)]
     mix /= max(1e-9, np.abs(mix).max()) / 0.89
     pcm = (mix.T * 32767).astype('<i2')

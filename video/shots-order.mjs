@@ -12,6 +12,9 @@ const VW = 390, VH = 747, DSF = 2;
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
 const PRODUCT = 'Mevali tort';
 const VARIANT = 'Mini';
+const COLOR = 'Pushti';
+// Ovozli matnda "bezak rangini belgilang" bor — namunaviy mahsulotga bezak ranglari qo'shiladi
+const COLORS = [{ name: 'Oq', hex: '#FFFFFF' }, { name: 'Pushti', hex: '#F8A0D0' }, { name: 'Shokolad', hex: '#7B4A2E' }, { name: "Ko'k", hex: '#9CC9F2' }];
 const NOW = '2026-10-22T10:41:00+09:00';
 const { phone: PHONE, address: ADDRESS } = L.order;
 
@@ -20,18 +23,20 @@ const boot = JSON.parse(await readFile('../miniapp/src/lib/fallback-bootstrap.js
 // Rekvizitlar videoda xiralashtiriladi (haqiqiy hisob raqami emas)
 boot.payment = { ...boot.payment, bank_name: 'KB Kookmin Bank', account_number: '000000-00-000000', account_holder: 'TAYYOR SWEET' };
 const p = boot.products.find((x) => x.name_uz === PRODUCT);
+p.colors = COLORS;
 const v = p.variants.find((x) => x.name === VARIANT);
 const fee = boot.delivery.taekbae_fee;
 const order = (status) => ({
   id: 1024, number: 'TS-261022-4821', user_id: '1',
-  items: [{ product_id: p.id, name: p.name_uz, variant: v.name, color: null, unit: p.unit_uz, price: v.price, qty: 1, image_id: p.image_id }],
+  items: [{ product_id: p.id, name: p.name_uz, variant: v.name, color: COLOR, unit: p.unit_uz, price: v.price, qty: 1, image_id: p.image_id }],
   subtotal: v.price, delivery_fee: fee, total: v.price + fee, status, delivery_method: 'taekbae',
   customer_name: 'Aziza', phone: PHONE, address: ADDRESS, postal_code: null,
-  desired_date: null, comment: null, receipt_image_id: status === 'pending_payment' ? null : 1, courier: null, tracking_number: null, admin_note: null,
+  desired_date: '2026-10-25', comment: null, receipt_image_id: status === 'pending_payment' ? null : 1, courier: null, tracking_number: null, admin_note: null,
   history: [
     { status: 'pending_payment', at: NOW },
     ...(status !== 'pending_payment' ? [{ status: 'receipt_sent', at: '2026-10-22T10:43:00+09:00' }] : []),
-    ...(status === 'confirmed' ? [{ status: 'confirmed', at: '2026-10-22T10:52:00+09:00' }] : []),
+    ...(['confirmed', 'shipped'].includes(status) ? [{ status: 'confirmed', at: '2026-10-22T10:52:00+09:00' }] : []),
+    ...(status === 'shipped' ? [{ status: 'shipped', at: '2026-10-24T15:20:00+09:00' }] : []),
   ],
   created_at: NOW, updated_at: NOW,
 });
@@ -181,12 +186,21 @@ layout.ps.variant = await page.evaluate((name) => {
   const a = sh.getBoundingClientRect();
   return { x: b.left - a.left, y: b.top - a.top + sh.scrollTop, w: b.width, h: b.height };
 }, VARIANT);
+layout.ps.color = await page.evaluate((name) => {
+  const sh = document.querySelector('.sheet');
+  const b = sh.querySelector(`.swatch[title="${name}"]`).getBoundingClientRect();
+  const a = sh.getBoundingClientRect();
+  return { x: b.left - a.left, y: b.top - a.top + sh.scrollTop, w: b.width, h: b.height };
+}, COLOR);
 layout.ps.gallery = await inSheet('.gallery');
 layout.pf = await footer('pf0');
 await page.$$eval('.sheet .opt', (os, name) => os.find((o) => o.querySelector('b').textContent === name).click(), VARIANT);
 await page.waitForTimeout(300);
 await sheet('ps1');
 await footer('pf1');
+await page.click(`.sheet .swatch[title="${COLOR}"]`);
+await page.waitForTimeout(300);
+await sheet('ps2');
 await page.click('.sheet-footer .btn');
 await page.waitForTimeout(900);
 layout.nav1 = await nav('nav1');
@@ -216,8 +230,14 @@ for (const f of fields) layout.cs.fields.push(await page.evaluate((el) => {
   const a = sh.getBoundingClientRect(), b = el.getBoundingClientRect();
   return { x: b.left - a.left, y: b.top - a.top + sh.scrollTop, w: b.width, h: b.height, type: el.tagName, value: el.value };
 }, f));
-layout.cs.method = await inSheet('.method.on');
-layout.cs.summary = await inSheet('.summary');
+layout.cs.methods = await page.$$eval('.sheet .method', (ms) => {
+  const sh = document.querySelector('.sheet');
+  const a = sh.getBoundingClientRect();
+  return ms.map((m) => {
+    const b = m.getBoundingClientRect();
+    return { x: b.left - a.left, y: b.top - a.top + sh.scrollTop, w: b.width, h: b.height };
+  });
+});
 layout.cf = await footer('cf');
 // Telefon va manzil yoziladi (ism Telegram'dan olingan)
 const typeIn = async (i, val) => {
@@ -308,14 +328,15 @@ layout.orders = await layer('.bottom-nav, .sheet, .sheet-backdrop { display: non
   await shot('orders', { omitBackground: false });
   return { card: await box('.order-card') };
 });
-status = 'confirmed';
-await page.evaluate(() => window.dispatchEvent(new Event('focus')));
-// Holatni yangilash: oynani yopib qayta ochish
-await page.click('.sheet-close');
-await page.waitForTimeout(500);
-await page.click('.order-card');
-await page.waitForTimeout(900);
-await sheet('ord2');
+// Holat o'zgarishi: oynani yopib qayta ochish (yangi holat so'raladi)
+for (const [st, name] of [['confirmed', 'ord2'], ['shipped', 'ord3']]) {
+  status = st;
+  await page.click('.sheet-close');
+  await page.waitForTimeout(500);
+  await page.click('.order-card');
+  await page.waitForTimeout(900);
+  await sheet(name);
+}
 
 await writeFile(`${OUT}/layout.json`, JSON.stringify(layout, null, 1));
 console.log('✓ layout.json');

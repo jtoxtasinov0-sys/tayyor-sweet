@@ -95,8 +95,10 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
   `miniapp/public/video/ilova-<iphone|samsung>-uz.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
   Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
-- **Qanday buyurtma beriladi** videosi (iPhone, Reels uchun): `miniapp/public/video/buyurtma-uz.mp4` — botda
-  «Do'konni ochish» → mahsulot → o'lcham → savat → manzil → to'lov cheki → holat va bot xabari. Mini ilova ekranlari
+- **Qanday buyurtma beriladi** videosi (iPhone, Reels uchun, ovozli): `miniapp/public/video/buyurtma-uz.mp4` — botda
+  «Do'konni ochish» → mahsulot → o'lcham va bezak rangi → savat → yetkazish usuli → ism, telefon, manzil → sana →
+  tasdiqlash → to'lov cheki → holat va bot xabari. Ovozli matn: `video/assets/voice/buyurtma-uz.flac` — sahnalar va bosishlar
+  uning jumlalariga moslangan (`video/src/order.js` dagi vaqtlar), musiqa ovoz ostida pasayadi. Mini ilova ekranlari
   haqiqiy sahifadan olinadi (`shots-order.mjs`, backend kerak emas — so'rovlarga namuna javob; rekvizitlar xiralashtiriladi).
 
 **Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
