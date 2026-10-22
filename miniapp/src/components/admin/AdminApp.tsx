@@ -35,6 +35,7 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
   const [show, setShow] = useState(true);
   const [err, setErr] = useState('');
   const [waking, setWaking] = useState(false);
+  const [diag, setDiag] = useState(false);
   const [busy, setBusy] = useState(false);
 
   // Sahifa ochilishi bilan serverni uyg'otamiz — parol terilguncha tayyor bo'ladi
@@ -53,6 +54,7 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
     e.preventDefault();
     setBusy(true);
     setErr('');
+    setDiag(false);
     try {
       // Server uxlab qolgan bo'lsa, uyg'onguncha (~1.5 daqiqa) o'zi qayta urinadi
       const until = Date.now() + 90_000;
@@ -71,7 +73,12 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
       const code = e instanceof ApiError && e.status ? ` (${e.status})` : '';
       if (d?.error === 'blocked') setErr(`⛔️ Juda ko'p xato urinish. ${d.minutes} daqiqadan keyin qayta urinib ko'ring.`);
       else if (d?.error === 'wrong_password') setErr(`❌ Parol noto'g'ri. Qolgan urinishlar: ${d.left}`);
-      else setErr(`Server bilan aloqa yo‘q${code}. Birozdan so'ng qayta urinib ko'ring.`);
+      else {
+        setDiag(true);
+        // 404 — so'rov backendga yetmayapti: Vercel'dagi BACKEND_URL noto'g'ri yoki Render servisi yo'q
+        if (e instanceof ApiError && e.status === 404) setErr("Backend topilmadi (404) — Vercel'dagi BACKEND_URL manzili noto'g'ri bo'lishi mumkin.");
+        else setErr(`Server bilan aloqa yo‘q${code}. Birozdan so'ng qayta urinib ko'ring.`);
+      }
     } finally {
       setWaking(false);
       setBusy(false);
@@ -103,6 +110,7 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
         </div>
         {waking && <p className="muted" style={{ fontSize: 14, fontWeight: 600 }}>⏳ Server uyg&apos;onmoqda, biroz kuting...</p>}
         {err && !waking && <p style={{ color: 'var(--danger)', fontSize: 14, fontWeight: 600 }}>{err}</p>}
+        {diag && !waking && <a href="/holat" target="_blank" rel="noreferrer" style={{ fontSize: 14, fontWeight: 600, textDecoration: 'underline' }}>🔎 Aloqani tekshirish</a>}
         <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy || !password}>
           {busy ? 'Kirilmoqda...' : 'Kirish'}
         </button>

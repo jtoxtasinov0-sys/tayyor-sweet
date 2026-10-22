@@ -54,6 +54,10 @@ Bepul tarifda server 15 daqiqada uxlab qolmasligi uchun o'ziga har 10 daqiqada p
 
 So'ng Render'dagi `MINIAPP_URL` ni Vercel manziliga o'rnating — bot menyu tugmasini o'zi sozlaydi.
 
+**Aloqani tekshirish** — admin panel "Server bilan aloqa yo'q" yoki "Backend topilmadi (404)" desa, `https://<vercel-manzil>/holat` ni oching:
+`BACKEND_URL` qiymati, Render'ga to'g'ridan-to'g'ri va Vercel orqali (`/api/*`) javob ko'rinadi. `BACKEND_URL` o'zgartirilsa,
+Vercel'da **Redeploy** qilish kerak — `/api` yo'naltirish build paytida yoziladi.
+
 Mini ilova do'kon ma'lumotlarini Vercel'da keshlaydi (ISR, har 60 soniyada fonda yangilanadi) — backend uyg'onishini kutmasdan darhol ochiladi.
 
 **Rasmlar backendga bog'liq emas.** `rasmlar/` dagi mahsulot rasmlarining nusxasi `miniapp/public/rasmlar/` da turadi —
