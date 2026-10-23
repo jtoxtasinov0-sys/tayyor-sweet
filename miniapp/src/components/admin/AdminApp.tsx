@@ -163,9 +163,8 @@ function Shell() {
             <button className="adm-nav logout" onClick={logout}>🚪 Chiqish</button>
           </nav>
           <main className="adm-main">
-            <div className="adm-head"><h1>{current.icon} {current.label}</h1></div>
-            {/* ma'lumot yuklanishini kutmaydi — server uxlab yotsa ham ko'rinadi */}
-            {section === 'dashboard' && <AdminInstall style={{ marginTop: 0, marginBottom: 14 }} />}
+            {/* "Ilovani o'rnatish" — har bo'limda sarlavha yonida; ma'lumot yuklanishini kutmaydi */}
+            <div className="adm-head"><h1>{current.icon} {current.label}</h1><AdminInstall compact /></div>
             {section === 'dashboard' && <Dashboard go={go} />}
             {section === 'orders' && <OrdersAdmin openId={openOrder} onOpened={() => setOpenOrder(null)} />}
             {section === 'products' && <ProductsAdmin />}

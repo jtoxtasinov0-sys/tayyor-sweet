@@ -12,6 +12,8 @@
 .adm-main { padding: 24px 28px 80px; min-width: 0; }
 .adm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
 .adm-head h1 { font-size: 24px; font-weight: 800; margin-right: auto; }
+.adm-install-ok { font-size: 13px; font-weight: 600; color: var(--muted); }
+.adm-install-steps { flex-basis: 100%; margin-top: 0; }
 .adm-card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); padding: 18px; }
 .adm-grid { display: grid; gap: 14px; }
 .adm-stats { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
@@ -136,7 +138,8 @@
 .pre { white-space: pre-wrap; background: var(--plum); color: #ffe3f1; padding: 14px; border-radius: 12px; font-size: 13px; max-height: 420px; overflow: auto; }
 
 @media (max-width: 860px) {
-  .adm { grid-template-columns: 1fr; }
+  /* menyu — o'z balandligida; sahifa qisqa bo'lsa bo'sh joy pastga (aks holda menyu cho'zilib ketadi) */
+  .adm { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .adm-side { position: sticky; top: 0; z-index: 40; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; gap: 6px; scrollbar-width: none; }
   .adm-side::-webkit-scrollbar { display: none; }
   .adm-brand { display: none; }
