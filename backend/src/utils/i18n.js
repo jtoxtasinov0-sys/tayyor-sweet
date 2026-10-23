@@ -16,6 +16,7 @@ const T = {
     install: (link) =>
       `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\n${link}\n\n👆 Linkni <b>bosib turing</b>:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», keyin <b>Chrome</b>'ga joylang`,
     install_videos: "🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung",
+    install_kb_hint: "📲 Ilovani telefonga o'rnatish — pastdagi tugma 👇",
     main_menu: "Quyidagi tugma orqali do'konni oching 👇",
     no_orders: "Sizda hali buyurtmalar yo'q. Do'konni ochib, birinchi buyurtmangizni bering 🍰",
     your_orders: '📦 <b>Oxirgi buyurtmalaringiz:</b>',
@@ -54,6 +55,7 @@ const T = {
     install: (link) =>
       `📲 <b>Установите приложение Tayyor &amp; Sweet</b>\n\n${link}\n\n👆 <b>Нажмите и удерживайте</b> ссылку:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», затем вставьте в <b>Chrome</b>`,
     install_videos: '🎬 Видеоинструкция: 1 — iPhone, 2 — Samsung',
+    install_kb_hint: '📲 Установить приложение на телефон — кнопка ниже 👇',
     main_menu: 'Откройте магазин кнопкой ниже 👇',
     no_orders: 'У вас пока нет заказов. Откройте магазин и сделайте первый заказ 🍰',
     your_orders: '📦 <b>Ваши последние заказы:</b>',

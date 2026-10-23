@@ -90,7 +90,8 @@ Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzati
 
 Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegram'siz ochiladi (mehmon rejimida buyurtma).
 
-- Botda /start xabari ostidagi **📲 Ilovani o'rnatish** tugmasi (yoki `/ilova`) → bitta xabar: iPhone va Samsung video qo'llanma
+- Botda **📲 Ilovani o'rnatish** tugmasi ikki joyda: /start xabari ostida va pastki klaviaturada (yozish qatoridagi ⊞
+  belgisi ochadi; /start va raqam saqlangandan keyin yuboriladi). Tugma (yoki `/ilova`) → bitta xabar: iPhone va Samsung video qo'llanma
   (albom), izohida link `…/ilova`. Mijoz linkni bosib turadi: iPhone'da «Открыть в браузере» (Safari darhol ochiladi),
   Samsung'da «Копировать» → Chrome'ga joylaydi, keyin o'rnatadi.
 - `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,

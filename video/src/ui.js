@@ -111,9 +111,9 @@ function chatBg(c, x, y, w, h) {
   c.restore();
 }
 
-// Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — video albom + izohida link),
-// ularning ostidagi tugmalar va bosiladigan joylar
-const BTN_H = 40, BTN_GAP = 4, ALBUM_H = 216, CTX_ROW = 47;
+// Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — mijozning «Ilovani o'rnatish»
+// xabari (pastki klaviaturadan), 3 — video albom + izohida link), ularning ostidagi tugmalar va bosiladigan joylar
+const BTN_H = 40, BTN_GAP = 4, ALBUM_H = 216, CTX_ROW = 47, KB_PANEL = 60;
 export function tgLayout(c, os, L) {
   const { SW, SH, SB, BOT } = DEV[os];
   const ios = os === 'ios';
@@ -124,33 +124,35 @@ export function tgLayout(c, os, L) {
   const lh = ios ? 21.5 : 21;
   const maxW = 278;
   // media: 'photo' — xush kelibsiz rasmi, 'album' — ikkita video (iPhone, Samsung; albom biroz kengroq — link bir qatorga sig'adi)
-  const bubble = (src, rows, media = null) => {
+  // out — mijoz yuborgan xabar (o'ngda, yashil, vaqt yonida ✓✓)
+  const bubble = (src, rows, media = null, out = false) => {
     const mw = media === 'album' ? maxW + 14 : maxW;
     const lay = layoutRich(c, md(src), mw, size, S);
     c.font = S(400, 12);
     const lastW = lay.lines[lay.lines.length - 1].reduce((m, s) => Math.max(m, s.x + s.w), 0);
-    const w = media ? mw + 24 : Math.max(lay.w, Math.min(mw, lastW + 40)) + 24;
+    const w = media ? mw + 24 : Math.max(lay.w, Math.min(mw, lastW + (out ? 58 : 40))) + 24;
     const mediaH = media === 'photo' ? Math.round((w * IMG.welcome.height) / IMG.welcome.width) : media === 'album' ? ALBUM_H : 0;
     const extra = lastW + 40 > mw ? 16 : 0;
     const h = mediaH + lay.lines.length * lh + 15 + extra;
     const btnH = rows.length * (BTN_H + BTN_GAP);
-    return { lay, w: Math.min(w, mw + 24), h, media, mediaH, rows, btnH };
+    return { lay, w: Math.min(w, mw + 24), h, media, mediaH, rows, btnH, out };
   };
-  const msgs = [bubble(L.m1, L.m1btns, 'photo'), bubble(L.m4, [], 'album')];
-  const lay = { os, SW, SH, navB, inputY, chatB, size, lh, msgs, durs: L.durs };
-  // 1-xabar yolg'iz turganda — "Ilovani o'rnatish" tugmasi (2-qator)
-  const p0 = stackPositions(lay, [1, 0]);
-  const m1 = msgs[0];
-  const by = p0[0] + m1.h + BTN_GAP + 1 * (BTN_H + BTN_GAP);
-  lay.installBtn = { x: 8, y: by, w: m1.w, h: BTN_H };
-  // ikkala xabar — albom va link o'rni
-  const pos = stackPositions(lay, [1, 1]);
-  const m4 = msgs[1];
-  lay.album = { y: pos[1], h: ALBUM_H, cy: pos[1] + ALBUM_H / 2 };
+  const msgs = [bubble(L.m1, L.m1btns, 'photo'), bubble(L.mUser, [], null, true), bubble(L.m4, [], 'album')];
+  const lay = { os, SW, SH, navB, inputY, chatB, size, lh, msgs, durs: L.durs, kbLabel: L.kbBtn };
+  // yozish qatoridagi ⊞ (bot klaviaturasini ochadi) va ochilgan klaviaturadagi tugma
+  lay.kbToggle = { x: ios ? SW - 62 : SW - 100, y: inputY + 26 };
+  lay.kbH = KB_PANEL;
+  lay.kbBtn = { x: 6, y: inputY + 52 - KB_PANEL + 8, w: SW - 12, h: 44 };
+  lay.kbBtn.cx = SW / 2;
+  lay.kbBtn.cy = lay.kbBtn.y + 22;
+  // hamma xabar — albom va link o'rni
+  const pos = stackPositions(lay, [1, 1, 1]);
+  const m4 = msgs[2];
+  lay.album = { y: pos[2], h: ALBUM_H, cy: pos[2] + ALBUM_H / 2 };
   const linkLine = m4.lay.lines.findIndex((Ln) => Ln.some((s) => s.r.link));
   const segs = m4.lay.lines[linkLine].filter((s) => s.r.link);
   const lx = 8 + 12 + segs[0].x;
-  lay.link = { x: lx, y: pos[1] + m4.mediaH + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
+  lay.link = { x: lx, y: pos[2] + m4.mediaH + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
   lay.link.cx = lay.link.x + Math.min(lay.link.w, 200) / 2;
   lay.link.cy = lay.link.y + lh / 2 + 2;
   // iOS: link bosib turilganda — tepada link (pufakcha), ostida menyu; pastga sig'masa yuqoriga suriladi
@@ -163,10 +165,11 @@ export function tgLayout(c, os, L) {
   return lay;
 }
 
-// Xabarlarning yuqori y koordinatalari (pastdan yig'iladi). p — har xabar ko'rinish darajasi
-function stackPositions(lay, p) {
+// Xabarlarning yuqori y koordinatalari (pastdan yig'iladi). p — har xabar ko'rinish darajasi,
+// lift — pastki klaviatura ochilganda chat shuncha yuqoriga suriladi
+function stackPositions(lay, p, lift = 0) {
   const ys = [];
-  let y = lay.chatB;
+  let y = lay.chatB - lift;
   for (let i = lay.msgs.length - 1; i >= 0; i--) {
     const m = lay.msgs[i];
     const k = E.out3(clamp(p[i]));
@@ -177,23 +180,38 @@ function stackPositions(lay, p) {
   return ys;
 }
 
-// hl — linkni belgilash, btn: { row, glow, press } — tugmani ajratib ko'rsatish
-function drawBubble(c, lay, m, y, p, hl, btn) {
-  const ios = lay.os === 'ios';
-  const x = 8;
+// Bosiladigan joyni ajratib ko'rsatish: pushti nur va oq chegara (g — 0..1)
+function glowRR(c, x, y, w, h, r, g) {
+  if (g <= 0) return;
   c.save();
-  // paydo bo'lish: pastki chap burchakdan kattalashadi
+  shadow(c, 18 * g, `rgba(217,79,147,${0.9 * g})`);
+  fillRR(c, x, y, w, h, r, `rgba(217,79,147,${0.5 * g})`);
+  c.restore();
+  c.save();
+  c.strokeStyle = `rgba(255,255,255,${g})`;
+  c.lineWidth = 2.5;
+  rr(c, x, y, w, h, r);
+  c.stroke();
+  c.restore();
+}
+
+// hl — linkni belgilash
+function drawBubble(c, lay, m, y, p, hl) {
+  const ios = lay.os === 'ios';
+  const x = m.out ? lay.SW - 8 - m.w : 8;
+  c.save();
+  // paydo bo'lish: pastki chap (mijozniki — o'ng) burchakdan kattalashadi
   const k = E.back(clamp(p));
-  const oy = y + m.h;
-  c.translate(x, oy);
+  const ox = m.out ? x + m.w : x, oy = y + m.h;
+  c.translate(ox, oy);
   c.scale(lerp(0.6, 1, k), lerp(0.6, 1, k));
-  c.translate(-x, -oy);
+  c.translate(-ox, -oy);
   c.globalAlpha = clamp(p * 2.5);
   shadow(c, 1.5, 'rgba(0,0,0,0.12)', 1);
-  c.fillStyle = '#fff';
+  c.fillStyle = m.out ? (ios ? '#E1FEC6' : '#EFFEDD') : '#fff';
   c.beginPath();
   const r = ios ? 17 : 13, rs = 5;
-  c.roundRect(x, y, m.w, m.h, [r, r, r, rs]);
+  c.roundRect(x, y, m.w, m.h, m.out ? [r, r, rs, r] : [r, r, r, rs]);
   c.fill();
   noShadow(c);
   if (m.mediaH) {
@@ -210,27 +228,19 @@ function drawBubble(c, lay, m, y, p, hl, btn) {
     c.restore();
   }
   drawRich(c, m.lay, x + 12, y + m.mediaH + 8 + lay.size, lay.lh, '#000', ios ? '#007AFF' : '#2481CC', hl > 0 ? `rgba(0,122,255,${0.18 * hl})` : null);
-  text(c, '12:41', x + m.w - 10, y + m.h - 7, S(400, 11.5), '#9AA0A6', 'right');
+  if (m.out) {
+    const tc = ios ? '#3FA23A' : '#5FB65C';
+    text(c, '12:41', x + m.w - 28, y + m.h - 7, S(400, 11.5), tc, 'right');
+    G.check(c, x + m.w - 19, y + m.h - 11, 11, tc, 0.16);
+    G.check(c, x + m.w - 14, y + m.h - 11, 11, tc, 0.16);
+  } else text(c, '12:41', x + m.w - 10, y + m.h - 7, S(400, 11.5), '#9AA0A6', 'right');
   // xabar ostidagi tugmalar
   m.rows.forEach((row, ri) => {
     const by = y + m.h + BTN_GAP + ri * (BTN_H + BTN_GAP);
     const bw = (m.w - (row.length - 1) * BTN_GAP) / row.length;
     row.forEach((b, i) => {
       const bx = x + i * (bw + BTN_GAP);
-      const sel = btn && btn.row === ri;
-      if (sel && btn.glow > 0) {
-        c.save();
-        shadow(c, 18 * btn.glow, `rgba(217,79,147,${0.9 * btn.glow})`);
-        fillRR(c, bx, by, bw, BTN_H, ios ? 10 : 8, `rgba(217,79,147,${0.5 * btn.glow})`);
-        c.restore();
-        c.save();
-        c.strokeStyle = `rgba(255,255,255,${btn.glow})`;
-        c.lineWidth = 2.5;
-        rr(c, bx, by, bw, BTN_H, ios ? 10 : 8);
-        c.stroke();
-        c.restore();
-      }
-      fillRR(c, bx, by, bw, BTN_H, ios ? 10 : 8, sel && btn.press ? 'rgba(40,70,45,0.62)' : 'rgba(70,110,75,0.42)');
+      fillRR(c, bx, by, bw, BTN_H, ios ? 10 : 8, 'rgba(70,110,75,0.42)');
       c.font = S(600, 14.5);
       text(c, ellipsize(c, b, bw - 14), bx + bw / 2, by + 25, S(600, 14.5), '#fff', 'center');
       // Telegram belgilari: veb-ilova (kvadrat) va tashqi link (↗)
@@ -262,12 +272,15 @@ function videoTile(c, im, x, y, w, h, dur) {
   text(c, dur, x + 24, y + 19.5, S(500, 11.5), '#fff');
 }
 
-// st: { msgs:[p,p], btnGlow, btnPress, linkHL }
+// st: { msgs:[p,p,p], linkHL, kb (0..1 — pastki klaviatura ochilishi), toggleGlow, togglePress, kbGlow, kbPress }
 export function tgChat(c, lay, L, st) {
-  const { SW, SH, navB, inputY, os } = lay;
+  const { SW, SH, navB, os } = lay;
   const ios = os === 'ios';
   chatBg(c, 0, 0, SW, SH);
-  const ys = stackPositions(lay, st.msgs);
+  // pastki klaviatura ochilganda yozish qatori va chat yuqoriga suriladi
+  const lift = lay.kbH * E.out3(clamp(st.kb || 0));
+  const inputY = lay.inputY - lift;
+  const ys = stackPositions(lay, st.msgs, lift);
   c.save();
   c.beginPath();
   c.rect(0, navB, SW, inputY - navB);
@@ -279,7 +292,7 @@ export function tgChat(c, lay, L, st) {
   text(c, L.today, SW / 2, dateY + 15.5, S(500, 13), '#fff', 'center');
   lay.msgs.forEach((m, i) => {
     if (st.msgs[i] <= 0) return;
-    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 1 ? st.linkHL || 0 : 0, i === 0 ? { row: 1, glow: st.btnGlow || 0, press: st.btnPress } : null);
+    drawBubble(c, lay, m, ys[i], st.msgs[i], i === 2 ? st.linkHL || 0 : 0);
   });
   c.restore();
 
@@ -308,9 +321,21 @@ export function tgChat(c, lay, L, st) {
     statusBar(c, 'and', true);
   }
 
-  // yozish qatori: chapda bot menyusi tugmasi (veb-ilova), keyin maydon
+  // yozish qatori: chapda bot menyusi tugmasi (veb-ilova), keyin maydon; ichida ⊞ — bot klaviaturasi
   c.fillStyle = ios ? '#F7F7F7' : '#fff';
   c.fillRect(0, inputY, SW, SH - inputY);
+  if (lift > 0) {
+    // bot klaviaturasi: bitta tugma
+    c.fillStyle = ios ? '#D5D8DE' : '#EEF0F2';
+    c.fillRect(0, inputY + 52, SW, SH - inputY - 52);
+    const b = lay.kbBtn, by = b.y + (lay.kbH - lift);
+    glowRR(c, b.x, by, b.w, b.h, ios ? 9 : 6, st.kbGlow || 0);
+    c.save();
+    shadow(c, 0, 'rgba(0,0,0,0.3)', 1);
+    fillRR(c, b.x, by, b.w, b.h, ios ? 9 : 6, st.kbPress ? (ios ? '#B9BDC5' : '#DADDE0') : '#fff');
+    c.restore();
+    text(c, lay.kbLabel, SW / 2, by + 28, S(500, 16.5), '#000', 'center');
+  }
   c.fillStyle = 'rgba(0,0,0,0.12)';
   c.fillRect(0, inputY, SW, 0.5);
   c.font = S(600, 14.5);
@@ -331,45 +356,20 @@ export function tgChat(c, lay, L, st) {
     G.clip(c, SW - 62, inputY + 26, 26, '#8A9096');
     G.mic(c, SW - 24, inputY + 26, 26, '#8A9096');
   }
+  const tx = lay.kbToggle.x, ty = inputY + 26;
+  glowRR(c, tx - 17, ty - 17, 34, 34, 10, st.toggleGlow || 0);
+  if (st.togglePress) fillRR(c, tx - 17, ty - 17, 34, 34, 10, 'rgba(0,0,0,0.12)');
+  (lift > lay.kbH / 2 ? G.keyboard : G.botKb)(c, tx, ty, 24, ios ? '#8E8E93' : '#8A9096');
   homeBar(c, os);
 }
 
-// Link bosib turilganda chiqadigan menyu. press: bosilgan qator ('copy')
-export function tgLinkMenu(c, os, L, link, p, press) {
-  const { SW, SH, BOT } = DEV[os];
+// Android: link bosib turilganda chiqadigan menyu. press: bosilgan qator (1 — «Копировать»)
+export function tgLinkMenu(c, L, link, p, press) {
+  const { SW, SH, BOT } = DEV.and;
   c.fillStyle = `rgba(0,0,0,${0.4 * p})`;
   c.fillRect(0, 0, SW, SH);
   const e = E.out3(p);
   const rows = [L.open, L.copy, L.share];
-  if (os === 'ios') {
-    const cancelY = SH - BOT - 57 - 4;
-    const gH = 44 + rows.length * 57;
-    const gY = cancelY - 8 - gH;
-    const off = (1 - e) * (SH - gY);
-    c.save();
-    c.translate(0, off);
-    fillRR(c, 8, gY, SW - 16, gH, 14, 'rgba(249,249,249,0.98)');
-    c.font = S(400, 13);
-    text(c, ellipsize(c, link, SW - 60), SW / 2, gY + 27, S(400, 13), '#8E8E93', 'center');
-    rows.forEach((r, i) => {
-      const y = gY + 44 + i * 57;
-      if (press === i) {
-        c.save();
-        c.beginPath();
-        c.rect(8, y, SW - 16, 57);
-        c.clip();
-        fillRR(c, 8, gY, SW - 16, gH, 14, '#E1E1E6');
-        c.restore();
-      }
-      c.fillStyle = 'rgba(60,60,67,0.2)';
-      c.fillRect(8, y, SW - 16, 0.6);
-      text(c, r, SW / 2, y + 36, S(400, 20), C.ios, 'center');
-    });
-    fillRR(c, 8, cancelY, SW - 16, 57, 14, '#fff');
-    text(c, L.cancel, SW / 2, cancelY + 36, S(600, 20), C.ios, 'center');
-    c.restore();
-    return { copy: { x: SW / 2, y: gY + 44 + 57 + 28 } };
-  }
   const sh = 70 + rows.length * 52 + BOT;
   const y0 = SH - sh + (1 - e) * sh;
   c.save();

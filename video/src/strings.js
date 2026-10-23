@@ -9,14 +9,14 @@ export const L = {
   step: (n) => `${n}-QADAM`,
   steps: {
     iphone: [
-      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", "Bot video qo'llanma va link yuboradi"],
+      ["Botda ⊞ ni bosing → «📲 Ilovani o'rnatish»", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Открыть в браузере» ni tanlang', "Brauzerda ochish — sahifa Safari'da ochiladi"],
       ['Pastdagi «⋯» → «Поделиться» ni bosing', "Ulashish. Eski iPhone'da pastdagi □↑ tugmasi"],
       ['«На экран «Домой»» → «Добавить» ni bosing', "Bosh ekranga qo'shish → Qo'shish"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
     ],
     samsung: [
-      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", "Bot video qo'llanma va link yuboradi"],
+      ["Botda ⊞ ni bosing → «📲 Ilovani o'rnatish»", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Копировать» ni tanlang', 'Nusxa olish — link telefon xotirasiga saqlanadi'],
       ["Chrome'ni oching va linkni joylang", 'Manzil qatorini bosing → «Скопированная ссылка»'],
       ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить приложение»'],
@@ -37,14 +37,16 @@ export const L = {
     menu: "🛍 Do'kon",
     // «Ilovani o'rnatish» javobi: albom (iPhone va Samsung videolari), izohida link
     m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing**:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», keyin **Chrome**'ga joylang\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
-    durs: ['0:29', '0:33'],
+    durs: ['0:30', '0:33'],
+    // pastki klaviatura (⊞) tugmasi va uni bosganda chatga ketadigan xabar
+    kbBtn: "📲 Ilovani o'rnatish",
+    mUser: "📲 Ilovani o'rnatish",
     // iOS: link bosib turilganda chiqadigan menyu
     linkText: LINK,
     ctx: ['Открыть', 'Открыть в браузере', 'Копировать ссылку', 'Добавить в список чтения'],
     open: 'Открыть',
     copy: 'Копировать',
     share: 'Поделиться',
-    cancel: 'Отмена',
     copied: 'Ссылка скопирована',
   },
   // iPhone tizimi (ruscha)

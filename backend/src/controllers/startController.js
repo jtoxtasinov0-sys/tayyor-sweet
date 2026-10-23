@@ -21,13 +21,14 @@ async function start(ctx) {
   return greet(ctx);
 }
 
-// Eski pastki menyu (reply klaviatura) — endi barcha tugmalar xabar ostida. Bir marta olib tashlanadi
-const keyboardCleared = new Set();
-async function hideReplyKeyboard(ctx) {
-  if (keyboardCleared.has(ctx.from.id)) return;
-  keyboardCleared.add(ctx.from.id);
-  const m = await ctx.reply('…', { ...Markup.removeKeyboard(), disable_notification: true }).catch(() => null);
-  if (m) await ctx.deleteMessage(m.message_id).catch(() => {});
+// Pastki klaviatura (yozish qatoridagi ⊞ belgisi ochadi): «📲 Ilovani o'rnatish».
+// Eski katta pastki menyuni ham almashtiradi. Har foydalanuvchiga bir marta (server qayta ishga tushguncha)
+const keyboardSent = new Set();
+async function sendInstallKeyboard(ctx) {
+  if (keyboardSent.has(ctx.from.id)) return;
+  keyboardSent.add(ctx.from.id);
+  const lang = langOf(ctx);
+  await ctx.reply(t(lang).install_kb_hint, { ...kb.installKeyboard(lang), disable_notification: true }).catch(() => {});
 }
 
 // Rasm Telegram'ga bir marta yuklanadi, keyin file_id bilan yuboriladi
@@ -40,7 +41,6 @@ async function greet(ctx) {
   const shop = await Setting.get('shop');
   const caption = L.welcome(esc(ctx.from.first_name || ''), esc(shop.name || config.shop.name));
   const extra = { parse_mode: 'HTML', ...kb.welcomeInline(lang, shop.instagram) };
-  if (user?.phone) await hideReplyKeyboard(ctx);
   const photo =
     welcomePhotoId ||
     (fs.existsSync(config.welcomePhoto) ? { source: config.welcomePhoto } : config.miniappUrl ? `${config.miniappUrl}/og.jpg` : null);
@@ -52,6 +52,7 @@ async function greet(ctx) {
     await ctx.reply(caption, extra);
   }
   if (!user?.phone) return ctx.reply(L.ask_phone, kb.phoneKeyboard(lang));
+  return sendInstallKeyboard(ctx);
 }
 
 async function chooseLang(ctx) {
@@ -59,6 +60,8 @@ async function chooseLang(ctx) {
   ctx.state.user = await User.setLang(ctx.from.id, lang);
   await ctx.answerCbQuery(t(lang).lang_set);
   await ctx.deleteMessage().catch(() => {});
+  // pastki tugma ham yangi tilda qayta yuboriladi
+  keyboardSent.delete(ctx.from.id);
   return greet(ctx);
 }
 
@@ -74,8 +77,8 @@ async function contact(ctx) {
   if (!phone.startsWith('+')) phone = `+${phone}`;
   ctx.state.user = await User.setPhone(ctx.from.id, phone);
   const lang = langOf(ctx);
-  keyboardCleared.add(ctx.from.id);
-  return ctx.reply(t(lang).phone_saved, Markup.removeKeyboard());
+  keyboardSent.add(ctx.from.id);
+  return ctx.reply(t(lang).phone_saved, kb.installKeyboard(lang));
 }
 
 async function buildPriceList(lang = 'uz') {

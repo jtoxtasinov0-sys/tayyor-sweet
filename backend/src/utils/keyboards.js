@@ -15,16 +15,8 @@ const phoneKeyboard = (lang) =>
     .resize()
     .oneTime();
 
-function mainKeyboard(lang) {
-  const L = t(lang);
-  const rows = [];
-  const url = webAppUrl();
-  if (url && url.startsWith('https://')) rows.push([Markup.button.webApp(L.open_shop, url)]);
-  rows.push([L.menu_prices, L.menu_orders]);
-  rows.push([L.menu_contact, L.menu_lang]);
-  rows.push([L.menu_install]);
-  return Markup.keyboard(rows).resize();
-}
+// Pastki klaviatura: bosilgach yopiladi, yozish qatoridagi ⊞ belgisi uni qayta ochadi
+const installKeyboard = (lang) => Markup.keyboard([[t(lang).menu_install]]).resize().oneTime();
 
 // /start xabari ostidagi tugmalar
 function welcomeInline(lang, instagram) {
@@ -76,4 +68,4 @@ function orderAdminInline(order) {
   return rows.length ? Markup.inlineKeyboard(rows) : undefined;
 }
 
-module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, welcomeInline, openShopInline, adminInline, orderAdminInline, webAppUrl };
+module.exports = { langKeyboard, phoneKeyboard, installKeyboard, welcomeInline, openShopInline, adminInline, orderAdminInline, webAppUrl };

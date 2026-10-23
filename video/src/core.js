@@ -488,6 +488,36 @@ export const G = {
     c.stroke();
     c.restore();
   },
+  // Telegram yozish qatoridagi bot klaviaturasi belgisi (⊞)
+  botKb(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.lineWidth = s * 0.075;
+    rr(c, x - s * 0.4, y - s * 0.4, s * 0.8, s * 0.8, s * 0.2);
+    c.stroke();
+    for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      rr(c, x + dx * s * 0.135 - s * 0.1, y + dy * s * 0.135 - s * 0.1, s * 0.2, s * 0.2, s * 0.06);
+      c.stroke();
+    }
+    c.restore();
+  },
+  // oddiy (harfli) klaviatura belgisi — bot klaviaturasi ochiq turganda ⊞ o'rnida
+  keyboard(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.fillStyle = col;
+    c.lineWidth = s * 0.075;
+    rr(c, x - s * 0.45, y - s * 0.3, s * 0.9, s * 0.6, s * 0.12);
+    c.stroke();
+    for (let r = 0; r < 2; r++)
+      for (let i = 0; i < 4; i++) {
+        c.beginPath();
+        c.arc(x - s * 0.24 + i * s * 0.16, y - s * 0.12 + r * s * 0.13, s * 0.035, 0, Math.PI * 2);
+        c.fill();
+      }
+    c.fillRect(x - s * 0.18, y + s * 0.13, s * 0.36, s * 0.06);
+    c.restore();
+  },
   compass(c, x, y, s, col) {
     c.save();
     c.strokeStyle = col;
