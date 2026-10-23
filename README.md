@@ -100,6 +100,9 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   tizimning «Установить приложение» oynasi (Отмена / Установить) chiqadi, iPhone'da `/ilova` qo'llanmasiga o'tadi,
   Telegram ichidan — tashqi brauzerda. O'rnatilgan ilova ichida ko'rinmaydi; ilova telefonda allaqachon bo'lsa
   (Android Chrome aniqlaydi) "Ilova telefoningizda bor — ilovalar ro'yxatidan oching" deydi. Kod: `miniapp/src/hooks/useInstall.ts`.
+- Admin panelda ham (kirish sahifasi va Dashboard) **📲 Admin panelni telefonga o'rnatish** — alohida «Tayyor Admin» ilovasi
+  (`public/admin.webmanifest`). Android'da tizim oynasi; iPhone'da bosh ekranga aynan shu sahifa qo'shilgani uchun 3 qadam
+  shu kartaning o'zida ko'rsatiladi (`/ilova` ga o'tilmaydi). Kod: `miniapp/src/components/admin/AdminInstall.tsx`.
 - Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
 - Videolar (yozuvlar o'zbekcha, telefon interfeysi ruscha — ko'pchilik telefonni rus tilida ishlatadi;
   Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):

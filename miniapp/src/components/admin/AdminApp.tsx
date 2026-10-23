@@ -7,6 +7,7 @@ import { OrdersAdmin } from './OrdersAdmin';
 import { ProductsAdmin } from './ProductsAdmin';
 import { StockAdmin } from './StockAdmin';
 import { CategoriesAdmin, PromoAdmin, CustomersAdmin, SettingsAdmin } from './Sections';
+import { AdminInstall } from './AdminInstall';
 import { adminLogin, wakeServer, ApiError } from '@/lib/api';
 import { tg } from '@/hooks/useTelegram';
 import { cx } from '@/lib/utils';
@@ -115,6 +116,7 @@ function Login({ onToken }: { onToken: (t: string) => void }) {
           {busy ? 'Kirilmoqda...' : 'Kirish'}
         </button>
       </form>
+      <AdminInstall style={{ width: 'min(380px, 100%)', marginTop: 0 }} />
     </div>
   );
 }
@@ -162,6 +164,8 @@ function Shell() {
           </nav>
           <main className="adm-main">
             <div className="adm-head"><h1>{current.icon} {current.label}</h1></div>
+            {/* ma'lumot yuklanishini kutmaydi — server uxlab yotsa ham ko'rinadi */}
+            {section === 'dashboard' && <AdminInstall style={{ marginTop: 0, marginBottom: 14 }} />}
             {section === 'dashboard' && <Dashboard go={go} />}
             {section === 'orders' && <OrdersAdmin openId={openOrder} onOpened={() => setOpenOrder(null)} />}
             {section === 'products' && <ProductsAdmin />}
