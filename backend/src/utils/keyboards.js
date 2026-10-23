@@ -48,14 +48,6 @@ function instagramUrl(v) {
   return `https://instagram.com/${s.replace(/^@/, '')}`;
 }
 
-// Ilovani o'rnatish: qaysi telefon uchun video qo'llanma
-function installInline(lang) {
-  const L = t(lang);
-  return Markup.inlineKeyboard([
-    [Markup.button.callback(L.guide_ios, 'guide:ios'), Markup.button.callback(L.guide_android, 'guide:android')],
-  ]);
-}
-
 function openShopInline(lang, path = '') {
   const url = webAppUrl(path);
   if (!url || !url.startsWith('https://')) return undefined;
@@ -84,4 +76,4 @@ function orderAdminInline(order) {
   return rows.length ? Markup.inlineKeyboard(rows) : undefined;
 }
 
-module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, welcomeInline, openShopInline, installInline, adminInline, orderAdminInline, webAppUrl };
+module.exports = { langKeyboard, phoneKeyboard, mainKeyboard, welcomeInline, openShopInline, adminInline, orderAdminInline, webAppUrl };

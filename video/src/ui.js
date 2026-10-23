@@ -109,9 +109,9 @@ function chatBg(c, x, y, w, h) {
   c.restore();
 }
 
-// Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — o'rnatish linki),
+// Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — video albom + izohida link),
 // ularning ostidagi tugmalar va bosiladigan joylar
-const BTN_H = 40, BTN_GAP = 4;
+const BTN_H = 40, BTN_GAP = 4, ALBUM_H = 216;
 export function tgLayout(c, os, L) {
   const { SW, SH, SB, BOT } = DEV[os];
   const ios = os === 'ios';
@@ -121,31 +121,34 @@ export function tgLayout(c, os, L) {
   const size = ios ? 16.5 : 16;
   const lh = ios ? 21.5 : 21;
   const maxW = 278;
-  const bubble = (src, rows, photo = false) => {
-    const lay = layoutRich(c, md(src), maxW, size, S);
+  // media: 'photo' — xush kelibsiz rasmi, 'album' — ikkita video (iPhone, Samsung; albom biroz kengroq — link bir qatorga sig'adi)
+  const bubble = (src, rows, media = null) => {
+    const mw = media === 'album' ? maxW + 14 : maxW;
+    const lay = layoutRich(c, md(src), mw, size, S);
     c.font = S(400, 12);
     const lastW = lay.lines[lay.lines.length - 1].reduce((m, s) => Math.max(m, s.x + s.w), 0);
-    const w = photo ? maxW + 24 : Math.max(lay.w, Math.min(maxW, lastW + 40)) + 24;
-    const photoH = photo ? Math.round((w * IMG.welcome.height) / IMG.welcome.width) : 0;
-    const extra = lastW + 40 > maxW ? 16 : 0;
-    const h = photoH + lay.lines.length * lh + 15 + extra;
-    const btnH = rows ? rows.length * (BTN_H + BTN_GAP) : 0;
-    return { lay, w: Math.min(w, maxW + 24), h, photoH, rows, btnH };
+    const w = media ? mw + 24 : Math.max(lay.w, Math.min(mw, lastW + 40)) + 24;
+    const mediaH = media === 'photo' ? Math.round((w * IMG.welcome.height) / IMG.welcome.width) : media === 'album' ? ALBUM_H : 0;
+    const extra = lastW + 40 > mw ? 16 : 0;
+    const h = mediaH + lay.lines.length * lh + 15 + extra;
+    const btnH = rows.length * (BTN_H + BTN_GAP);
+    return { lay, w: Math.min(w, mw + 24), h, media, mediaH, rows, btnH };
   };
-  const msgs = [bubble(L.m1, L.m1btns, true), bubble(L.m4, [L.m4btn])];
-  const lay = { os, SW, SH, navB, inputY, chatB, size, lh, msgs };
+  const msgs = [bubble(L.m1, L.m1btns, 'photo'), bubble(L.m4, [], 'album')];
+  const lay = { os, SW, SH, navB, inputY, chatB, size, lh, msgs, durs: L.durs };
   // 1-xabar yolg'iz turganda — "Ilovani o'rnatish" tugmasi (2-qator)
   const p0 = stackPositions(lay, [1, 0]);
   const m1 = msgs[0];
   const by = p0[0] + m1.h + BTN_GAP + 1 * (BTN_H + BTN_GAP);
   lay.installBtn = { x: 8, y: by, w: m1.w, h: BTN_H };
-  // ikkala xabar — link o'rni
+  // ikkala xabar — albom va link o'rni
   const pos = stackPositions(lay, [1, 1]);
   const m4 = msgs[1];
+  lay.album = { y: pos[1], h: ALBUM_H, cy: pos[1] + ALBUM_H / 2 };
   const linkLine = m4.lay.lines.findIndex((Ln) => Ln.some((s) => s.r.link));
   const segs = m4.lay.lines[linkLine].filter((s) => s.r.link);
   const lx = 8 + 12 + segs[0].x;
-  lay.link = { x: lx, y: pos[1] + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
+  lay.link = { x: lx, y: pos[1] + m4.mediaH + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
   lay.link.cx = lay.link.x + Math.min(lay.link.w, 200) / 2;
   lay.link.cy = lay.link.y + lh / 2 + 2;
   return lay;
@@ -184,15 +187,20 @@ function drawBubble(c, lay, m, y, p, hl, btn) {
   c.roundRect(x, y, m.w, m.h, [r, r, r, rs]);
   c.fill();
   noShadow(c);
-  if (m.photoH) {
+  if (m.mediaH) {
     c.save();
     c.beginPath();
-    c.roundRect(x + 2, y + 2, m.w - 4, m.photoH - 2, [r - 2, r - 2, 3, 3]);
+    c.roundRect(x + 2, y + 2, m.w - 4, m.mediaH - 2, [r - 2, r - 2, 3, 3]);
     c.clip();
-    c.drawImage(IMG.welcome, x + 2, y + 2, m.w - 4, m.photoH - 2);
+    if (m.media === 'photo') c.drawImage(IMG.welcome, x + 2, y + 2, m.w - 4, m.mediaH - 2);
+    else {
+      const tw = (m.w - 4 - 2) / 2;
+      videoTile(c, IMG.coverIphone, x + 2, y + 2, tw, m.mediaH - 2, lay.durs[0]);
+      videoTile(c, IMG.coverSamsung, x + 2 + tw + 2, y + 2, tw, m.mediaH - 2, lay.durs[1]);
+    }
     c.restore();
   }
-  drawRich(c, m.lay, x + 12, y + m.photoH + 8 + lay.size, lay.lh, '#000', ios ? '#007AFF' : '#2481CC', hl > 0 ? `rgba(0,122,255,${0.18 * hl})` : null);
+  drawRich(c, m.lay, x + 12, y + m.mediaH + 8 + lay.size, lay.lh, '#000', ios ? '#007AFF' : '#2481CC', hl > 0 ? `rgba(0,122,255,${0.18 * hl})` : null);
   text(c, '12:41', x + m.w - 10, y + m.h - 7, S(400, 11.5), '#9AA0A6', 'right');
   // xabar ostidagi tugmalar
   m.rows.forEach((row, ri) => {
@@ -226,6 +234,23 @@ function drawBubble(c, lay, m, y, p, hl, btn) {
     });
   });
   c.restore();
+}
+
+// Albomdagi video: muqova (markazdan qirqilgan), chapda tepada "▶ davomiyligi" (muqovadagi sarlavha ochiq qoladi)
+function videoTile(c, im, x, y, w, h, dur) {
+  const k = Math.max(w / im.width, h / im.height);
+  c.drawImage(im, x + (w - im.width * k) / 2, y + (h - im.height * k) / 2, im.width * k, im.height * k);
+  c.font = S(500, 11.5);
+  const dw = c.measureText(dur).width + 26;
+  fillRR(c, x + 6, y + 6, dw, 19, 9.5, 'rgba(0,0,0,0.45)');
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.moveTo(x + 13, y + 11);
+  c.lineTo(x + 20, y + 15.5);
+  c.lineTo(x + 13, y + 20);
+  c.closePath();
+  c.fill();
+  text(c, dur, x + 24, y + 19.5, S(500, 11.5), '#fff');
 }
 
 // st: { msgs:[p,p], btnGlow, btnPress, linkHL }

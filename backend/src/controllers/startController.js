@@ -10,6 +10,7 @@ const Setting = require('../models/Setting');
 const { t, T } = require('../utils/i18n');
 const { won, esc, STATUS_TEXT } = require('../utils/format');
 const kb = require('../utils/keyboards');
+const logger = require('../utils/logger');
 const { Markup } = require('telegraf');
 
 const langOf = (ctx) => ctx.state.user?.lang || 'uz';
@@ -133,44 +134,52 @@ async function contactInfo(ctx) {
   });
 }
 
-// Ilovani telefonga o'rnatish (PWA): link + iPhone / Samsung video qo'llanma
+// Ilovani telefonga o'rnatish (PWA): bitta xabar — iPhone va Samsung video qo'llanma, izohida link
 const installLink = (lang) => (config.miniappUrl ? `${config.miniappUrl}/ilova${lang === 'ru' ? '?lang=ru' : ''}` : '');
 
-async function install(ctx) {
-  const lang = langOf(ctx);
-  const link = installLink(lang);
-  if (!link) return ctx.reply(t(lang).main_menu, kb.openShopInline(lang));
-  return ctx.reply(t(lang).install(link), {
-    parse_mode: 'HTML',
-    link_preview_options: { is_disabled: true },
-    ...kb.installInline(lang),
-  });
-}
-
+// Video faqat o'zbekcha (izoh matni foydalanuvchi tilida)
+const GUIDES = ['ilova-iphone-uz.mp4', 'ilova-samsung-uz.mp4'];
 // Telegram file_id: video serverdan bir marta yuklanadi, keyin qayta yuborilmaydi
 const videoIds = new Map();
 
-async function guideVideo(ctx) {
-  const lang = langOf(ctx);
-  const L = t(lang);
-  const ios = ctx.match[1] === 'ios';
-  await ctx.answerCbQuery().catch(() => {});
-  // Video faqat o'zbekcha (izoh matni foydalanuvchi tilida); serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
-  const name = `ilova-${ios ? 'iphone' : 'samsung'}-uz.mp4`;
+function guideMedia(name) {
+  if (videoIds.has(name)) return { media: videoIds.get(name) };
+  // serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
   const file = path.join(config.videoDir, name);
-  const source = videoIds.get(name) || (fs.existsSync(file) ? { source: file } : `${config.miniappUrl}/video/${name}`);
+  if (!fs.existsSync(file)) return { media: `${config.miniappUrl}/video/${name}` };
   // Telegram chatdagi kichik rasm (bo'lmasa video birinchi kadri — bo'sh fon — chiqadi)
   const thumb = file.replace(/\.mp4$/, '-thumb.jpg');
+  return { media: { source: file }, ...(fs.existsSync(thumb) ? { thumbnail: { source: thumb } } : {}) };
+}
+
+async function install(ctx) {
+  const lang = langOf(ctx);
+  const L = t(lang);
+  const link = installLink(lang);
+  if (!link) return ctx.reply(L.main_menu, kb.openShopInline(lang));
   await ctx.sendChatAction('upload_video').catch(() => {});
-  const msg = await ctx.replyWithVideo(source, {
-    caption: (ios ? L.guide_caption_ios : L.guide_caption_android)(installLink(lang)),
-    parse_mode: 'HTML',
+  const album = GUIDES.map((name, i) => ({
+    type: 'video',
+    ...guideMedia(name),
     width: 1080,
     height: 1920,
     supports_streaming: true,
-    ...(source.source && fs.existsSync(thumb) ? { thumbnail: { source: thumb } } : {}),
-  });
-  if (msg.video?.file_id) videoIds.set(name, msg.video.file_id);
+    ...(i === 0 ? { caption: `${L.install(link)}\n\n${L.install_videos}`, parse_mode: 'HTML' } : {}),
+  }));
+  try {
+    const msgs = await ctx.replyWithMediaGroup(album);
+    msgs.forEach((m, i) => m.video?.file_id && videoIds.set(GUIDES[i], m.video.file_id));
+  } catch (e) {
+    // Video yuborilmasa ham link yetib borsin
+    logger.warn('install video:', e.message);
+    return ctx.reply(L.install(link), { parse_mode: 'HTML', link_preview_options: { is_disabled: true } });
+  }
+}
+
+// Eski xabarlardagi «iPhone — video» / «Samsung — video» tugmalari
+async function guideVideo(ctx) {
+  await ctx.answerCbQuery().catch(() => {});
+  return install(ctx);
 }
 
 // /start xabari ostidagi tugmalar

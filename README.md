@@ -75,7 +75,7 @@ zaxira ma'lumot bilan yig'iladi: katalog, narxlar va rasmlar ko'rinadi (buyurtma
 | `/narxlar` | narxlar jadvali (bazadan) |
 | `/buyurtmalar` | oxirgi buyurtmalar va holati |
 | `/til` | tilni o'zgartirish |
-| `/ilova` | ilovani telefonga o'rnatish: link + iPhone / Samsung video qo'llanma (/start xabari ostida ham bor) |
+| `/ilova` | ilovani telefonga o'rnatish: bitta xabar — iPhone va Samsung video qo'llanma, izohida link (/start xabari ostidagi tugma ham shu) |
 | `/admin parol` | admin huquqini olish (5 xato → 15 daqiqa blok) |
 | `/panel` | statistika + tekshirilishi kerak bo'lgan buyurtmalar (tugmalar bilan) |
 
@@ -90,7 +90,8 @@ Holat o'zgarganda mijozga Telegram'da xabar boradi (택배 trek raqami va kuzati
 
 Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegram'siz ochiladi (mehmon rejimida buyurtma).
 
-- Botda /start xabari ostidagi **📲 Ilovani o'rnatish** tugmasi (yoki `/ilova`) → link `…/ilova` + iPhone / Samsung video tugmalari.
+- Botda /start xabari ostidagi **📲 Ilovani o'rnatish** tugmasi (yoki `/ilova`) → bitta xabar: iPhone va Samsung video qo'llanma
+  (albom), izohida link `…/ilova`. Mijoz linkni bosib turadi → «Копировать» → Safari / Chrome'da ochib o'rnatadi.
 - `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
 - Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).
@@ -98,7 +99,7 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
 - Videolar (yozuvlar o'zbekcha, telefon interfeysi ruscha — ko'pchilik telefonni rus tilida ishlatadi;
   Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
   `miniapp/public/video/ilova-<iphone|samsung>-uz.mp4` (+ `.jpg` muqova, `-thumb.jpg` Telegram uchun).
-  Bot videoni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
+  Bot videolarni bir marta yuklaydi, keyin Telegram `file_id` orqali yuboradi.
 
 **Videoni qayta yasash** (matn yoki dizayn o'zgarsa) — `video/` papkasida:
 

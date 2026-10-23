@@ -118,7 +118,9 @@ function buildIphone(tl) {
     .move(22.8, 23.3, ST.addRow(shareTop)).tap(T.tapAddRow).move(24.8, 25.25, ST.addBtn(addTop)).tap(T.tapAdd).hide(25.7);
   touch.show(27.5, { x: SW / 2 + 40, y: 600 }).move(27.55, 28.0, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(28.5);
 
-  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
+  // avval bot yuborgan albom (video qo'llanma), keyin link
+  cam.to(T.botMsg + 0.4, T.botMsg + 1.0, 1.3, tl.album.cy + 60)
+    .to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
     .to(T.sheet + 0.05, T.sheet + 0.6, 1.45, 640)
     .to(T.toast + 0.1, T.toast + 0.7, 1)
     .to(T.tapBar, T.tapBar + 0.6, 1.5, 650)
@@ -239,7 +241,9 @@ function buildSamsung(tl, pageBtn) {
   touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
   touch.show(25.4, { x: SW / 2 + 40, y: 600 }).move(25.45, 25.85, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(26.3);
 
-  cam.to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
+  // avval bot yuborgan albom (video qo'llanma), keyin link
+  cam.to(T.botMsg + 0.4, T.botMsg + 1.0, 1.3, tl.album.cy + 60)
+    .to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
     .to(T.sheet + 0.05, T.sheet + 0.6, 1.45, 650)
     .to(T.toast + 0.1, T.toast + 0.7, 1)
     .to(T.tapOmni - 0.3, T.tapOmni + 0.3, 1.5, 250)
@@ -744,6 +748,9 @@ export async function init() {
     logo: '/miniapp/public/images/logo.png',
     icon: '/miniapp/public/icons/icon-512.png',
     welcome: '/miniapp/public/og.jpg',
+    // bot yuboradigan albomdagi video muqovalari
+    coverIphone: '/miniapp/public/video/ilova-iphone-uz.jpg',
+    coverSamsung: '/miniapp/public/video/ilova-samsung-uz.jpg',
     logoRound: '/video/assets/logo-round.png',
     pageIos: '/video/assets/shots/ilova-ios-uz.png',
     pageAnd: '/video/assets/shots/ilova-android-uz.png',

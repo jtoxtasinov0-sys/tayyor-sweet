@@ -9,7 +9,7 @@ export const L = {
   step: (n) => `${n}-QADAM`,
   steps: {
     iphone: [
-      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", 'Bot sizga link yuboradi'],
+      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Копировать» ni tanlang', 'Nusxa olish — link telefon xotirasiga saqlanadi'],
       ["Safari'ni oching va linkni joylang", "Manzil qatorini bosing → «Вставить и перейти»"],
       ['Pastdagi «⋯» → «Поделиться» ni bosing', "Ulashish. Eski iPhone'da pastdagi □↑ tugmasi"],
@@ -17,7 +17,7 @@ export const L = {
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
     ],
     samsung: [
-      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", 'Bot sizga link yuboradi'],
+      ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Копировать» ni tanlang', 'Nusxa olish — link telefon xotirasiga saqlanadi'],
       ["Chrome'ni oching va linkni joylang", 'Manzil qatorini bosing → «Скопированная ссылка»'],
       ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить приложение»'],
@@ -36,8 +36,9 @@ export const L = {
     m1: "Assalomu alaykum, **Aziza**! 👋\n\n**Tayyor & Sweet** do'koniga xush kelibsiz 🍰\nShirinliklar, tortlar va yarim tayyor mahsulotlar — Koreya bo'ylab 택배 orqali.\n\n🛍 Do'kondagi mahsulotlarni ko'ring 👇",
     m1btns: [["🛍 Do'konni ochish"], ["📲 Ilovani o'rnatish"], ['📦 Buyurtmalarim', '📞 Aloqa'], ['📸 Instagram'], ["🇺🇿 O'zbekcha", '🇷🇺 Русский']],
     menu: "🛍 Do'kon",
-    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\nDo'kon telefoningiz bosh ekranida bo'ladi — bir bosishda ochiladi.\n\n🔗 [${LINK}]\n\n👆 Linkni **bosib turing** → «Nusxa olish» (ruscha: «Копировать»), keyin **Safari** (iPhone) yoki **Chrome** (Samsung) da oching.\n\n🎬 Batafsil — video qo'llanmada 👇`,
-    m4btn: ['🍏 iPhone — video', '🤖 Samsung — video'],
+    // «Ilovani o'rnatish» javobi: albom (iPhone va Samsung videolari), izohida link
+    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing** → «Копировать» (Nusxa olish), keyin **Safari** (iPhone) yoki **Chrome** (Samsung) da oching.\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
+    durs: ['0:35', '0:33'],
     open: 'Открыть',
     copy: 'Копировать',
     share: 'Поделиться',

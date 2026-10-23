@@ -14,13 +14,8 @@ const T = {
     menu_lang: '🌐 Til',
     menu_install: "📲 Ilovani o'rnatish",
     install: (link) =>
-      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\nDo'kon telefoningiz bosh ekranida bo'ladi — bir bosishda ochiladi.\n\n🔗 ${link}\n\n👆 Linkni <b>bosib turing</b> → «Nusxa olish» (ruscha: «Копировать»), keyin <b>Safari</b> (iPhone) yoki <b>Chrome</b> (Samsung) da oching.\n\n🎬 Batafsil — video qo'llanmada 👇`,
-    guide_ios: '🍏 iPhone — video',
-    guide_android: '🤖 Samsung — video',
-    guide_caption_ios: (link) =>
-      `🍏 <b>iPhone'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Копировать» (Nusxa olish)\n2. Safari'ni oching, manzil qatoriga joylang → «Вставить и перейти»\n3. «⋯» → «Поделиться» (Ulashish) → «На экран «Домой»» (Bosh ekranga qo'shish)\n4. «Добавить» (Qo'shish) — tayyor! 🎉\n\n🔗 ${link}`,
-    guide_caption_android: (link) =>
-      `🤖 <b>Samsung'ga o'rnatish</b>\n\n1. Linkni bosib turing → «Копировать» (Nusxa olish)\n2. Chrome'ni oching, manzil qatorini bosing → «Скопированная ссылка»\n3. «📲 Ilovani o'rnatish» → «Установить» (O'rnatish)\n4. Bosh ekrandagi belgini bosing — tayyor! 🎉\n\n🔗 ${link}`,
+      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\n${link}\n\n👆 Linkni <b>bosib turing</b> → «Копировать» (Nusxa olish), keyin <b>Safari</b> (iPhone) yoki <b>Chrome</b> (Samsung) da oching.`,
+    install_videos: "🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung",
     main_menu: "Quyidagi tugma orqali do'konni oching 👇",
     no_orders: "Sizda hali buyurtmalar yo'q. Do'konni ochib, birinchi buyurtmangizni bering 🍰",
     your_orders: '📦 <b>Oxirgi buyurtmalaringiz:</b>',
@@ -57,13 +52,8 @@ const T = {
     menu_lang: '🌐 Язык',
     menu_install: '📲 Установить приложение',
     install: (link) =>
-      `📲 <b>Установите приложение Tayyor &amp; Sweet</b>\n\nМагазин будет на главном экране телефона — открывается в одно касание.\n\n🔗 ${link}\n\n👆 <b>Нажмите и удерживайте</b> ссылку → «Копировать», затем откройте в <b>Safari</b> (iPhone) или <b>Chrome</b> (Samsung).\n\n🎬 Подробно — в видеоинструкции 👇`,
-    guide_ios: '🍏 iPhone — видео',
-    guide_android: '🤖 Samsung — видео',
-    guide_caption_ios: (link) =>
-      `🍏 <b>Установка на iPhone</b>\n\n1. Нажмите и удерживайте ссылку → «Копировать»\n2. Откройте Safari и вставьте в адресную строку\n3. «⋯» → «Поделиться» → «На экран «Домой»»\n4. «Добавить» — готово! 🎉\n\n🔗 ${link}`,
-    guide_caption_android: (link) =>
-      `🤖 <b>Установка на Samsung</b>\n\n1. Нажмите и удерживайте ссылку → «Копировать»\n2. Откройте Chrome и вставьте в адресную строку\n3. «📲 Установить приложение» → «Установить»\n4. Нажмите на значок на главном экране — готово! 🎉\n\n🔗 ${link}`,
+      `📲 <b>Установите приложение Tayyor &amp; Sweet</b>\n\n${link}\n\n👆 <b>Нажмите и удерживайте</b> ссылку → «Копировать», затем откройте в <b>Safari</b> (iPhone) или <b>Chrome</b> (Samsung).`,
+    install_videos: '🎬 Видеоинструкция: 1 — iPhone, 2 — Samsung',
     main_menu: 'Откройте магазин кнопкой ниже 👇',
     no_orders: 'У вас пока нет заказов. Откройте магазин и сделайте первый заказ 🍰',
     your_orders: '📦 <b>Ваши последние заказы:</b>',
