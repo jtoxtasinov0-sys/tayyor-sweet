@@ -159,12 +159,9 @@ function FrameEditor({ imageId, frame, onChange }: { imageId: number; frame: Fra
           <button className="btn btn-ghost btn-sm" style={{ marginTop: 8 }} onClick={() => onChange({ x: 50, y: 50, zoom: 1 })}>↺ Asl holat</button>
         </div>
         <div className="frame-previews">
-          <Img id={imageId} frame={frame} />
-          <span>Karta</span>
-          <Img id={imageId} frame={frame} className="round" />
-          <span>Story</span>
-          <Img id={imageId} frame={frame} className="wide" />
-          <span>Banner</span>
+          <div><Img id={imageId} frame={frame} /><span>Karta</span></div>
+          <div><Img id={imageId} frame={frame} className="round" /><span>Story</span></div>
+          <div><Img id={imageId} frame={frame} className="wide" /><span>Banner</span></div>
         </div>
       </div>
     </div>
