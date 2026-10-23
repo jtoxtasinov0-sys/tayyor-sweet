@@ -16,7 +16,8 @@ const upload = multer({
 // Express 5 async xatolarni o'zi ushlaydi
 const api = express.Router();
 
-api.get('/health', (req, res) => res.json({ ok: true }));
+// commit — Render'da qaysi versiya ishlayotganini ko'rish uchun
+api.get('/health', (req, res) => res.json({ ok: true, commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || undefined }));
 api.get('/images/:id', shop.image);
 api.get('/bootstrap', shop.bootstrap);
 

@@ -147,12 +147,14 @@ const videoIds = new Map();
 
 function guideMedia(name) {
   if (videoIds.has(name)) return { media: videoIds.get(name) };
-  // serverda fayl yo'q bo'lsa — mini ilova saytidan (Vercel)
-  const file = path.join(config.videoDir, name);
-  if (!fs.existsSync(file)) return { media: `${config.miniappUrl}/video/${name}` };
   // Telegram chatdagi kichik rasm (bo'lmasa video birinchi kadri — bo'sh fon — chiqadi)
+  const file = path.join(config.videoDir, name);
   const thumb = file.replace(/\.mp4$/, '-thumb.jpg');
-  return { media: { source: file }, ...(fs.existsSync(thumb) ? { thumbnail: { source: thumb } } : {}) };
+  if (fs.existsSync(file)) return { media: { source: file }, ...(fs.existsSync(thumb) ? { thumbnail: { source: thumb } } : {}) };
+  // Render'da faqat backend papkasi bor — video va muqovani mini ilova saytidan (Vercel) yuklab olib o'zimiz yuboramiz.
+  // Linkni Telegram'ga bersak, u eski videoni keshdan berishi mumkin va muqova qo'yib bo'lmaydi
+  const url = `${config.miniappUrl}/video/${name}`;
+  return { media: { url, filename: name }, thumbnail: { url: url.replace(/\.mp4$/, '-thumb.jpg'), filename: 'thumb.jpg' } };
 }
 
 async function install(ctx) {
