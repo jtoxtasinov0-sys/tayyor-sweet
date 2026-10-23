@@ -18,7 +18,7 @@ export const L = {
     samsung: [
       ["Botda ⊞ ni bosing → «📲 Ilovani o'rnatish»", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Открыть в браузере» ni tanlang', 'Keyin «Открыть» — sahifa brauzerda ochiladi'],
-      ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить приложение»'],
+      ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить и создать ярлык»'],
       ['«Установить» ni bosing', "O'rnatish — belgi bosh ekranga qo'shiladi"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
     ],

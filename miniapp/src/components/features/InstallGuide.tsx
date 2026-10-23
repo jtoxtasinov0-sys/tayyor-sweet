@@ -40,7 +40,7 @@ const TXT = {
     android_title: 'Samsung / Android',
     android_steps: [
       ['Brauzer menyusini oching', 'Chrome: ⋮ (yuqorida) · Samsung Internet: ≡ (pastda)'],
-      ['«Ilovani o‘rnatish» yoki «Bosh ekranga qo‘shish»', '«Install app» · «Установить приложение» · «앱 설치»'],
+      ['«Ilovani o‘rnatish» yoki «Bosh ekranga qo‘shish»', 'Chrome: «Установить и создать ярлык» · «Install app» · «앱 설치»'],
       ['«O‘rnatish» ni bosing', '«Install» · «Установить» · «설치»'],
     ],
     other_title: 'Telefoningizda oching',
@@ -70,7 +70,7 @@ const TXT = {
     android_title: 'Samsung / Android',
     android_steps: [
       ['Откройте меню браузера', 'Chrome: ⋮ (вверху) · Samsung Internet: ≡ (внизу)'],
-      ['«Установить приложение» или «Добавить на главный экран»', '«Install app» · «Ilovani o‘rnatish» · «앱 설치»'],
+      ['«Установить и создать ярлык» (Chrome) или «Добавить на главный экран»', '«Install app» · «Ilovani o‘rnatish» · «앱 설치»'],
       ['Нажмите «Установить»', '«Install» · «O‘rnatish» · «설치»'],
     ],
     other_title: 'Откройте на телефоне',
