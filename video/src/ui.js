@@ -8,7 +8,8 @@ export const DEV = {
 };
 
 // ---------- Holat paneli ----------
-export function statusBar(c, os, dark = false, bg = null) {
+// crumb — boshqa ilovadan ochilganda vaqt ostidagi "◀ Telegram" (iOS)
+export function statusBar(c, os, dark = false, bg = null, crumb = null) {
   const { SW, SB } = DEV[os];
   const col = dark ? '#fff' : '#000';
   if (bg) {
@@ -17,7 +18,8 @@ export function statusBar(c, os, dark = false, bg = null) {
   }
   c.save();
   if (os === 'ios') {
-    text(c, '12:41', 54, 37, S(600, 17), col, 'center');
+    text(c, '12:41', 54, crumb ? 31 : 37, S(600, 17), col, 'center');
+    if (crumb) text(c, `◀ ${crumb}`, 54, 47, S(600, 12), col, 'center');
     for (let i = 0; i < 4; i++) fillRR(c, 290 + i * 5, 33 - (4 + i * 2.6), 3.3, 4 + i * 2.6, 1, col);
     c.strokeStyle = col;
     c.lineWidth = 2.1;
@@ -111,7 +113,7 @@ function chatBg(c, x, y, w, h) {
 
 // Chat joylashuvi (vaqtdan mustaqil): xabarlar (1 — rasmli xush kelibsiz, 2 — video albom + izohida link),
 // ularning ostidagi tugmalar va bosiladigan joylar
-const BTN_H = 40, BTN_GAP = 4, ALBUM_H = 216;
+const BTN_H = 40, BTN_GAP = 4, ALBUM_H = 216, CTX_ROW = 47;
 export function tgLayout(c, os, L) {
   const { SW, SH, SB, BOT } = DEV[os];
   const ios = os === 'ios';
@@ -151,6 +153,13 @@ export function tgLayout(c, os, L) {
   lay.link = { x: lx, y: pos[1] + m4.mediaH + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
   lay.link.cx = lay.link.x + Math.min(lay.link.w, 200) / 2;
   lay.link.cy = lay.link.y + lh / 2 + 2;
+  // iOS: link bosib turilganda — tepada link (pufakcha), ostida menyu; pastga sig'masa yuqoriga suriladi
+  c.font = S(500, 15.5);
+  const pillW = c.measureText(L.linkText).width + 28;
+  const menuH = L.ctx.length * CTX_ROW;
+  const pillY = Math.min(lay.link.y - 6, SH - BOT - 14 - menuH - 10 - 34);
+  lay.ctx = { x: lay.link.x - 12, pillY, pillW, menuY: pillY + 34 + 10, menuW: 304 };
+  lay.ctx.row = (i) => ({ x: lay.ctx.x + 100, y: lay.ctx.menuY + i * CTX_ROW + CTX_ROW / 2 });
   return lay;
 }
 
@@ -382,6 +391,69 @@ export function tgLinkMenu(c, os, L, link, p, press) {
   });
   c.restore();
   return { copy: { x: SW / 2, y: SH - sh + 62 + 52 + 26 } };
+}
+
+// iOS Telegram: link bosib turilganda chiqadigan kontekst menyu (fon xiralashtirilgan holda chiziladi).
+// press — bosilgan qator raqami
+export function tgLinkContext(c, lay, L, p, press) {
+  const { SW, SH } = lay;
+  const { x, pillY, pillW, menuY, menuW } = lay.ctx;
+  const e = E.out3(clamp(p));
+  c.save();
+  c.globalAlpha = clamp(p * 2);
+  c.fillStyle = `rgba(235,245,225,${0.35 * e})`;
+  c.fillRect(0, 0, SW, SH);
+  // link pufakchasi: xabardagi o'rnidan ko'tariladi
+  const py = lerp(lay.link.y - 6, pillY, e);
+  shadow(c, 16 * e, 'rgba(0,0,0,0.12)', 4);
+  fillRR(c, x, py, pillW, 34, 12, 'rgba(236,250,224,0.98)');
+  noShadow(c);
+  text(c, L.linkText, x + 14, py + 22.5, S(500, 15.5), '#1C4FA8');
+  // menyu: pufakcha ostidan kattalashib chiqadi
+  const k = lerp(0.4, 1, E.back(clamp(p)));
+  const h = L.ctx.length * CTX_ROW;
+  c.translate(x, menuY);
+  c.scale(k, k);
+  c.translate(-x, -menuY);
+  shadow(c, 34, 'rgba(0,0,0,0.18)', 10);
+  fillRR(c, x, menuY, menuW, h, 26, 'rgba(244,246,238,0.97)');
+  noShadow(c);
+  const icons = [G.compass, G.globe, G.copy, G.glasses];
+  L.ctx.forEach((label, i) => {
+    const ry = menuY + i * CTX_ROW;
+    if (press === i) {
+      c.save();
+      rr(c, x, menuY, menuW, h, 26);
+      c.clip();
+      c.fillStyle = 'rgba(0,0,0,0.1)';
+      c.fillRect(x, ry, menuW, CTX_ROW);
+      c.restore();
+    }
+    icons[i](c, x + 34, ry + CTX_ROW / 2, 24, '#000');
+    c.font = S(500, 17);
+    text(c, ellipsize(c, label, menuW - 76), x + 60, ry + CTX_ROW / 2 + 6, S(500, 17), '#000');
+  });
+  c.restore();
+}
+
+// Link brauzerda ochilganda ilovalar almashadi: yangisi o'ngdan suriladi, eskisi chapga ketib xiralashadi
+export function slideApp(c, os, p, drawFrom, drawTo) {
+  const { SW, SH } = DEV[os];
+  const e = E.io3(clamp(p));
+  c.save();
+  c.translate(-SW * 0.3 * e, 0);
+  drawFrom(c);
+  c.fillStyle = `rgba(0,0,0,${0.2 * e})`;
+  c.fillRect(0, 0, SW, SH);
+  c.restore();
+  c.save();
+  c.translate(SW * (1 - e), 0);
+  shadow(c, 24, 'rgba(0,0,0,0.25)');
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, SW, SH);
+  noShadow(c);
+  drawTo(c);
+  c.restore();
 }
 
 // Qisqa xabar (toast). ios — tepada, android — pastda
@@ -635,15 +707,16 @@ function glassBtn(c, x, y, r) {
   c.restore();
 }
 
-// st: { page(0..1), focus(0..1), kb(0..1), typed, callout(0..1), calloutPress, load(-1|0..1), menu(0..1), menuPress, share(0..1), sharePress, add(0..1), addPress }
+// st: { page(0..1), focus(0..1), kb(0..1), typed, callout(0..1), calloutPress, load(-1|0..1), menu(0..1), menuPress, share(0..1), sharePress, add(0..1), addPress,
+//       start (false — linkdan ochilgan: "Избранное" bosh sahifasi yo'q), crumb ("◀ Telegram") }
 export function safari(c, I, st, link) {
   const { SW, SH, SB, BOT } = DEV.ios;
   const T = safariTargets();
   const pageA = clamp(st.page ?? 0);
-  // bosh sahifa
-  c.fillStyle = '#F2F2F7';
+  // bosh sahifa (linkdan ochilganda — yuklanguncha oq)
+  c.fillStyle = st.start === false ? '#fff' : '#F2F2F7';
   c.fillRect(0, 0, SW, SH);
-  if (pageA < 1) {
+  if (pageA < 1 && st.start !== false) {
     c.save();
     c.globalAlpha = 1 - pageA;
     text(c, I.favorites, 20, SB + 64, S(700, 22), '#000');
@@ -664,7 +737,7 @@ export function safari(c, I, st, link) {
     c.drawImage(IMG.pageIos, 0, SB, SW, (SW * IMG.pageIos.height) / IMG.pageIos.width);
     c.restore();
   }
-  statusBar(c, 'ios', false, pageA > 0.5 ? '#FFF0F7' : '#F2F2F7');
+  statusBar(c, 'ios', false, pageA > 0.5 ? '#FFF0F7' : '#F2F2F7', st.crumb);
 
   const focus = E.io3(clamp(st.focus ?? 0));
   const kbE = E.out3(clamp(st.kb ?? 0));

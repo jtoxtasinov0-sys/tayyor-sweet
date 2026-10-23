@@ -5,13 +5,12 @@ const LINK = 'https://tayyor-sweet.vercel.app/ilova';
 export const L = {
   link: LINK,
   intro: { iphone: ["iPhone'ga", "ilovani o'rnatish"], samsung: ["Samsung'ga", "ilovani o'rnatish"] },
-  intro_sub: '5 ta oson qadam',
+  intro_sub: { iphone: '4 ta oson qadam', samsung: '5 ta oson qadam' },
   step: (n) => `${n}-QADAM`,
   steps: {
     iphone: [
       ["Botda /start → «📲 Ilovani o'rnatish» ni bosing", "Bot video qo'llanma va link yuboradi"],
-      ['Linkni bosib turing va «Копировать» ni tanlang', 'Nusxa olish — link telefon xotirasiga saqlanadi'],
-      ["Safari'ni oching va linkni joylang", "Manzil qatorini bosing → «Вставить и перейти»"],
+      ['Linkni bosib turing va «Открыть в браузере» ni tanlang', "Brauzerda ochish — sahifa Safari'da ochiladi"],
       ['Pastdagi «⋯» → «Поделиться» ni bosing', "Ulashish. Eski iPhone'da pastdagi □↑ tugmasi"],
       ['«На экран «Домой»» → «Добавить» ni bosing', "Bosh ekranga qo'shish → Qo'shish"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
@@ -37,8 +36,11 @@ export const L = {
     m1btns: [["🛍 Do'konni ochish"], ["📲 Ilovani o'rnatish"], ['📦 Buyurtmalarim', '📞 Aloqa'], ['📸 Instagram'], ["🇺🇿 O'zbekcha", '🇷🇺 Русский']],
     menu: "🛍 Do'kon",
     // «Ilovani o'rnatish» javobi: albom (iPhone va Samsung videolari), izohida link
-    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing** → «Копировать» (Nusxa olish), keyin **Safari** (iPhone) yoki **Chrome** (Samsung) da oching.\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
-    durs: ['0:35', '0:33'],
+    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing**:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», keyin **Chrome**'ga joylang\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
+    durs: ['0:29', '0:33'],
+    // iOS: link bosib turilganda chiqadigan menyu
+    linkText: LINK,
+    ctx: ['Открыть', 'Открыть в браузере', 'Копировать ссылку', 'Добавить в список чтения'],
     open: 'Открыть',
     copy: 'Копировать',
     share: 'Поделиться',
@@ -49,6 +51,7 @@ export const L = {
   ios: {
     apps: { phone: 'Телефон', messages: 'Сообщения', safari: 'Safari', music: 'Музыка', camera: 'Камера', photos: 'Фото', settings: 'Настройки', telegram: 'Telegram', calendar: 'Календарь', clock: 'Часы', weather: 'Погода', maps: 'Карты', notes: 'Заметки', mail: 'Почта', store: 'App Store', contacts: 'Контакты' },
     search: 'Поиск или имя сайта',
+    crumb: 'Telegram',
     favorites: 'Избранное',
     paste: 'Вставить и перейти',
     menu: ['Поделиться', 'Добавить в Избранное', 'Добавить закладку', 'Найти на странице', 'Новая вкладка'],

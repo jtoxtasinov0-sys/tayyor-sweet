@@ -488,6 +488,29 @@ export const G = {
     c.stroke();
     c.restore();
   },
+  compass(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.fillStyle = col;
+    c.lineWidth = s * 0.08;
+    c.beginPath();
+    c.arc(x, y, s * 0.38, 0, Math.PI * 2);
+    c.stroke();
+    // strelka (diagonal romb)
+    c.translate(x, y);
+    c.rotate(Math.PI / 4);
+    c.beginPath();
+    c.moveTo(0, -s * 0.24);
+    c.lineTo(s * 0.08, 0);
+    c.lineTo(0, s * 0.24);
+    c.lineTo(-s * 0.08, 0);
+    c.closePath();
+    c.stroke();
+    c.beginPath();
+    c.arc(0, 0, s * 0.03, 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  },
   globe(c, x, y, s, col) {
     c.save();
     c.strokeStyle = col;
