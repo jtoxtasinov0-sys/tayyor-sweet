@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('./connection');
 const config = require('../config/default');
+const { shopCategories } = require('./seed-data');
 
 const DEFAULT_SETTINGS = {
   shop: {
@@ -43,6 +44,20 @@ const DEFAULT_SETTINGS = {
   },
 };
 
+// Bir martalik qo'shimchalar: har biri bazada faqat bir marta bajariladi —
+// admin keyin o'chirib yuborsa, server qayta ishga tushganda qaytib kelmaydi
+const ONCE = {
+  'shop-categories': async () => {
+    for (const c of shopCategories) {
+      await db.query(
+        `INSERT INTO categories (name_uz, name_ru, emoji, sort)
+         SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE lower(name_uz) = lower($1))`,
+        [c.name_uz, c.name_ru, c.emoji, c.sort]
+      );
+    }
+  },
+};
+
 async function migrate() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await db.query(sql);
@@ -53,6 +68,11 @@ async function migrate() {
        ON CONFLICT (key) DO UPDATE SET value = $2::jsonb || settings.value`,
       [key, JSON.stringify(value)]
     );
+  }
+  for (const [key, run] of Object.entries(ONCE)) {
+    if (await db.one('SELECT 1 FROM seeds WHERE key = $1', [key])) continue;
+    await run();
+    await db.query('INSERT INTO seeds (key) VALUES ($1) ON CONFLICT DO NOTHING', [key]);
   }
 }
 

@@ -7,6 +7,14 @@ const categories = [
   { key: 'Yarim tayyor', name_uz: 'Yarim tayyor', name_ru: 'Полуфабрикаты', emoji: '🥟', sort: 3 },
 ];
 
+// Do'kon bo'limlari (sut, kolbasa, ichimlik, oziq-ovqat) — mahsulotlarini admin keyin o'zi qo'shadi
+const shopCategories = [
+  { name_uz: 'Sut mahsulotlari', name_ru: 'Молочные продукты', emoji: '🥛', sort: 4 },
+  { name_uz: 'Kolbasa va sosiskalar', name_ru: 'Колбасы и сосиски', emoji: '🌭', sort: 5 },
+  { name_uz: 'Ichimliklar', name_ru: 'Напитки', emoji: '🧃', sort: 6 },
+  { name_uz: 'Oziq-ovqat', name_ru: 'Бакалея', emoji: '🛒', sort: 7 },
+];
+
 const cakeColors = [
   { name: 'Oq', hex: '#FFFFFF' },
   { name: 'Pushti', hex: '#F8A0D0' },
@@ -71,4 +79,4 @@ const products = [
   { file: '24_chizkeyk_bolak.jpg', name_uz: "Chizkeyk (bo'lak)", name_ru: 'Чизкейк (кусок)', cat: 'Shirinliklar', price: 8000, unit_uz: "1 bo'lak", unit_ru: '1 кусок' },
 ];
 
-module.exports = { categories, products };
+module.exports = { categories, shopCategories, products };

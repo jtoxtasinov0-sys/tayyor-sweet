@@ -38,7 +38,7 @@ const EMPTY: Partial<Product> = {
 export function ProductsAdmin() {
   const { send, call, toast } = useAdminApi();
   const { data: products, loading, reload } = useLoad<Product[]>('/products');
-  const { data: cats } = useLoad<Category[]>('/categories');
+  const { data: cats, setData: setCats } = useLoad<Category[]>('/categories');
   const [edit, setEdit] = useState<Partial<Product> | null>(null);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState<string>('');
@@ -107,6 +107,7 @@ export function ProductsAdmin() {
         <ProductEditor
           initial={edit}
           cats={cats || []}
+          onCatAdded={(c) => setCats((list) => [...(list || []), c])}
           onClose={() => setEdit(null)}
           onSaved={() => {
             setEdit(null);
@@ -168,12 +169,37 @@ function FrameEditor({ imageId, frame, onChange }: { imageId: number; frame: Fra
   );
 }
 
-function ProductEditor({ initial, cats, onClose, onSaved }: { initial: Partial<Product>; cats: Category[]; onClose: () => void; onSaved: () => void }) {
+function ProductEditor({ initial, cats, onCatAdded, onClose, onSaved }: {
+  initial: Partial<Product>;
+  cats: Category[];
+  onCatAdded: (c: Category) => void;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const { send, toast } = useAdminApi();
   const [p, setP] = useState<Partial<Product>>({ ...EMPTY, ...initial });
   const [busy, setBusy] = useState(false);
+  const [newCat, setNewCat] = useState<string | null>(null);
   const up = <K extends keyof Product>(k: K, v: Product[K] | null) => setP((s) => ({ ...s, [k]: v }));
   const isNew = !initial.id;
+
+  // Kategoriyani qo'lda yozish: "🥩 Go'sht" — boshidagi emoji alohida saqlanadi
+  const addCat = async () => {
+    const [, emoji = '', name = ''] = (newCat || '').trim().match(/^([\p{Extended_Pictographic}\p{Emoji_Modifier}‍️]*)\s*(.*)$/u) || [];
+    if (!name) return toast('⚠️ Kategoriya nomini yozing');
+    const hit = cats.find((c) => c.name_uz.toLowerCase() === name.toLowerCase());
+    if (hit) {
+      up('category_id', hit.id);
+      setNewCat(null);
+      return toast(`"${hit.name_uz}" oldin bor ekan — tanlandi`);
+    }
+    const sort = Math.max(0, ...cats.map((c) => c.sort)) + 1;
+    const c = await send<Category>('/categories', 'POST', { name_uz: name, emoji: emoji || null, sort });
+    onCatAdded(c);
+    up('category_id', c.id);
+    setNewCat(null);
+    toast('✅ Kategoriya qo‘shildi');
+  };
 
   const save = async () => {
     if (!p.name_uz?.trim()) return toast('⚠️ Nomini kiriting');
@@ -240,10 +266,30 @@ function ProductEditor({ initial, cats, onClose, onSaved }: { initial: Partial<P
           <Field label="Nomi (o'zbekcha) *"><input className="input" value={p.name_uz || ''} onChange={(e) => up('name_uz', e.target.value)} /></Field>
           <Field label="Nomi (ruscha)"><input className="input" value={p.name_ru || ''} onChange={(e) => up('name_ru', e.target.value)} /></Field>
           <Field label="Kategoriya">
-            <select className="select" value={p.category_id ?? ''} onChange={(e) => up('category_id', e.target.value ? Number(e.target.value) : null)}>
-              <option value="">—</option>
-              {cats.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name_uz}</option>)}
-            </select>
+            {newCat === null ? (
+              <select
+                className="select"
+                value={p.category_id ?? ''}
+                onChange={(e) => (e.target.value === 'new' ? setNewCat('') : up('category_id', e.target.value ? Number(e.target.value) : null))}
+              >
+                <option value="">—</option>
+                {cats.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name_uz}</option>)}
+                <option value="new">✏️ Yangi kategoriya yozish...</option>
+              </select>
+            ) : (
+              <div className="new-cat">
+                <input
+                  className="input"
+                  autoFocus
+                  placeholder="Masalan: 🥩 Go'sht"
+                  value={newCat}
+                  onChange={(e) => setNewCat(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addCat()}
+                />
+                <button className="btn btn-primary btn-sm" disabled={!newCat.trim()} onClick={addCat}>Qo&apos;shish</button>
+                <button className="x-btn" onClick={() => setNewCat(null)}>×</button>
+              </div>
+            )}
           </Field>
           <Field label="Belgi">
             <select className="select" value={p.badge || ''} onChange={(e) => up('badge', (e.target.value || null) as Product['badge'])}>

@@ -146,3 +146,9 @@ CREATE INDEX IF NOT EXISTS stock_moves_order_idx ON stock_moves(order_id);
 
 -- Faqat olib ketish: pochta (택배) qilinsa ezilib ketadigan tortlar
 ALTER TABLE products ADD COLUMN IF NOT EXISTS pickup_only BOOLEAN NOT NULL DEFAULT false;
+
+-- Bir martalik ma'lumot qo'shimchalari: bajarilganlari shu yerda belgilanadi
+CREATE TABLE IF NOT EXISTS seeds (
+  key     TEXT PRIMARY KEY,
+  done_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

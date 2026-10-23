@@ -1,10 +1,13 @@
 // Kategoriyalar
 const db = require('../database/connection');
 
+// Do'konda (all = false) mahsuloti yo'q kategoriya ko'rinmaydi — bo'sh bo'lim ochilib qolmasin
 const list = (all = false) =>
   db.many(
     `SELECT c.*, (SELECT COUNT(*)::int FROM products p WHERE p.category_id = c.id) AS products_count
-       FROM categories c ${all ? '' : 'WHERE c.active'} ORDER BY c.sort, c.id`
+       FROM categories c
+      ${all ? '' : 'WHERE c.active AND EXISTS (SELECT 1 FROM products p WHERE p.category_id = c.id AND p.active)'}
+      ORDER BY c.sort, c.id`
   );
 
 const create = (d) =>
