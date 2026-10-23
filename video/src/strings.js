@@ -26,7 +26,8 @@ export const L = {
     chrome: [
       ["O'ng yuqoridagi «⋮» ni bosing", 'Chrome menyusi ochiladi'],
       ['Pastga suring → «Установить и создать ярлык»', "Menyuning pastki qismida"],
-      ['«Установить» ni bosing', "O'rnatish — belgi bosh ekranga qo'shiladi"],
+      ['Birinchi qator — «Установить» ni bosing', "«Уже установлено» chiqsa — ilova telefonda bor"],
+      ['Oynada yana «Установить» ni bosing', "Ilova bosh ekranga qo'shiladi"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
     ],
   },
@@ -73,15 +74,20 @@ export const L = {
   // Android tizimi (ruscha)
   and: {
     apps: { phone: 'Телефон', messages: 'Сообщения', chrome: 'Chrome', camera: 'Камера', gallery: 'Галерея', settings: 'Настройки', telegram: 'Telegram', calendar: 'Календарь', clock: 'Часы', contacts: 'Контакты', weather: 'Погода', notes: 'Заметки' },
+    // Chrome matnlari — Chromium'ning ruscha tarjimalaridan (android_webapps_strings_ru.xtb, android_chrome_strings_ru.xtb)
     installTitle: 'Установить приложение',
     // Chrome ⋮ menyusi (mijozning Samsung'idagi skrinshotdan); '-' — ajratuvchi chiziq
     menu: ['Новая вкладка', 'Новая вкладка инкогнито', 'Добавить в новую группу', '-', 'История', 'Удалить данные о работе в браузере', 'Настройки сайта', '-',
       'Скачанные файлы', 'Закладки', 'Недавние вкладки', '-', 'Поделиться…', 'Найти на странице', 'Перевести…', 'Перейти в Режим чтения',
       'Установить и создать ярлык', 'Версия для ПК', '-', 'Настройки', 'Справка/отзыв'],
     menuInstall: 'Установить и создать ярлык',
+    // menyudagi bandni bosgandan keyingi oyna: «Установить» yoki «Создать ярлык»
+    uniInstall: 'Установить',
+    uniShortcut: 'Создать ярлык',
+    uniShortcutSub: 'Ярлыки сайтов открываются в Chrome',
     cancel: 'Отмена',
     install: 'Установить',
-    installing: 'Установка Tayyor & Sweet…',
-    added: 'Tayyor & Sweet установлено',
+    installing: 'Установка приложения "Tayyor & Sweet"…',
+    added: 'Приложение установлено',
   },
 };

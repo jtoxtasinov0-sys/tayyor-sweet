@@ -219,7 +219,6 @@ function buildSamsung(tl, pageBtn) {
   const SW = D.SW, SH = D.SH;
   const HL = UI.homeLayout('and');
   const CT = UI.chromeTargets(pageBtn);
-  const installTop = SH - 250;
   const freshRect = HL.find('tsweet');
   const openPt = tl.ctx.row(1);
 
@@ -230,7 +229,7 @@ function buildSamsung(tl, pageBtn) {
     .move(T.tapBrowser - 0.65, T.tapBrowser - 0.15, openPt).tap(T.tapBrowser)
     .move(T.tapAlertOpen - 0.6, T.tapAlertOpen - 0.15, tl.alert.open).tap(T.tapAlertOpen).hide(T.tapAlertOpen + 0.3);
   touch.show(T.tapBtn - 0.7, { x: CT.pageBtn.x + 50, y: CT.pageBtn.y + 140 }).move(T.tapBtn - 0.6, T.tapBtn - 0.15, CT.pageBtn).tap(T.tapBtn)
-    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install(installTop)).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
+    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
   touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
   touch.show(T.tapIcon - 0.6, { x: SW / 2 + 40, y: 600 }).move(T.tapIcon - 0.55, T.tapIcon - 0.15, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(T.tapIcon + 0.3);
 
@@ -242,7 +241,7 @@ function buildSamsung(tl, pageBtn) {
     .to(T.alert, T.alert + 0.5, 1.3, tl.alert.y + tl.alert.h / 2)
     .to(T.tapAlertOpen + 0.15, T.tapAlertOpen + 0.7, 1)
     .to(T.s3, T.s3 + 0.6, 1.5, CT.pageBtn.y)
-    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, 690)
+    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, CT.dialogY)
     .to(T.installing + 0.2, T.installing + 0.8, 1)
     .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
     .to(T.tapIcon + 0.1, T.tapIcon + 0.6, 1)
@@ -279,7 +278,6 @@ function buildSamsung(tl, pageBtn) {
     load: t < T.load ? -1 : pr(t, T.load, T.load + 0.8),
     btnRect: pageBtn,
     install: vis(t, T.sheet2, T.tapInstall2 + 0.1, 0.4, 0.3),
-    installTop,
     installPress: t >= T.tapInstall2 && t < T.tapInstall2 + 0.18,
     toast: vis(t, T.installing + 0.1, T.homeSwipe - 0.1, 0.2, 0.2),
     toastText: t < T.added ? A.installing : A.added,
@@ -323,36 +321,38 @@ function buildChrome() {
   const A = L.and;
   const T = {
     phoneIn: 2.0, s1: 2.6, tapDots: 3.7, menu: 3.75,
-    s2: 4.6, scroll0: 5.3, scroll1: 5.9, tapRow: 7.0, sheet2: 7.2,
-    s3: 7.7, tapInstall2: 8.7, installing: 8.9, added: 9.8, homeSwipe: 10.5, fresh: 11.1,
-    s4: 11.9, tapIcon: 12.9, shop: 14.0, phoneOut: 17.0, dur: 20.0,
+    s2: 4.6, scroll0: 5.3, scroll1: 5.9, tapRow: 7.0, uni: 7.2,
+    s3: 7.7, tapUni: 8.8, sheet2: 9.0,
+    s4: 9.5, tapInstall2: 10.5, installing: 10.7, added: 11.6, homeSwipe: 12.3, fresh: 12.9,
+    s5: 13.7, tapIcon: 14.7, shop: 15.8, phoneOut: 18.8, dur: 21.8,
   };
   const SW = D.SW, SH = D.SH;
   const HL = UI.homeLayout('and');
   const CM = UI.chromeMenuTargets(A);
   const CT = UI.chromeTargets();
-  const installTop = SH - 250;
   const freshRect = HL.find('tsweet');
   const pulse = (t) => 0.65 + 0.35 * Math.sin(t * 9);
 
   touch.show(T.s1 + 0.5, { x: SW / 2, y: 420 }).move(T.tapDots - 0.6, T.tapDots - 0.15, CM.dots).tap(T.tapDots).hide(T.tapDots + 0.3);
   touch.swipe(T.scroll0, T.scroll1, { x: SW / 2, y: 660 }, { x: SW / 2, y: 430 });
   touch.show(T.tapRow - 0.8, { x: SW / 2 + 60, y: CM.install.y + 110 }).move(T.tapRow - 0.7, T.tapRow - 0.15, CM.install).tap(T.tapRow)
-    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install(installTop)).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
+    .move(T.tapUni - 0.6, T.tapUni - 0.15, CT.uniInstall).tap(T.tapUni)
+    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
   touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
   touch.show(T.tapIcon - 0.6, { x: SW / 2 + 40, y: 600 }).move(T.tapIcon - 0.55, T.tapIcon - 0.15, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(T.tapIcon + 0.3);
 
   cam.to(T.s1 + 0.3, T.s1 + 0.9, 1.5, 120)
     .to(T.menu + 0.1, T.menu + 0.6, 1.2, 420)
     .to(T.scroll1 + 0.1, T.scroll1 + 0.6, 1.45, CM.install.y)
-    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, 690)
+    .to(T.uni + 0.1, T.uni + 0.7, 1.45, CT.uniInstall.y + 20)
+    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, CT.dialogY)
     .to(T.installing + 0.2, T.installing + 0.8, 1)
     .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
     .to(T.tapIcon + 0.1, T.tapIcon + 0.6, 1)
     .to(T.shop + 0.4, T.phoneOut - 0.3, 1.15, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
-  cue(T.menu, 'pop', 0.7); cue(T.sheet2, 'sheet'); cue(T.installing, 'load', 0.7); cue(T.added, 'ding', 0.8);
+  cue(T.menu, 'pop', 0.7); cue(T.uni, 'sheet'); cue(T.sheet2, 'pop', 0.7); cue(T.installing, 'load', 0.7); cue(T.added, 'ding', 0.8);
   cue(T.fresh, 'pop'); cue(T.fresh + 0.05, 'sparkle'); cue(T.fresh + 0.15, 'success');
   cue(T.tapIcon + 0.1, 'open'); cue(T.shop, 'ding', 0.8); cue(T.shop + 0.1, 'confetti'); cue(T.shop + 0.15, 'success2');
 
@@ -365,8 +365,10 @@ function buildChrome() {
     menuScroll: pr(t, T.scroll0, T.scroll1),
     menuGlow: vis(t, T.scroll1 + 0.1, T.tapRow + 0.05, 0.25, 0.2) * pulse(t),
     menuPress: t >= T.tapRow && t < T.tapRow + 0.2,
+    uni: vis(t, T.uni, T.tapUni + 0.15, 0.4, 0.25),
+    uniGlow: vis(t, T.s3 + 0.3, T.tapUni + 0.05, 0.25, 0.2) * pulse(t),
+    uniPress: t >= T.tapUni && t < T.tapUni + 0.2,
     install: vis(t, T.sheet2, T.tapInstall2 + 0.1, 0.4, 0.3),
-    installTop,
     installPress: t >= T.tapInstall2 && t < T.tapInstall2 + 0.18,
     toast: vis(t, T.installing + 0.1, T.homeSwipe - 0.1, 0.2, 0.2),
     toastText: t < T.added ? A.installing : A.added,
@@ -397,7 +399,7 @@ function buildChrome() {
     drawApp(c, t);
   };
   const sparkAt = { t: T.fresh, pt: { x: freshRect.cx, y: freshRect.cy } };
-  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4], sparkAt, confetti: T.shop + 0.1 };
+  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5], sparkAt, confetti: T.shop + 0.1 };
 }
 
 // ---------- Fon, sarlavha, matnlar ----------

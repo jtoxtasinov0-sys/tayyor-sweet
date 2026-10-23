@@ -865,12 +865,59 @@ function addSheet(c, I, top, press, link) {
 }
 
 // ---------- Chrome (Android) ----------
+// «Установить приложение» oynasi (ekran o'rtasida) va menyudan keyingi «Установить / Создать ярлык» oynasi (pastda)
+const INSTALL_DLG = { x: 20, w: DEV.and.SW - 40, h: 230, top: (DEV.and.SH - 230) / 2 };
+const UNI = { top: DEV.and.SH - 292, rows: 84, rowH: 74 };
+
 export function chromeTargets(pageBtn = null) {
   const { SW } = DEV.and;
+  const d = INSTALL_DLG;
   return {
     pageBtn: pageBtn && { x: pageBtn.cx, y: 88 + pageBtn.cy },
-    install: (top) => ({ x: SW - 74, y: top + 194 }),
+    install: { x: d.x + d.w - 74, y: d.top + 189 },
+    dialogY: d.top + d.h / 2,
+    uniInstall: { x: SW / 2, y: UNI.top + UNI.rows + UNI.rowH / 2 },
   };
+}
+
+// Kichik yumaloq belgi ilova ikonkasi burchagida: ↓ (o'rnatish) yoki Chrome
+function badge(c, x, y, kind) {
+  c.save();
+  shadow(c, 2, 'rgba(0,0,0,0.25)', 1);
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.arc(x, y, 10, 0, Math.PI * 2);
+  c.fill();
+  noShadow(c);
+  if (kind === 'down') {
+    c.strokeStyle = '#1F1F1F';
+    c.lineWidth = 1.8;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x, y - 5);
+    c.lineTo(x, y + 4);
+    c.moveTo(x - 4, y);
+    c.lineTo(x, y + 4.5);
+    c.lineTo(x + 4, y);
+    c.stroke();
+  } else {
+    ['#EA4335', '#FBBC04', '#34A853'].forEach((col, i) => {
+      c.fillStyle = col;
+      c.beginPath();
+      c.moveTo(x, y);
+      c.arc(x, y, 8, -Math.PI / 2 + (i * 2 * Math.PI) / 3, -Math.PI / 2 + ((i + 1) * 2 * Math.PI) / 3);
+      c.fill();
+    });
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.arc(x, y, 4.2, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#4285F4';
+    c.beginPath();
+    c.arc(x, y, 3.2, 0, Math.PI * 2);
+    c.fill();
+  }
+  c.restore();
 }
 
 // ⋮ menyusi: tepada belgilar qatori, keyin bandlar ('-' — ajratuvchi); uzun — pastga suriladi
@@ -958,8 +1005,8 @@ function chromeMenu(c, A, p, scroll, glow, press) {
 }
 
 // Chrome: sahifa (img — boshqa sahifa rasmi, aks holda /ilova) yoki Telegram'dagi linkdan ochilish (yuklanguncha oq).
-// st: { page, load, img, btnRect, install(0..1), installTop, installPress, toast(0..1), toastText,
-//       dotsGlow, dotsPress, menu(0..1), menuScroll(0..1), menuGlow, menuPress }
+// st: { page, load, img, btnRect, install(0..1), installPress, toast(0..1), toastText,
+//       dotsGlow, dotsPress, menu(0..1), menuScroll(0..1), menuGlow, menuPress, uni(0..1), uniGlow, uniPress }
 export function chrome(c, A, st, pageBtnPress) {
   const { SW, SH } = DEV.and;
   const pageA = clamp(st.page ?? 0);
@@ -1001,31 +1048,65 @@ export function chrome(c, A, st, pageBtnPress) {
   }
   const mp = clamp(st.menu ?? 0);
   if (mp > 0) chromeMenu(c, A, mp, st.menuScroll || 0, st.menuGlow || 0, st.menuPress);
-  // o'rnatish oynasi
-  const ip = clamp(st.install ?? 0);
-  if (ip > 0) {
-    c.fillStyle = `rgba(0,0,0,${0.32 * ip})`;
+  // «Установить и создать ярлык» oynasi: «Установить» yoki «Создать ярлык»
+  const up = clamp(st.uni ?? 0);
+  if (up > 0) {
+    c.fillStyle = `rgba(0,0,0,${0.32 * up})`;
     c.fillRect(0, 0, SW, SH);
-    const top = lerp(SH, st.installTop, E.out3(ip));
+    const top = lerp(SH, UNI.top, E.out3(up));
     c.save();
     c.fillStyle = '#fff';
     c.beginPath();
     c.roundRect(0, top, SW, SH - top + 30, [28, 28, 0, 0]);
     c.fill();
-    fillRR(c, SW / 2 - 16, top + 10, 32, 4, 2, '#C9CCD1');
-    text(c, A.installTitle, 24, top + 58, S(500, 22), '#1F1F1F');
+    text(c, A.menuInstall, SW / 2, top + 54, S(400, 21), '#1F1F1F', 'center');
+    [[A.uniInstall, null, 'down'], [A.uniShortcut, A.uniShortcutSub, 'chrome']].forEach(([t1, t2, kind], i) => {
+      const ry = top + UNI.rows + i * (UNI.rowH + 3);
+      const rad = i ? [4, 4, 22, 22] : [22, 22, 4, 4];
+      if (!i) glowRR(c, 20, ry, SW - 40, UNI.rowH, 22, st.uniGlow || 0);
+      c.fillStyle = !i && st.uniPress ? '#D9DBE1' : '#ECEDF1';
+      c.beginPath();
+      c.roundRect(20, ry, SW - 40, UNI.rowH, rad);
+      c.fill();
+      roundImg(c, IMG.icon, 34, ry + 14, 46, 46, 12);
+      badge(c, 76, ry + 56, kind);
+      if (t2) {
+        text(c, t1, 96, ry + 32, S(400, 17.5), '#1F1F1F');
+        c.font = S(400, 13.5);
+        text(c, ellipsize(c, t2, SW - 170), 96, ry + 54, S(400, 13.5), '#444746');
+      } else text(c, t1, 96, ry + 43, S(400, 17.5), '#1F1F1F');
+      G.chevron(c, SW - 44, ry + UNI.rowH / 2, 18, '#1F1F1F', 1);
+    });
+    c.restore();
+  }
+  // «Установить приложение» oynasi (ekran o'rtasida)
+  const ip = clamp(st.install ?? 0);
+  if (ip > 0) {
+    const { x, w, h, top } = INSTALL_DLG;
+    c.fillStyle = `rgba(0,0,0,${0.32 * ip})`;
+    c.fillRect(0, 0, SW, SH);
+    c.save();
+    c.globalAlpha = clamp(ip * 2);
+    const k = lerp(0.9, 1, E.out3(ip));
+    c.translate(SW / 2, top + h / 2);
+    c.scale(k, k);
+    c.translate(-SW / 2, -(top + h / 2));
+    shadow(c, 24, 'rgba(0,0,0,0.2)', 6);
+    fillRR(c, x, top, w, h, 28, '#fff');
+    noShadow(c);
+    text(c, A.installTitle, x + 24, top + 50, S(500, 22), '#1F1F1F');
     c.save();
     shadow(c, 3, 'rgba(0,0,0,0.18)', 1);
-    roundImg(c, IMG.icon, 24, top + 82, 52, 52, 26);
+    roundImg(c, IMG.icon, x + 24, top + 76, 52, 52, 26);
     c.restore();
-    text(c, 'Tayyor & Sweet', 90, top + 104, S(600, 17), '#1F1F1F');
-    text(c, 'tayyor-sweet.vercel.app', 90, top + 126, S(400, 14), '#5F6368');
+    text(c, 'Tayyor & Sweet', x + 90, top + 98, S(600, 17), '#1F1F1F');
+    text(c, 'tayyor-sweet.vercel.app', x + 90, top + 120, S(400, 14), '#5F6368');
     c.font = S(500, 15.5);
     const iw = Math.max(100, c.measureText(A.install).width + 40);
     const cw = c.measureText(A.cancel).width;
-    text(c, A.cancel, SW - 24 - iw - 22 - cw / 2, top + 200, S(500, 15.5), '#0B57D0', 'center');
-    fillRR(c, SW - 24 - iw, top + 174, iw, 42, 21, st.installPress ? '#2A6DE0' : '#0B57D0');
-    text(c, A.install, SW - 24 - iw / 2, top + 200, S(500, 15.5), '#fff', 'center');
+    text(c, A.cancel, x + w - 24 - iw - 22 - cw / 2, top + 195, S(500, 15.5), '#0B57D0', 'center');
+    fillRR(c, x + w - 24 - iw, top + 168, iw, 42, 21, st.installPress ? '#2A6DE0' : '#0B57D0');
+    text(c, A.install, x + w - 24 - iw / 2, top + 195, S(500, 15.5), '#fff', 'center');
     c.restore();
   }
   const tp = clamp(st.toast ?? 0);
