@@ -5,6 +5,7 @@ import { useT } from '@/components/ui';
 import { DecorShape } from '@/components/layout';
 import { useApp } from '@/store/appStore';
 import { useTelegram, openLink, haptic } from '@/hooks/useTelegram';
+import { useInstall } from '@/hooks/useInstall';
 import { saveLang } from '@/providers/TelegramProvider';
 import { api } from '@/lib/api';
 import { won, fmtDate } from '@/lib/utils';
@@ -18,10 +19,9 @@ export function Profile() {
   const lang_ = lang === 'ru' ? 'ru' : 'uz';
   const [stats, setStats] = useState({ count: 0, sum: 0 });
   // O'rnatilgan ilova ichida "o'rnatish" bandi kerak emas
-  const [standalone, setStandalone] = useState(false);
+  const { standalone, install } = useInstall();
 
   useEffect(() => {
-    setStandalone(window.matchMedia('(display-mode: standalone)').matches);
     api
       .orders()
       .then((o) => setStats({ count: o.length, sum: o.filter((x) => x.status !== 'cancelled').reduce((s, x) => s + x.total, 0) }))
@@ -74,8 +74,8 @@ export function Profile() {
           </button>
         )}
         {!standalone && (
-          // Telegram ichida openLink tashqi brauzerni (Safari/Chrome) ochadi — o'rnatish o'sha yerda bo'ladi
-          <button onClick={() => openLink(`${window.location.origin}/ilova?lang=${lang_}`)}>
+          // Android'da tizimning o'rnatish oynasi, aks holda /ilova (Telegram ichidan — tashqi brauzerda)
+          <button onClick={() => install(lang_)}>
             <span className="ic">📲</span><span>{t.install_app}</span><span className="val">›</span>
           </button>
         )}

@@ -5,6 +5,7 @@ import { Img, Icon, useT } from '@/components/ui';
 import { DecorShape } from '@/components/layout';
 import { useApp } from '@/store/appStore';
 import { useTelegram, haptic } from '@/hooks/useTelegram';
+import { useInstall } from '@/hooks/useInstall';
 import { cName, pName, cx } from '@/lib/utils';
 import { StoriesRow } from './Stories';
 import { ProductCard } from './ProductCard';
@@ -71,6 +72,29 @@ function Carousel() {
   );
 }
 
+// "Ilovani o'rnatish" kartasi: Android'da tizimning o'rnatish oynasi, iPhone'da /ilova qo'llanmasi.
+// O'rnatilgan ilova ichida ko'rinmaydi; telefonda allaqachon bo'lsa — qayerdan ochishni aytadi
+function InstallCard() {
+  const t = useT();
+  const lang = useApp((s) => s.lang);
+  const { standalone, installed, install } = useInstall();
+  if (standalone) return null;
+  if (installed)
+    return (
+      <div className="install-card">
+        <span className="ic">✅</span>
+        <div><b>{t.installed_card}</b><small>{t.installed_card_text}</small></div>
+      </div>
+    );
+  return (
+    <button className="install-card" onClick={() => { haptic.tap(); install(lang === 'ru' ? 'ru' : 'uz'); }}>
+      <span className="ic">📲</span>
+      <div><b>{t.install_app}</b><small>{t.install_card}</small></div>
+      <span className="btn btn-primary btn-sm">{t.install_btn}</span>
+    </button>
+  );
+}
+
 export function CategoryChips() {
   const t = useT();
   const lang = useApp((s) => s.lang);
@@ -118,6 +142,7 @@ export function Home() {
           <Icon.search />
           <span>{t.search}</span>
         </button>
+        <InstallCard />
         {announcement && <div className="announce">📣 {announcement}</div>}
       </div>
 

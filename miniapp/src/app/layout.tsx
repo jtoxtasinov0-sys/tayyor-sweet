@@ -39,10 +39,11 @@ export const viewport: Viewport = {
 };
 
 // Ilovani o'rnatish (PWA): service worker faqat oddiy brauzerda (Telegram ichida emas).
-// Chrome/Samsung Internet'ning "o'rnatish" hodisasi sahifa yuklanishida keladi — /ilova uni keyin ishlatadi
+// Chrome/Samsung Internet'ning "o'rnatish" hodisasi sahifa yuklanishida keladi — Chrome'ning o'z paneli o'rniga
+// do'kondagi «O'rnatish» tugmalari (bosh sahifa, Profil, /ilova) uni keyin ishlatadi (hooks/useInstall)
 const pwaScript = `
 addEventListener('beforeinstallprompt', function (e) {
-  if (location.pathname.indexOf('/ilova') === 0) e.preventDefault();
+  e.preventDefault();
   window.__bip = e;
   dispatchEvent(new Event('ts-bip'));
 });

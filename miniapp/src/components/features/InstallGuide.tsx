@@ -2,20 +2,10 @@
 // /ilova — ilovani telefonga o'rnatish: telefon turini aniqlaydi, tugma yoki qadamlar + video qo'llanma
 import { useEffect, useState } from 'react';
 import type { Lang } from '@/lib/types';
+import { useInstall, isStandalone } from '@/hooks/useInstall';
 
 type Platform = 'ios' | 'android' | 'other';
 type Device = 'iphone' | 'samsung';
-
-interface InstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-declare global {
-  interface Window {
-    __bip?: InstallPromptEvent | null;
-  }
-}
 
 const TXT = {
   uz: {
@@ -23,7 +13,7 @@ const TXT = {
     lead: "Do'kon telefoningiz bosh ekranida — bir bosishda ochiladi, Telegram'siz ham buyurtma berasiz.",
     install: '📲 Ilovani o‘rnatish',
     done_title: '🎉 Tayyor!',
-    done_text: 'Ilova bosh ekranga qo‘shildi.',
+    done_text: 'Ilova telefoningizda bor: bosh ekran yoki ilovalar ro‘yxatidan «Tayyor&Sweet» ni oching.',
     open_shop: "🛍 Do'konni ochish",
     inapp_title: '⚠️ Bu oynada o‘rnatib bo‘lmaydi',
     inapp_ios: "Linkni nusxalang va Safari'da oching.",
@@ -53,7 +43,7 @@ const TXT = {
     lead: 'Магазин на главном экране телефона — открывается в одно касание, заказывать можно и без Telegram.',
     install: '📲 Установить приложение',
     done_title: '🎉 Готово!',
-    done_text: 'Приложение добавлено на главный экран.',
+    done_text: 'Приложение уже на телефоне: откройте «Tayyor&Sweet» с главного экрана или из списка приложений.',
     open_shop: '🛍 Открыть магазин',
     inapp_title: '⚠️ В этом окне установить нельзя',
     inapp_ios: 'Скопируйте ссылку и откройте её в Safari.',
@@ -89,10 +79,7 @@ function detect() {
   const platform: Platform = ios ? 'ios' : /Android/i.test(ua) ? 'android' : 'other';
   // iOS: Safari, Chrome, Edge, Firefox "Safari/..." yozuviga ega; ilova ichidagi oynada u bo'lmaydi
   const inApp = IN_APP.test(ua) || (ios && !/Safari\//.test(ua));
-  const standalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return { platform, inApp, standalone };
+  return { platform, inApp, standalone: isStandalone() };
 }
 
 function pickLang(): Lang {
@@ -111,8 +98,8 @@ const guideVideo = (device: Device) => `/video/ilova-${device}-uz`;
 export function InstallGuide() {
   const [lang, setLang] = useState<Lang>('uz');
   const [env, setEnv] = useState<ReturnType<typeof detect> | null>(null);
-  const [bip, setBip] = useState<InstallPromptEvent | null>(null);
-  const [done, setDone] = useState(false);
+  // bip — Android'da tizimning o'rnatish oynasi; done — o'rnatildi yoki telefonda allaqachon bor
+  const { bip, installed: done, prompt } = useInstall();
   const [copied, setCopied] = useState(false);
   const [device, setDevice] = useState<Device>('iphone');
 
@@ -123,32 +110,10 @@ export function InstallGuide() {
     setEnv(e);
     setLang(pickLang());
     setDevice(e.platform === 'android' ? 'samsung' : 'iphone');
-    // Hodisa sahifa yuklanishida ushlab qolinadi (layout'dagi skript) — keyin ham kelishi mumkin
-    setBip(window.__bip || null);
-    const onBip = () => setBip(window.__bip || null);
-    const onInstalled = () => {
-      setDone(true);
-      setBip(null);
-    };
-    window.addEventListener('ts-bip', onBip);
-    window.addEventListener('appinstalled', onInstalled);
-    return () => {
-      window.removeEventListener('ts-bip', onBip);
-      window.removeEventListener('appinstalled', onInstalled);
-    };
   }, []);
 
   const t = TXT[lang];
   const link = typeof window !== 'undefined' ? `${window.location.origin}/ilova${lang === 'ru' ? '?lang=ru' : ''}` : '';
-
-  const install = async () => {
-    if (!bip) return;
-    await bip.prompt();
-    const { outcome } = await bip.userChoice;
-    window.__bip = null;
-    setBip(null);
-    if (outcome === 'accepted') setDone(true);
-  };
 
   const copy = async () => {
     try {
@@ -180,7 +145,7 @@ export function InstallGuide() {
     // Chrome / Samsung Internet: tizimning o'rnatish oynasi
     main = (
       <div className="inst-card">
-        <button className="btn btn-primary btn-block inst-big" onClick={install}>{t.install}</button>
+        <button className="btn btn-primary btn-block inst-big" onClick={() => prompt()}>{t.install}</button>
       </div>
     );
   } else if (env?.inApp) {

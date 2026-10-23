@@ -166,6 +166,16 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.2; }
   background: #fff; border-radius: 999px; box-shadow: var(--shadow); color: var(--muted);
 }
 .search input { border: 0; outline: 0; flex: 1; background: transparent; font-size: 15px; color: var(--plum); }
+/* "Ilovani o'rnatish" kartasi (bosh sahifa) */
+.install-card {
+  margin-top: 14px; width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 12px 12px 12px 14px; border-radius: var(--r-sm); background: var(--card); box-shadow: var(--shadow); color: var(--plum);
+}
+.install-card .ic { font-size: 26px; flex-shrink: 0; }
+.install-card div { flex: 1; min-width: 0; }
+.install-card b { display: block; font-size: 15px; }
+.install-card small { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+.install-card .btn { flex-shrink: 0; }
 .announce { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-sm); background: var(--plum); color: #fff; font-size: 14px; }
 
 /* ---------- Storylar ---------- */

@@ -28,7 +28,10 @@ const uz = {
   order: 'Buyurtma', items: 'Mahsulotlar', track: 'Kuzatish', tracking: 'Trek raqami', status: 'Holat',
   receipt: 'Chek', pay_now: "To'lash", member: 'MEMBER', member_since: "A'zo", orders_count: 'Buyurtmalar', spent: 'Xarid',
   language: 'Til', contact_owner: 'Egasiga yozish', about: "Do'kon haqida", address_shop: 'Manzil', hours: 'Ish vaqti',
-  instagram: 'Instagram', install_app: "Ilovani telefonga o'rnatish", admin_panel: 'Admin panel', back: 'Orqaga', retry: 'Qayta urinish', error: 'Xatolik yuz berdi',
+  instagram: 'Instagram', install_app: "Ilovani telefonga o'rnatish",
+  install_card: "Do'kon bosh ekranda bo'ladi — bir bosishda ochiladi", install_btn: "O'rnatish",
+  installed_card: 'Ilova telefoningizda bor', installed_card_text: "Bosh ekran yoki ilovalar ro'yxatidan «Tayyor&Sweet» ni oching",
+  admin_panel: 'Admin panel', back: 'Orqaga', retry: 'Qayta urinish', error: 'Xatolik yuz berdi',
   onb: [
     { e: '🎂', t: 'Uy tortlari', d: "Medovik, Rafaello, Napoleon — buyurtma asosida 2–3 kunda tayyorlaymiz" },
     { e: '🥟', t: 'Yarim tayyor', d: 'Chuchvara, manti, somsa — muzlatkichdan to qozongacha 15 daqiqa' },
@@ -67,7 +70,10 @@ const ru: Dict = {
   order: 'Заказ', items: 'Товары', track: 'Отследить', tracking: 'Трек-номер', status: 'Статус',
   receipt: 'Чек', pay_now: 'Оплатить', member: 'MEMBER', member_since: 'С нами с', orders_count: 'Заказов', spent: 'Покупки',
   language: 'Язык', contact_owner: 'Написать владельцу', about: 'О магазине', address_shop: 'Адрес', hours: 'Часы работы',
-  instagram: 'Instagram', install_app: 'Установить приложение на телефон', admin_panel: 'Админ-панель', back: 'Назад', retry: 'Повторить', error: 'Произошла ошибка',
+  instagram: 'Instagram', install_app: 'Установить приложение на телефон',
+  install_card: 'Магазин будет на главном экране — открывается в одно касание', install_btn: 'Установить',
+  installed_card: 'Приложение уже на телефоне', installed_card_text: 'Откройте «Tayyor&Sweet» с главного экрана или из списка приложений',
+  admin_panel: 'Админ-панель', back: 'Назад', retry: 'Повторить', error: 'Произошла ошибка',
   onb: [
     { e: '🎂', t: 'Домашние торты', d: 'Медовик, Рафаэлло, Наполеон — готовим под заказ за 2–3 дня' },
     { e: '🥟', t: 'Полуфабрикаты', d: 'Чучвара, манты, сомса — из морозилки на стол за 15 минут' },

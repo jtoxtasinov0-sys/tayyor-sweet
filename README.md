@@ -96,7 +96,10 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   sahifa brauzerda (Safari / Chrome) ochiladi, o'sha yerda o'rnatadi.
 - `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
-- Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).
+- Do'kon bosh sahifasida (qidiruv ostida) va Profilda **📲 Ilovani telefonga o'rnatish**: Android'da (Chrome) bosilganda
+  tizimning «Установить приложение» oynasi (Отмена / Установить) chiqadi, iPhone'da `/ilova` qo'llanmasiga o'tadi,
+  Telegram ichidan — tashqi brauzerda. O'rnatilgan ilova ichida ko'rinmaydi; ilova telefonda allaqachon bo'lsa
+  (Android Chrome aniqlaydi) "Ilova telefoningizda bor — ilovalar ro'yxatidan oching" deydi. Kod: `miniapp/src/hooks/useInstall.ts`.
 - Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
 - Videolar (yozuvlar o'zbekcha, telefon interfeysi ruscha — ko'pchilik telefonni rus tilida ishlatadi;
   Instagram Reels uchun ham mos — matn va telefon xavfsiz hududda):
