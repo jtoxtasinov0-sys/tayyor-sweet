@@ -92,8 +92,8 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
 
 - Botda **📲 Ilovani o'rnatish** tugmasi ikki joyda: /start xabari ostida va pastki klaviaturada (yozish qatoridagi ⊞
   belgisi ochadi; /start va raqam saqlangandan keyin yuboriladi). Tugma (yoki `/ilova`) → bitta xabar: iPhone va Samsung video qo'llanma
-  (albom), izohida link `…/ilova`. Mijoz linkni bosib turadi: iPhone'da «Открыть в браузере» (Safari darhol ochiladi),
-  Samsung'da «Копировать» → Chrome'ga joylaydi, keyin o'rnatadi.
+  (albom), izohida link `…/ilova`. Mijoz linkni bosib turadi → «Открыть в браузере» (Samsung'da yana «Открыть»):
+  sahifa brauzerda (Safari / Chrome) ochiladi, o'sha yerda o'rnatadi.
 - `/ilova` sahifasi telefonni o'zi aniqlaydi: Samsung/Chrome'da **O'rnatish** tugmasi, iPhone'da 3 qadam,
   Telegram/Instagram/KakaoTalk ichidagi brauzerda "Safari / Chrome'da oching" ogohlantirishi.
 - Mini ilovada Profil → **Ilovani telefonga o'rnatish** (Telegram ichidan tashqi brauzerni ochadi).

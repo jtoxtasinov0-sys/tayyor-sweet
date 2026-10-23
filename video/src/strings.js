@@ -5,7 +5,7 @@ const LINK = 'https://tayyor-sweet.vercel.app/ilova';
 export const L = {
   link: LINK,
   intro: { iphone: ["iPhone'ga", "ilovani o'rnatish"], samsung: ["Samsung'ga", "ilovani o'rnatish"] },
-  intro_sub: { iphone: '4 ta oson qadam', samsung: '5 ta oson qadam' },
+  intro_sub: '4 ta oson qadam',
   step: (n) => `${n}-QADAM`,
   steps: {
     iphone: [
@@ -17,8 +17,7 @@ export const L = {
     ],
     samsung: [
       ["Botda ⊞ ni bosing → «📲 Ilovani o'rnatish»", "Bot video qo'llanma va link yuboradi"],
-      ['Linkni bosib turing va «Копировать» ni tanlang', 'Nusxa olish — link telefon xotirasiga saqlanadi'],
-      ["Chrome'ni oching va linkni joylang", 'Manzil qatorini bosing → «Скопированная ссылка»'],
+      ['Linkni bosib turing va «Открыть в браузере» ni tanlang', 'Keyin «Открыть» — sahifa brauzerda ochiladi'],
       ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить приложение»'],
       ['«Установить» ni bosing', "O'rnatish — belgi bosh ekranga qo'shiladi"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
@@ -36,26 +35,23 @@ export const L = {
     m1btns: [["🛍 Do'konni ochish"], ["📲 Ilovani o'rnatish"], ['📦 Buyurtmalarim', '📞 Aloqa'], ['📸 Instagram'], ["🇺🇿 O'zbekcha", '🇷🇺 Русский']],
     menu: "🛍 Do'kon",
     // «Ilovani o'rnatish» javobi: albom (iPhone va Samsung videolari), izohida link
-    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing**:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», keyin **Chrome**'ga joylang\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
-    durs: ['0:30', '0:33'],
+    m4: `📲 **Tayyor & Sweet ilovasini o'rnating**\n\n[${LINK}]\n\n👆 Linkni **bosib turing** → «Открыть в браузере» (Open in Browser). Sahifa brauzerda ochiladi — o'sha yerda o'rnatasiz.\n\n🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung`,
+    durs: ['0:30', '0:29'],
     // pastki klaviatura (⊞) tugmasi va uni bosganda chatga ketadigan xabar
     kbBtn: "📲 Ilovani o'rnatish",
     mUser: "📲 Ilovani o'rnatish",
-    // iOS: link bosib turilganda chiqadigan menyu
+    // link bosib turilganda chiqadigan menyu va Android'dagi tasdiqlash oynasi
     linkText: LINK,
-    ctx: ['Открыть', 'Открыть в браузере', 'Копировать ссылку', 'Добавить в список чтения'],
-    open: 'Открыть',
-    copy: 'Копировать',
-    share: 'Поделиться',
-    copied: 'Ссылка скопирована',
+    ctx: {
+      ios: ['Открыть', 'Открыть в браузере', 'Копировать ссылку', 'Добавить в список чтения'],
+      and: ['Открыть в приложении', 'Открыть в браузере', 'Копировать ссылку', 'Добавить закладку'],
+    },
+    alert: { title: 'Открыть ссылку', always: 'Всегда открывать этот сайт в браузере', open: 'Открыть', cancel: 'Отмена' },
   },
   // iPhone tizimi (ruscha)
   ios: {
     apps: { phone: 'Телефон', messages: 'Сообщения', safari: 'Safari', music: 'Музыка', camera: 'Камера', photos: 'Фото', settings: 'Настройки', telegram: 'Telegram', calendar: 'Календарь', clock: 'Часы', weather: 'Погода', maps: 'Карты', notes: 'Заметки', mail: 'Почта', store: 'App Store', contacts: 'Контакты' },
-    search: 'Поиск или имя сайта',
     crumb: 'Telegram',
-    favorites: 'Избранное',
-    paste: 'Вставить и перейти',
     menu: ['Поделиться', 'Добавить в Избранное', 'Добавить закладку', 'Найти на странице', 'Новая вкладка'],
     sheetTitle: 'Tayyor & Sweet',
     options: 'Параметры',
@@ -70,8 +66,6 @@ export const L = {
   // Android tizimi (ruscha)
   and: {
     apps: { phone: 'Телефон', messages: 'Сообщения', chrome: 'Chrome', camera: 'Камера', gallery: 'Галерея', settings: 'Настройки', telegram: 'Telegram', calendar: 'Календарь', clock: 'Часы', contacts: 'Контакты', weather: 'Погода', notes: 'Заметки' },
-    search: 'Введите запрос или URL',
-    copied: 'Скопированная ссылка',
     installTitle: 'Установить приложение',
     cancel: 'Отмена',
     install: 'Установить',

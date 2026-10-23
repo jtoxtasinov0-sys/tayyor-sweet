@@ -155,13 +155,22 @@ export function tgLayout(c, os, L) {
   lay.link = { x: lx, y: pos[2] + m4.mediaH + 8 + linkLine * lh, w: segs.reduce((m, s) => Math.max(m, s.x + s.w), 0) - segs[0].x, h: lh, cx: 0, cy: 0 };
   lay.link.cx = lay.link.x + Math.min(lay.link.w, 200) / 2;
   lay.link.cy = lay.link.y + lh / 2 + 2;
-  // iOS: link bosib turilganda — tepada link (pufakcha), ostida menyu; pastga sig'masa yuqoriga suriladi
+  // link bosib turilganda — tepada link (pufakcha), ostida menyu; pastga sig'masa yuqoriga suriladi
   c.font = S(500, 15.5);
   const pillW = c.measureText(L.linkText).width + 28;
-  const menuH = L.ctx.length * CTX_ROW;
+  lay.ctxItems = L.ctx[os];
+  const rowH = ios ? CTX_ROW : 48;
+  const menuH = lay.ctxItems.length * rowH;
   const pillY = Math.min(lay.link.y - 6, SH - BOT - 14 - menuH - 10 - 34);
-  lay.ctx = { x: lay.link.x - 12, pillY, pillW, menuY: pillY + 34 + 10, menuW: 304 };
-  lay.ctx.row = (i) => ({ x: lay.ctx.x + 100, y: lay.ctx.menuY + i * CTX_ROW + CTX_ROW / 2 });
+  lay.ctx = { x: lay.link.x - 12, pillY, pillW, menuY: pillY + 34 + 10, menuW: ios ? 304 : 290, rowH };
+  lay.ctx.row = (i) => ({ x: lay.ctx.x + 100, y: lay.ctx.menuY + i * rowH + rowH / 2 });
+  // Android: «Открыть в браузере»dan keyin "Открыть ссылку" tasdiqlash oynasi
+  if (!ios) {
+    const w = 320, h = 236;
+    const a = { x: (SW - w) / 2, y: (SH - h) / 2, w, h };
+    a.open = { x: a.x + w - 52, y: a.y + h - 32 };
+    lay.alert = a;
+  }
   return lay;
 }
 
@@ -363,41 +372,13 @@ export function tgChat(c, lay, L, st) {
   homeBar(c, os);
 }
 
-// Android: link bosib turilganda chiqadigan menyu. press: bosilgan qator (1 — «Копировать»)
-export function tgLinkMenu(c, L, link, p, press) {
-  const { SW, SH, BOT } = DEV.and;
-  c.fillStyle = `rgba(0,0,0,${0.4 * p})`;
-  c.fillRect(0, 0, SW, SH);
-  const e = E.out3(p);
-  const rows = [L.open, L.copy, L.share];
-  const sh = 70 + rows.length * 52 + BOT;
-  const y0 = SH - sh + (1 - e) * sh;
-  c.save();
-  c.fillStyle = '#fff';
-  c.beginPath();
-  c.roundRect(0, y0, SW, sh + 20, [16, 16, 0, 0]);
-  c.fill();
-  c.font = S(400, 14);
-  text(c, ellipsize(c, link, SW - 48), 24, y0 + 40, S(400, 14), '#8A8A8A');
-  const icons = [G.globe, G.copy, G.share];
-  rows.forEach((r, i) => {
-    const y = y0 + 62 + i * 52;
-    if (press === i) {
-      c.fillStyle = '#ECECEC';
-      c.fillRect(0, y, SW, 52);
-    }
-    icons[i](c, 34, y + 26, 22, '#7A7F85');
-    text(c, r, 72, y + 32, S(400, 16.5), '#222');
-  });
-  c.restore();
-  return { copy: { x: SW / 2, y: SH - sh + 62 + 52 + 26 } };
-}
-
-// iOS Telegram: link bosib turilganda chiqadigan kontekst menyu (fon xiralashtirilgan holda chiziladi).
-// press — bosilgan qator raqami
+// Telegram: link bosib turilganda chiqadigan kontekst menyu (fon xiralashtirilgan holda chiziladi).
+// iOS — yashil tusli pufakcha va shishasimon menyu, Android — oq pufakcha va oq menyu. press — bosilgan qator raqami
 export function tgLinkContext(c, lay, L, p, press) {
   const { SW, SH } = lay;
-  const { x, pillY, pillW, menuY, menuW } = lay.ctx;
+  const ios = lay.os === 'ios';
+  const { x, pillY, pillW, menuY, menuW, rowH } = lay.ctx;
+  const items = lay.ctxItems;
   const e = E.out3(clamp(p));
   c.save();
   c.globalAlpha = clamp(p * 2);
@@ -406,33 +387,79 @@ export function tgLinkContext(c, lay, L, p, press) {
   // link pufakchasi: xabardagi o'rnidan ko'tariladi
   const py = lerp(lay.link.y - 6, pillY, e);
   shadow(c, 16 * e, 'rgba(0,0,0,0.12)', 4);
-  fillRR(c, x, py, pillW, 34, 12, 'rgba(236,250,224,0.98)');
+  fillRR(c, x, py, pillW, 34, 12, ios ? 'rgba(236,250,224,0.98)' : '#fff');
   noShadow(c);
-  text(c, L.linkText, x + 14, py + 22.5, S(500, 15.5), '#1C4FA8');
+  text(c, L.linkText, x + 14, py + 22.5, S(500, 15.5), ios ? '#1C4FA8' : '#2481CC');
   // menyu: pufakcha ostidan kattalashib chiqadi
   const k = lerp(0.4, 1, E.back(clamp(p)));
-  const h = L.ctx.length * CTX_ROW;
+  const h = items.length * rowH, rad = ios ? 26 : 14;
   c.translate(x, menuY);
   c.scale(k, k);
   c.translate(-x, -menuY);
   shadow(c, 34, 'rgba(0,0,0,0.18)', 10);
-  fillRR(c, x, menuY, menuW, h, 26, 'rgba(244,246,238,0.97)');
+  fillRR(c, x, menuY, menuW, h, rad, ios ? 'rgba(244,246,238,0.97)' : '#fff');
   noShadow(c);
-  const icons = [G.compass, G.globe, G.copy, G.glasses];
-  L.ctx.forEach((label, i) => {
-    const ry = menuY + i * CTX_ROW;
+  const icons = ios ? [G.compass, G.globe, G.copy, G.glasses] : [G.globe, G.openIn, G.copy, G.bookmark];
+  items.forEach((label, i) => {
+    const ry = menuY + i * rowH;
     if (press === i) {
       c.save();
-      rr(c, x, menuY, menuW, h, 26);
+      rr(c, x, menuY, menuW, h, rad);
       c.clip();
       c.fillStyle = 'rgba(0,0,0,0.1)';
-      c.fillRect(x, ry, menuW, CTX_ROW);
+      c.fillRect(x, ry, menuW, rowH);
       c.restore();
     }
-    icons[i](c, x + 34, ry + CTX_ROW / 2, 24, '#000');
-    c.font = S(500, 17);
-    text(c, ellipsize(c, label, menuW - 76), x + 60, ry + CTX_ROW / 2 + 6, S(500, 17), '#000');
+    icons[i](c, x + 34, ry + rowH / 2, ios ? 24 : 22, ios ? '#000' : '#6F7378');
+    const font = ios ? S(500, 17) : S(400, 16.5);
+    c.font = font;
+    text(c, ellipsize(c, label, menuW - 76), x + 60, ry + rowH / 2 + 6, font, ios ? '#000' : '#222');
   });
+  c.restore();
+}
+
+// Android Telegram: tashqi brauzerda ochishdan oldingi "Открыть ссылку" oynasi. press — «Открыть» bosilgan
+export function tgOpenAlert(c, lay, L, link, p, press) {
+  const { SW, SH } = lay;
+  const a = lay.alert;
+  const e = E.out3(clamp(p));
+  c.save();
+  c.fillStyle = `rgba(0,0,0,${0.45 * clamp(p)})`;
+  c.fillRect(0, 0, SW, SH);
+  c.globalAlpha = clamp(p * 2);
+  const k = lerp(0.9, 1, e);
+  c.translate(SW / 2, SH / 2);
+  c.scale(k, k);
+  c.translate(-SW / 2, -SH / 2);
+  shadow(c, 30, 'rgba(0,0,0,0.25)', 8);
+  fillRR(c, a.x, a.y, a.w, a.h, 18, '#fff');
+  noShadow(c);
+  text(c, L.alert.title, a.x + 24, a.y + 42, S(600, 19.5), '#222');
+  // link maydoni
+  fillRR(c, a.x + 22, a.y + 60, a.w - 44, 44, 22, 'rgba(0,0,0,0.06)');
+  c.font = S(400, 14);
+  text(c, ellipsize(c, link, a.w - 72), a.x + a.w / 2, a.y + 87, S(400, 14), '#222', 'center');
+  // "doim brauzerda ochish" belgisi (belgilanmagan)
+  c.strokeStyle = '#8A9096';
+  c.lineWidth = 2;
+  rr(c, a.x + 26, a.y + 122, 18, 18, 4);
+  c.stroke();
+  c.font = S(400, 15.5);
+  const words = L.alert.always.split(' ');
+  let line = '', ly = a.y + 136;
+  for (const wd of words) {
+    const tryL = line ? `${line} ${wd}` : wd;
+    if (c.measureText(tryL).width > a.w - 90 && line) {
+      text(c, line, a.x + 60, ly, S(400, 15.5), '#222');
+      line = wd;
+      ly += 21;
+    } else line = tryL;
+  }
+  text(c, line, a.x + 60, ly, S(400, 15.5), '#222');
+  // tugmalar
+  if (press) fillRR(c, a.open.x - 44, a.open.y - 20, 88, 40, 8, 'rgba(36,129,204,0.14)');
+  text(c, L.alert.open, a.open.x, a.open.y + 6, S(600, 15.5), '#2481CC', 'center');
+  text(c, L.alert.cancel, a.open.x - 100, a.open.y + 6, S(600, 15.5), '#2481CC', 'center');
   c.restore();
 }
 
@@ -453,27 +480,6 @@ export function slideApp(c, os, p, drawFrom, drawTo) {
   c.fillRect(0, 0, SW, SH);
   noShadow(c);
   drawTo(c);
-  c.restore();
-}
-
-// Qisqa xabar (toast). ios — tepada, android — pastda
-export function toast(c, os, msg, p, y = null) {
-  if (p <= 0) return;
-  const { SW } = DEV[os];
-  const e = E.out3(clamp(p));
-  c.save();
-  c.globalAlpha = clamp(p * 1.5);
-  if (os === 'ios') {
-    const ty = lerp(30, 58, e);
-    fillRR(c, 10, ty, SW - 20, 50, 14, 'rgba(38,38,40,0.92)');
-    G.copy(c, 38, ty + 25, 22, '#fff');
-    text(c, msg, 62, ty + 31, S(500, 15.5), '#fff');
-  } else {
-    const ty = (y ?? 690) + (1 - e) * 20;
-    fillRR(c, 10, ty, SW - 20, 50, 10, '#2E3236');
-    G.copy(c, 36, ty + 25, 22, '#fff');
-    text(c, msg, 60, ty + 31, S(400, 15), '#fff');
-  }
   c.restore();
 }
 
@@ -644,53 +650,13 @@ export function closeApp(c, os, p, drawApp) {
   c.restore();
 }
 
-// ---------- Klaviatura ----------
-export function keyboard(c, os, y) {
-  const { SW, SH, BOT } = DEV[os];
-  const ios = os === 'ios';
-  c.fillStyle = ios ? '#D1D3D9' : '#F1F2F4';
-  c.fillRect(0, y, SW, SH - y + 40);
-  const rows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
-  const g = ios ? 6 : 5;
-  const kw = (SW - g * 11) / 10;
-  const kh = ios ? 43 : 44;
-  rows.forEach((row, i) => {
-    const ky = y + 10 + i * (kh + (ios ? 11 : 9));
-    const off = (SW - row.length * kw - (row.length - 1) * g) / 2;
-    [...row].forEach((ch, j) => {
-      const kx = off + j * (kw + g);
-      c.save();
-      shadow(c, 0, 'rgba(0,0,0,0.3)', 1);
-      fillRR(c, kx, ky, kw, kh, ios ? 5 : 7, '#fff');
-      c.restore();
-      text(c, ch, kx + kw / 2, ky + kh / 2 + 7, S(400, ios ? 22 : 20), '#111', 'center');
-    });
-    if (i === 2) {
-      fillRR(c, g, ky, kw * 1.35, kh, ios ? 5 : 7, ios ? '#ABB0BA' : '#E1E3E7');
-      fillRR(c, SW - g - kw * 1.35, ky, kw * 1.35, kh, ios ? 5 : 7, ios ? '#ABB0BA' : '#E1E3E7');
-    }
-  });
-  const by = y + 10 + 3 * (kh + (ios ? 11 : 9));
-  fillRR(c, g, by, kw * 2.4, kh, ios ? 5 : 7, ios ? '#ABB0BA' : '#E1E3E7');
-  text(c, '123', g + kw * 1.2, by + kh / 2 + 6, S(400, 16), '#111', 'center');
-  fillRR(c, g * 2 + kw * 2.4, by, SW - g * 4 - kw * 4.8, kh, ios ? 5 : 7, '#fff');
-  text(c, ios ? 'space' : '', SW / 2, by + kh / 2 + 6, S(400, 16), '#111', 'center');
-  fillRR(c, SW - g - kw * 2.4, by, kw * 2.4, kh, ios ? 5 : 7, ios ? C.ios : '#3D7BF7');
-  text(c, ios ? 'go' : '→', SW - g - kw * 1.2, by + kh / 2 + 6, S(500, 16), '#fff', 'center');
-  return by + kh + 8 + BOT;
-}
-export const KB_H = { ios: 10 + 4 * 43 + 3 * 11 + 10 + 34 + 8, and: 10 + 4 * 44 + 3 * 9 + 8 + 20 + 8 };
-
 // ---------- Safari (iOS) ----------
 const SAFARI_BAR_Y = DEV.ios.SH - DEV.ios.BOT - 26;
 
 export function safariTargets() {
   const { SW, SH } = DEV.ios;
   return {
-    bar: { x: SW / 2, y: SAFARI_BAR_Y },
     more: { x: SW - 32, y: SAFARI_BAR_Y },
-    field: { x: SW / 2, y: SH - KB_H.ios - 30 },
-    paste: { x: SW / 2 - 40, y: SH - KB_H.ios - 30 - 52 },
     menuShare: { x: SW - 8 - 125, y: SAFARI_BAR_Y - 32 - 5 * 46 + 23 },
     addRow: (top) => ({ x: SW / 2, y: top + 200 + 5 * 52 + 26 }),
     addBtn: (top) => ({ x: SW - 36, y: top + 26 }),
@@ -707,28 +673,13 @@ function glassBtn(c, x, y, r) {
   c.restore();
 }
 
-// st: { page(0..1), focus(0..1), kb(0..1), typed, callout(0..1), calloutPress, load(-1|0..1), menu(0..1), menuPress, share(0..1), sharePress, add(0..1), addPress,
-//       start (false — linkdan ochilgan: "Избранное" bosh sahifasi yo'q), crumb ("◀ Telegram") }
+// Safari Telegram'dagi linkdan ochiladi (yuklanguncha oq sahifa).
+// st: { page(0..1), load(-1|0..1), menu(0..1), menuPress, share(0..1), sharePress, add(0..1), addPress, crumb ("◀ Telegram") }
 export function safari(c, I, st, link) {
-  const { SW, SH, SB, BOT } = DEV.ios;
-  const T = safariTargets();
+  const { SW, SH, SB } = DEV.ios;
   const pageA = clamp(st.page ?? 0);
-  // bosh sahifa (linkdan ochilganda — yuklanguncha oq)
-  c.fillStyle = st.start === false ? '#fff' : '#F2F2F7';
+  c.fillStyle = '#fff';
   c.fillRect(0, 0, SW, SH);
-  if (pageA < 1 && st.start !== false) {
-    c.save();
-    c.globalAlpha = 1 - pageA;
-    text(c, I.favorites, 20, SB + 64, S(700, 22), '#000');
-    const fav = [['G', '#4285F4', 'Google'], ['N', '#03C75A', 'Naver'], ['Y', '#FF0000', 'YouTube'], ['W', '#555', 'Wikipedia']];
-    fav.forEach(([ch, col, name], i) => {
-      const x = 20 + i * 92, y = SB + 84;
-      fillRR(c, x, y, 70, 70, 16, '#fff');
-      text(c, ch, x + 35, y + 46, S(700, 30), col, 'center');
-      text(c, name, x + 35, y + 90, S(400, 12), '#333', 'center');
-    });
-    c.restore();
-  }
   if (pageA > 0) {
     c.save();
     c.globalAlpha = pageA;
@@ -739,75 +690,22 @@ export function safari(c, I, st, link) {
   }
   statusBar(c, 'ios', false, pageA > 0.5 ? '#FFF0F7' : '#F2F2F7', st.crumb);
 
-  const focus = E.io3(clamp(st.focus ?? 0));
-  const kbE = E.out3(clamp(st.kb ?? 0));
-  const domain = 'tayyor-sweet.vercel.app';
-  // pastki panel (fokus bo'lmaganda)
-  if (focus < 1) {
+  // pastki panel: orqaga, manzil (yuklanish chizig'i bilan), "⋯"
+  glassBtn(c, 32, SAFARI_BAR_Y, 24);
+  G.chevron(c, 31, SAFARI_BAR_Y, 20, '#000');
+  glassBtn(c, SW - 32, SAFARI_BAR_Y, 24);
+  G.dots(c, SW - 32, SAFARI_BAR_Y, 26, '#000');
+  c.save();
+  shadow(c, 14, 'rgba(0,0,0,0.14)', 3);
+  fillRR(c, 64, SAFARI_BAR_Y - 24, SW - 128, 48, 24, 'rgba(255,255,255,0.94)');
+  c.restore();
+  text(c, 'tayyor-sweet.vercel.app', SW / 2, SAFARI_BAR_Y + 5.5, S(500, 15), '#000', 'center');
+  if (st.load >= 0 && st.load < 1) {
     c.save();
-    c.globalAlpha = 1 - focus;
-    glassBtn(c, 32, SAFARI_BAR_Y, 24);
-    G.chevron(c, 31, SAFARI_BAR_Y, 20, '#000');
-    glassBtn(c, SW - 32, SAFARI_BAR_Y, 24);
-    G.dots(c, SW - 32, SAFARI_BAR_Y, 26, '#000');
-    c.save();
-    shadow(c, 14, 'rgba(0,0,0,0.14)', 3);
-    fillRR(c, 64, SAFARI_BAR_Y - 24, SW - 128, 48, 24, 'rgba(255,255,255,0.94)');
-    c.restore();
-    if (pageA > 0.5 || st.load >= 0) {
-      text(c, domain, SW / 2, SAFARI_BAR_Y + 5.5, S(500, 15), '#000', 'center');
-    } else {
-      G.search(c, 84, SAFARI_BAR_Y, 15, '#8E8E93');
-      c.font = S(400, 15);
-      text(c, ellipsize(c, I.search, SW - 190), 98, SAFARI_BAR_Y + 5.5, S(400, 15), '#8E8E93');
-    }
-    if (st.load >= 0 && st.load < 1) {
-      c.save();
-      rr(c, 64, SAFARI_BAR_Y - 24, SW - 128, 48, 24);
-      c.clip();
-      c.fillStyle = C.ios;
-      c.fillRect(64, SAFARI_BAR_Y + 21, (SW - 128) * E.out2(st.load), 3);
-      c.restore();
-    }
-    c.restore();
-  }
-  // klaviatura va yuqoridagi manzil maydoni
-  if (kbE > 0) keyboard(c, 'ios', SH - KB_H.ios * kbE);
-  if (focus > 0) {
-    const fy = lerp(SAFARI_BAR_Y, T.field.y, focus);
-    const fx = lerp(64, 12, focus), fw = lerp(SW - 128, SW - 24, focus);
-    c.save();
-    shadow(c, 10, 'rgba(0,0,0,0.12)', 2);
-    fillRR(c, fx, fy - 24, fw, 48, 24, '#fff');
-    c.restore();
-    if (st.typed) {
-      c.font = S(400, 16);
-      text(c, ellipsize(c, link.replace('https://', ''), fw - 40), fx + 20, fy + 6, S(400, 16), '#000');
-    } else {
-      fillRR(c, fx + 20, fy - 11, 2, 22, 1, C.ios);
-    }
-  }
-  // "Paste and Go" pufakchasi
-  const cp = clamp(st.callout ?? 0);
-  if (cp > 0) {
-    c.save();
-    c.globalAlpha = cp;
-    const cy = T.paste.y;
-    c.font = S(500, 15);
-    const w = c.measureText(I.paste).width + 32;
-    const x = T.paste.x - w / 2;
-    c.translate(T.paste.x, cy + 20);
-    const k = lerp(0.85, 1, E.back(cp));
-    c.scale(k, k);
-    c.translate(-T.paste.x, -cy - 20);
-    fillRR(c, x, cy - 20, w, 40, 10, st.calloutPress ? '#5a5a5e' : '#2C2C2E');
-    c.fillStyle = st.calloutPress ? '#5a5a5e' : '#2C2C2E';
-    c.beginPath();
-    c.moveTo(T.paste.x - 8, cy + 20);
-    c.lineTo(T.paste.x + 8, cy + 20);
-    c.lineTo(T.paste.x, cy + 28);
-    c.fill();
-    text(c, I.paste, T.paste.x, cy + 5.5, S(500, 15), '#fff', 'center');
+    rr(c, 64, SAFARI_BAR_Y - 24, SW - 128, 48, 24);
+    c.clip();
+    c.fillStyle = C.ios;
+    c.fillRect(64, SAFARI_BAR_Y + 21, (SW - 128) * E.out2(st.load), 3);
     c.restore();
   }
   // "⋯" menyusi
@@ -970,39 +868,18 @@ function addSheet(c, I, top, press, link) {
 export function chromeTargets(pageBtn) {
   const { SW } = DEV.and;
   return {
-    omni: { x: 170, y: 60 },
-    suggest: { x: SW / 2, y: 88 + 34 },
     pageBtn: { x: pageBtn.cx, y: 88 + pageBtn.cy },
     install: (top) => ({ x: SW - 74, y: top + 194 }),
   };
 }
 
-// st: { page, focus, kb, typed, load, install(0..1), installTop, installPress, toast(0..1), toastText }
-export function chrome(c, A, st, pageBtnPress, link) {
-  const { SW, SH, SB } = DEV.and;
+// Chrome Telegram'dagi linkdan ochiladi (yuklanguncha oq sahifa).
+// st: { page, load, btnRect, install(0..1), installTop, installPress, toast(0..1), toastText }
+export function chrome(c, A, st, pageBtnPress) {
+  const { SW, SH } = DEV.and;
   const pageA = clamp(st.page ?? 0);
   c.fillStyle = '#fff';
   c.fillRect(0, 0, SW, SH);
-  const focus = clamp(st.focus ?? 0);
-  // yangi oyna sahifasi
-  if (pageA < 1) {
-    c.save();
-    c.globalAlpha = 1 - pageA;
-    fillRR(c, 24, 230, SW - 48, 52, 26, '#EEF1F6');
-    G.search(c, 52, 256, 18, '#5F6368');
-    c.font = S(400, 16);
-    text(c, ellipsize(c, A.search, SW - 140), 76, 262, S(400, 16), '#5F6368');
-    const tiles = [['G', '#4285F4'], ['N', '#03C75A'], ['Y', '#FF0000'], ['W', '#555'], ['K', '#F7C600'], ['C', '#E5375F'], ['M', '#1A73E8'], ['+', '#5F6368']];
-    tiles.forEach(([ch, col], i) => {
-      const x = 48 + (i % 4) * 80, y = 330 + Math.floor(i / 4) * 96;
-      c.fillStyle = '#F1F3F4';
-      c.beginPath();
-      c.arc(x + 16, y + 24, 26, 0, Math.PI * 2);
-      c.fill();
-      text(c, ch, x + 16, y + 32, S(700, 20), col, 'center');
-    });
-    c.restore();
-  }
   if (pageA > 0) {
     c.save();
     c.globalAlpha = pageA;
@@ -1019,62 +896,21 @@ export function chrome(c, A, st, pageBtnPress, link) {
   c.fillStyle = '#fff';
   c.fillRect(0, 0, SW, 88);
   statusBar(c, 'and');
-  if (focus > 0.5) {
-    G.arrowLeft(c, 22, 60, 20, '#444');
-    fillRR(c, 44, 40, SW - 56, 40, 20, '#EEF1F6');
-    if (st.typed) {
-      c.font = S(400, 15.5);
-      text(c, ellipsize(c, link.replace('https://', ''), SW - 90), 60, 66, S(400, 15.5), '#202124');
-    } else fillRR(c, 60, 50, 2, 21, 1, '#1A73E8');
-  } else {
-    G.home(c, 20, 60, 22, '#444');
-    fillRR(c, 44, 40, 260, 40, 20, '#EEF1F6');
-    if (pageA > 0.5 || st.load >= 0) {
-      G.lock(c, 62, 60, 13, '#5F6368');
-      c.font = S(400, 15.5);
-      text(c, ellipsize(c, 'tayyor-sweet.vercel.app', 215), 76, 66, S(400, 15.5), '#202124');
-    } else {
-      c.font = S(400, 15.5);
-      text(c, ellipsize(c, A.search, 225), 60, 66, S(400, 15.5), '#5F6368');
-    }
-    c.strokeStyle = '#444';
-    c.lineWidth = 1.8;
-    rr(c, 316, 51, 18, 18, 4);
-    c.stroke();
-    text(c, '1', 325, 65, S(600, 11), '#444', 'center');
-    G.vdots(c, SW - 22, 60, 22, '#444');
-  }
+  G.home(c, 20, 60, 22, '#444');
+  fillRR(c, 44, 40, 260, 40, 20, '#EEF1F6');
+  G.lock(c, 62, 60, 13, '#5F6368');
+  c.font = S(400, 15.5);
+  text(c, ellipsize(c, 'tayyor-sweet.vercel.app', 215), 76, 66, S(400, 15.5), '#202124');
+  c.strokeStyle = '#444';
+  c.lineWidth = 1.8;
+  rr(c, 316, 51, 18, 18, 4);
+  c.stroke();
+  text(c, '1', 325, 65, S(600, 11), '#444', 'center');
+  G.vdots(c, SW - 22, 60, 22, '#444');
   if (st.load >= 0 && st.load < 1) {
     c.fillStyle = '#1A73E8';
     c.fillRect(0, 86, SW * E.out2(st.load), 3);
   }
-  // takliflar ro'yxati
-  if (focus > 0) {
-    c.save();
-    c.globalAlpha = E.out3(focus);
-    c.fillStyle = '#fff';
-    c.fillRect(0, 88, SW, SH - 88);
-    if (st.suggestPress) {
-      c.fillStyle = '#EDEFF2';
-      c.fillRect(0, 88, SW, 68);
-    }
-    c.fillStyle = '#E8F0FE';
-    c.beginPath();
-    c.arc(34, 122, 18, 0, Math.PI * 2);
-    c.fill();
-    G.link(c, 34, 122, 20, '#1A73E8');
-    text(c, A.copied, 66, 116, S(500, 15.5), '#202124');
-    c.font = S(400, 13.5);
-    text(c, ellipsize(c, link, SW - 90), 66, 137, S(400, 13.5), '#1A73E8');
-    ['tayyor sweet', 'tayyor sweet tort'].forEach((q, i) => {
-      const y = 156 + i * 56;
-      G.search(c, 34, y + 28, 17, '#5F6368');
-      text(c, q, 66, y + 33, S(400, 15.5), '#202124');
-    });
-    c.restore();
-  }
-  const kbE = E.out3(clamp(st.kb ?? 0));
-  if (kbE > 0) keyboard(c, 'and', SH - KB_H.and * kbE);
   // o'rnatish oynasi
   const ip = clamp(st.install ?? 0);
   if (ip > 0) {

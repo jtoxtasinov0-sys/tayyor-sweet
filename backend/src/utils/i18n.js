@@ -14,7 +14,7 @@ const T = {
     menu_lang: '🌐 Til',
     menu_install: "📲 Ilovani o'rnatish",
     install: (link) =>
-      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\n${link}\n\n👆 Linkni <b>bosib turing</b>:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», keyin <b>Chrome</b>'ga joylang`,
+      `📲 <b>Tayyor &amp; Sweet ilovasini o'rnating</b>\n\n${link}\n\n👆 Linkni <b>bosib turing</b> → «Открыть в браузере» (Open in Browser). Sahifa brauzerda ochiladi — o'sha yerda o'rnatasiz.`,
     install_videos: "🎬 Video qo'llanma: 1 — iPhone, 2 — Samsung",
     install_kb_hint: "📲 Ilovani telefonga o'rnatish — pastdagi tugma 👇",
     main_menu: "Quyidagi tugma orqali do'konni oching 👇",
@@ -53,7 +53,7 @@ const T = {
     menu_lang: '🌐 Язык',
     menu_install: '📲 Установить приложение',
     install: (link) =>
-      `📲 <b>Установите приложение Tayyor &amp; Sweet</b>\n\n${link}\n\n👆 <b>Нажмите и удерживайте</b> ссылку:\n🍏 iPhone — «Открыть в браузере» (Open in Browser)\n🤖 Samsung — «Копировать», затем вставьте в <b>Chrome</b>`,
+      `📲 <b>Установите приложение Tayyor &amp; Sweet</b>\n\n${link}\n\n👆 <b>Нажмите и удерживайте</b> ссылку → «Открыть в браузере» (Open in Browser). Страница откроется в браузере — установите приложение там.`,
     install_videos: '🎬 Видеоинструкция: 1 — iPhone, 2 — Samsung',
     install_kb_hint: '📲 Установить приложение на телефон — кнопка ниже 👇',
     main_menu: 'Откройте магазин кнопкой ниже 👇',

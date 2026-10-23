@@ -158,7 +158,6 @@ function buildIphone(tl) {
     if (mp > 0) UI.tgLinkContext(c, tl, tg, mp, t >= T.tapOpen && t < T.tapOpen + 0.25 ? 1 : null);
   };
   const safariState = (t) => ({
-    start: false,
     crumb: I.crumb,
     page: pr(t, T.page, T.page + 0.35),
     load: t < T.load ? -1 : pr(t, T.load, T.load + 0.8),
@@ -208,44 +207,40 @@ function buildIphone(tl) {
 
 function buildSamsung(tl, pageBtn) {
   const A = L.and, tg = L.tg;
+  // Link bosib turiladi → «Открыть в браузере» → «Открыть» → Chrome sahifa bilan ochiladi
   const T = {
     phoneIn: 2.0, s1: 2.6, tapToggle: 3.75, tapKb: 4.8, userMsg: 4.9, botMsg: 5.6, zoomLink: 7.15,
-    s2: 8.05, hold0: 8.85, hold1: 9.55, sheet: 9.6, tapCopy: 10.85, toast: 11.05, swipe: 12.45,
-    s3: 13.15, tapChrome: 14.15, tapOmni: 15.45, tapSuggest: 16.75, load: 16.95, page: 17.65,
-    s4: 19.25, tapBtn: 20.55, sheet2: 20.65,
-    s5: 21.75, tapInstall2: 22.65, installing: 22.85, added: 23.75, homeSwipe: 24.45, fresh: 25.05,
-    s6: 25.85, tapIcon: 26.85, shop: 27.95, phoneOut: 30.85, dur: 33.85,
+    s2: 8.05, hold0: 8.85, hold1: 9.55, menu: 9.6, tapBrowser: 10.85, alert: 11.0, tapAlertOpen: 12.1, open: 12.4, load: 12.45, page: 13.4,
+    s3: 14.65, tapBtn: 15.95, sheet2: 16.05,
+    s4: 17.15, tapInstall2: 18.05, installing: 18.25, added: 19.15, homeSwipe: 19.85, fresh: 20.45,
+    s5: 21.25, tapIcon: 22.25, shop: 23.35, phoneOut: 26.25, dur: 29.25,
   };
   const SW = D.SW, SH = D.SH;
   const HL = UI.homeLayout('and');
   const CT = UI.chromeTargets(pageBtn);
   const installTop = SH - 250;
-  const chromeRect = HL.find('chrome'), freshRect = HL.find('tsweet');
-  const sh = 70 + 3 * 52 + D.BOT;
-  const copyPt = { x: SW / 2, y: SH - sh + 62 + 52 + 26 };
+  const freshRect = HL.find('tsweet');
+  const openPt = tl.ctx.row(1);
 
   // 1-qadam: yozish qatoridagi ⊞ → pastki klaviatura → «Ilovani o'rnatish» → mijoz xabari → bot albomi
   touch.show(T.s1 + 0.5, { x: SW / 2 + 40, y: 560 }).move(T.tapToggle - 0.6, T.tapToggle - 0.15, tl.kbToggle).tap(T.tapToggle)
     .move(T.tapKb - 0.55, T.tapKb - 0.15, { x: tl.kbBtn.cx, y: tl.kbBtn.cy }).tap(T.tapKb).hide(T.tapKb + 0.35);
-  touch.show(8.3, { x: tl.link.cx + 60, y: tl.link.cy + 90 }).move(8.35, 8.75, { x: tl.link.cx, y: tl.link.cy }).hold(T.hold0, T.hold1)
-    .move(10.2, 10.7, copyPt).tap(T.tapCopy).hide(11.15);
-  touch.swipe(T.swipe, T.swipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
-  touch.show(13.55, { x: SW / 2 + 40, y: 600 }).move(13.6, 14.0, { x: chromeRect.cx, y: chromeRect.cy }).tap(T.tapChrome).hide(14.45);
-  touch.show(14.9, { x: 220, y: 300 }).move(14.95, 15.3, CT.omni).tap(T.tapOmni).move(16.2, 16.6, CT.suggest).tap(T.tapSuggest).hide(17.05);
-  touch.show(19.85, { x: CT.pageBtn.x + 50, y: CT.pageBtn.y + 140 }).move(19.95, 20.4, CT.pageBtn).tap(T.tapBtn)
-    .move(22.05, 22.5, CT.install(installTop)).tap(T.tapInstall2).hide(22.95);
+  touch.show(T.hold0 - 0.55, { x: tl.link.cx + 60, y: tl.link.cy + 90 }).move(T.hold0 - 0.5, T.hold0 - 0.1, { x: tl.link.cx, y: tl.link.cy }).hold(T.hold0, T.hold1)
+    .move(T.tapBrowser - 0.65, T.tapBrowser - 0.15, openPt).tap(T.tapBrowser)
+    .move(T.tapAlertOpen - 0.6, T.tapAlertOpen - 0.15, tl.alert.open).tap(T.tapAlertOpen).hide(T.tapAlertOpen + 0.3);
+  touch.show(T.tapBtn - 0.7, { x: CT.pageBtn.x + 50, y: CT.pageBtn.y + 140 }).move(T.tapBtn - 0.6, T.tapBtn - 0.15, CT.pageBtn).tap(T.tapBtn)
+    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install(installTop)).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
   touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
-  touch.show(26.25, { x: SW / 2 + 40, y: 600 }).move(26.3, 26.7, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(27.15);
+  touch.show(T.tapIcon - 0.6, { x: SW / 2 + 40, y: 600 }).move(T.tapIcon - 0.55, T.tapIcon - 0.15, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(T.tapIcon + 0.3);
 
-  // avval yozish qatori va klaviatura, keyin bot yuborgan albom (video qo'llanma), link
+  // avval yozish qatori va klaviatura, keyin bot yuborgan albom (video qo'llanma), link, menyu va tasdiqlash oynasi
   cam.to(T.s1 + 0.3, T.s1 + 0.9, 1.5, tl.inputY - 30)
     .to(T.botMsg + 0.4, T.botMsg + 1.0, 1.3, tl.album.cy + 60)
     .to(T.zoomLink, T.zoomLink + 0.8, 1.6, tl.link.cy)
-    .to(T.sheet + 0.05, T.sheet + 0.6, 1.45, 650)
-    .to(T.toast + 0.1, T.toast + 0.7, 1)
-    .to(T.tapOmni - 0.3, T.tapOmni + 0.3, 1.5, 250)
-    .to(T.load, T.load + 0.6, 1)
-    .to(T.s4, T.s4 + 0.6, 1.5, CT.pageBtn.y)
+    .to(T.menu + 0.05, T.menu + 0.6, 1.35, tl.ctx.menuY + 60)
+    .to(T.alert, T.alert + 0.5, 1.3, tl.alert.y + tl.alert.h / 2)
+    .to(T.tapAlertOpen + 0.15, T.tapAlertOpen + 0.7, 1)
+    .to(T.s3, T.s3 + 0.6, 1.5, CT.pageBtn.y)
     .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, 690)
     .to(T.installing + 0.2, T.installing + 0.8, 1)
     .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
@@ -253,14 +248,17 @@ function buildSamsung(tl, pageBtn) {
     .to(T.shop + 0.4, T.phoneOut - 0.3, 1.15, 400)
     .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
 
-  cue(T.tapToggle + 0.05, 'pop', 0.6); cue(T.userMsg, 'send'); cue(T.botMsg, 'recv'); cue(T.sheet, 'sheet', 0.7); cue(T.toast, 'copy');
-  cue(T.tapChrome + 0.1, 'open'); cue(T.tapOmni + 0.05, 'key');
-  cue(T.load, 'load'); cue(T.page + 0.2, 'ding'); cue(T.sheet2, 'sheet');
+  cue(T.tapToggle + 0.05, 'pop', 0.6); cue(T.userMsg, 'send'); cue(T.botMsg, 'recv'); cue(T.menu, 'pop', 0.7);
+  cue(T.alert, 'pop', 0.6); cue(T.open, 'open'); cue(T.load, 'load'); cue(T.page + 0.2, 'ding'); cue(T.sheet2, 'sheet');
   cue(T.installing, 'load', 0.7); cue(T.added, 'ding', 0.8);
   cue(T.fresh, 'pop'); cue(T.fresh + 0.05, 'sparkle'); cue(T.fresh + 0.15, 'success');
   cue(T.tapIcon + 0.1, 'open'); cue(T.shop, 'ding', 0.8); cue(T.shop + 0.1, 'confetti'); cue(T.shop + 0.15, 'success2');
 
   const drawTg = (c, t) => {
+    // menyu ochiq paytda chat xiralashadi
+    const mp = vis(t, T.menu, T.tapBrowser + 0.1, 0.3, 0.2);
+    c.save();
+    if (mp > 0) c.filter = `blur(${(7 * mp).toFixed(2)}px)`;
     UI.tgChat(c, tl, tg, {
       msgs: [1, pr(t, T.userMsg, T.userMsg + 0.35), pr(t, T.botMsg, T.botMsg + 0.45)],
       kb: pr(t, T.tapToggle + 0.05, T.tapToggle + 0.4) - pr(t, T.tapKb + 0.1, T.tapKb + 0.4),
@@ -268,18 +266,15 @@ function buildSamsung(tl, pageBtn) {
       togglePress: t >= T.tapToggle && t < T.tapToggle + 0.16,
       kbGlow: vis(t, T.tapToggle + 0.5, T.tapKb + 0.05, 0.25, 0.2) * (0.65 + 0.35 * Math.sin(t * 9)),
       kbPress: t >= T.tapKb && t < T.tapKb + 0.16,
-      linkHL: vis(t, T.hold0 + 0.1, T.tapCopy + 0.2, 0.3, 0.3),
+      linkHL: vis(t, T.hold0 + 0.1, T.menu + 0.1, 0.3, 0.2),
     });
-    const mp = vis(t, T.sheet, T.tapCopy + 0.12, 0.3, 0.25);
-    if (mp > 0) UI.tgLinkMenu(c, tg, L.link, mp, t >= T.tapCopy && t < T.tapCopy + 0.25 ? 1 : null);
-    UI.toast(c, 'and', tg.copied, vis(t, T.toast, T.toast + 1.2, 0.25, 0.3), tl.inputY - 62);
+    c.restore();
+    if (mp > 0) UI.tgLinkContext(c, tl, tg, mp, t >= T.tapBrowser && t < T.tapBrowser + 0.25 ? 1 : null);
+    const ap = vis(t, T.alert, T.tapAlertOpen + 0.1, 0.25, 0.2);
+    if (ap > 0) UI.tgOpenAlert(c, tl, tg, L.link, ap, t >= T.tapAlertOpen && t < T.tapAlertOpen + 0.2);
   };
   const chromeState = (t) => ({
     page: pr(t, T.page, T.page + 0.3),
-    focus: pr(t, T.tapOmni + 0.05, T.tapOmni + 0.3) - pr(t, T.tapSuggest + 0.1, T.tapSuggest + 0.3),
-    kb: pr(t, T.tapOmni + 0.05, T.tapOmni + 0.35) - pr(t, T.tapSuggest + 0.1, T.tapSuggest + 0.4),
-    typed: t > T.tapSuggest + 0.05,
-    suggestPress: t >= T.tapSuggest && t < T.tapSuggest + 0.2,
     load: t < T.load ? -1 : pr(t, T.load, T.load + 0.8),
     btnRect: pageBtn,
     install: vis(t, T.sheet2, T.tapInstall2 + 0.1, 0.4, 0.3),
@@ -300,22 +295,15 @@ function buildSamsung(tl, pageBtn) {
     }
   };
   const screen = (c, t) => {
-    if (t < T.swipe) return drawTg(c, t);
-    if (t < T.tapChrome + 0.1) {
-      UI.home(c, 'and', A.apps, { enter: pr(t, T.swipe + 0.05, T.swipe + 0.5), press: t >= T.tapChrome && t < T.tapChrome + 0.2 ? 'chrome' : null });
-      UI.closeApp(c, 'and', pr(t, T.swipe, T.swipe + 0.5), (cc) => drawTg(cc, T.swipe));
-      return;
-    }
+    if (t < T.open) return drawTg(c, t);
     if (t < T.homeSwipe) {
-      if (t < T.tapChrome + 0.6) {
-        UI.home(c, 'and', A.apps, { enter: 1 });
-        UI.launch(c, 'and', chromeRect, pr(t, T.tapChrome + 0.1, T.tapChrome + 0.55), (cc) => UI.chrome(cc, A, chromeState(t), false, L.link));
-      } else UI.chrome(c, A, chromeState(t), t >= T.tapBtn && t < T.tapBtn + 0.18, L.link);
+      if (t < T.open + 0.5) UI.slideApp(c, 'and', pr(t, T.open, T.open + 0.45), (cc) => drawTg(cc, T.open), (cc) => UI.chrome(cc, A, chromeState(t), false));
+      else UI.chrome(c, A, chromeState(t), t >= T.tapBtn && t < T.tapBtn + 0.18);
       return;
     }
     if (t < T.tapIcon + 0.1) {
       UI.home(c, 'and', A.apps, homeSt(t, { enter: pr(t, T.homeSwipe + 0.05, T.homeSwipe + 0.5), press: t >= T.tapIcon && t < T.tapIcon + 0.2 ? 'tsweet' : null }));
-      UI.closeApp(c, 'and', pr(t, T.homeSwipe, T.homeSwipe + 0.5), (cc) => UI.chrome(cc, A, chromeState(T.homeSwipe), false, L.link));
+      UI.closeApp(c, 'and', pr(t, T.homeSwipe, T.homeSwipe + 0.5), (cc) => UI.chrome(cc, A, chromeState(T.homeSwipe), false));
       return;
     }
     if (t < T.tapIcon + 0.6) {
@@ -326,7 +314,7 @@ function buildSamsung(tl, pageBtn) {
     drawApp(c, t);
   };
   const sparkAt = { t: T.fresh, pt: { x: freshRect.cx, y: freshRect.cy } };
-  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5, T.s6], sparkAt, confetti: T.shop + 0.1 };
+  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5], sparkAt, confetti: T.shop + 0.1 };
 }
 
 // ---------- Fon, sarlavha, matnlar ----------
@@ -495,14 +483,14 @@ function intro(c, t) {
   const sp = E.back(pr(t, 0.95, 1.35));
   if (sp > 0) {
     c.font = F(700, 38);
-    const w = c.measureText(L.intro_sub[DEVICE]).width + 60;
+    const w = c.measureText(L.intro_sub).width + 60;
     c.save();
     c.translate(540, 1238);
     c.scale(sp, sp);
     shadow(c, 16, 'rgba(217,79,147,0.25)', 6);
     fillRR(c, -w / 2, -34, w, 68, 34, '#fff');
     noShadow(c);
-    text(c, L.intro_sub[DEVICE], 0, 13, F(700, 38), C.accent, 'center');
+    text(c, L.intro_sub, 0, 13, F(700, 38), C.accent, 'center');
     c.restore();
   }
   floaters(c, t, 0.2);

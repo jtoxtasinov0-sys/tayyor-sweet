@@ -518,6 +518,44 @@ export const G = {
     c.fillRect(x - s * 0.18, y + s * 0.13, s * 0.36, s * 0.06);
     c.restore();
   },
+  // Android "brauzerda ochish": kvadrat va undan chiquvchi strelka
+  openIn(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.lineWidth = s * 0.08;
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    c.beginPath();
+    c.moveTo(x - s * 0.02, y - s * 0.32);
+    c.lineTo(x - s * 0.32, y - s * 0.32);
+    c.lineTo(x - s * 0.32, y + s * 0.32);
+    c.lineTo(x + s * 0.32, y + s * 0.32);
+    c.lineTo(x + s * 0.32, y + s * 0.02);
+    c.moveTo(x - s * 0.05, y + s * 0.05);
+    c.lineTo(x + s * 0.34, y - s * 0.34);
+    c.moveTo(x + s * 0.1, y - s * 0.34);
+    c.lineTo(x + s * 0.34, y - s * 0.34);
+    c.lineTo(x + s * 0.34, y - s * 0.1);
+    c.stroke();
+    c.restore();
+  },
+  bookmark(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.lineWidth = s * 0.08;
+    c.lineJoin = 'round';
+    c.beginPath();
+    c.moveTo(x - s * 0.24, y + s * 0.36);
+    c.lineTo(x - s * 0.24, y - s * 0.3);
+    c.quadraticCurveTo(x - s * 0.24, y - s * 0.36, x - s * 0.18, y - s * 0.36);
+    c.lineTo(x + s * 0.18, y - s * 0.36);
+    c.quadraticCurveTo(x + s * 0.24, y - s * 0.36, x + s * 0.24, y - s * 0.3);
+    c.lineTo(x + s * 0.24, y + s * 0.36);
+    c.lineTo(x, y + s * 0.18);
+    c.closePath();
+    c.stroke();
+    c.restore();
+  },
   compass(c, x, y, s, col) {
     c.save();
     c.strokeStyle = col;
