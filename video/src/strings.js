@@ -4,8 +4,8 @@ const LINK = 'https://tayyor-sweet.vercel.app/ilova';
 
 export const L = {
   link: LINK,
-  intro: { iphone: ["iPhone'ga", "ilovani o'rnatish"], samsung: ["Samsung'ga", "ilovani o'rnatish"] },
-  intro_sub: '4 ta oson qadam',
+  intro: { iphone: ["iPhone'ga", "ilovani o'rnatish"], samsung: ["Samsung'ga", "ilovani o'rnatish"], chrome: ["Chrome orqali", "ilovani o'rnatish"] },
+  intro_sub: (n) => `${n} ta oson qadam`,
   step: (n) => `${n}-QADAM`,
   steps: {
     iphone: [
@@ -19,6 +19,13 @@ export const L = {
       ["Botda ⊞ ni bosing → «📲 Ilovani o'rnatish»", "Bot video qo'llanma va link yuboradi"],
       ['Linkni bosib turing va «Открыть в браузере» ni tanlang', 'Keyin «Открыть» — sahifa brauzerda ochiladi'],
       ["Sahifadagi «📲 Ilovani o'rnatish» ni bosing", 'Tugma chiqmasa: ⋮ menyu → «Установить и создать ярлык»'],
+      ['«Установить» ni bosing', "O'rnatish — belgi bosh ekranga qo'shiladi"],
+      ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
+    ],
+    // Chrome'da allaqachon ochilgan do'kondan (masalan, eski linkdan kirgan mijoz)
+    chrome: [
+      ["O'ng yuqoridagi «⋮» ni bosing", 'Chrome menyusi ochiladi'],
+      ['Pastga suring → «Установить и создать ярлык»', "Menyuning pastki qismida"],
       ['«Установить» ni bosing', "O'rnatish — belgi bosh ekranga qo'shiladi"],
       ["Tayyor! Belgini bosing — do'kon ochiladi", "Endi Telegram'siz ham buyurtma bera olasiz"],
     ],
@@ -67,6 +74,11 @@ export const L = {
   and: {
     apps: { phone: 'Телефон', messages: 'Сообщения', chrome: 'Chrome', camera: 'Камера', gallery: 'Галерея', settings: 'Настройки', telegram: 'Telegram', calendar: 'Календарь', clock: 'Часы', contacts: 'Контакты', weather: 'Погода', notes: 'Заметки' },
     installTitle: 'Установить приложение',
+    // Chrome ⋮ menyusi (mijozning Samsung'idagi skrinshotdan); '-' — ajratuvchi chiziq
+    menu: ['Новая вкладка', 'Новая вкладка инкогнито', 'Добавить в новую группу', '-', 'История', 'Удалить данные о работе в браузере', 'Настройки сайта', '-',
+      'Скачанные файлы', 'Закладки', 'Недавние вкладки', '-', 'Поделиться…', 'Найти на странице', 'Перевести…', 'Перейти в Режим чтения',
+      'Установить и создать ярлык', 'Версия для ПК', '-', 'Настройки', 'Справка/отзыв'],
+    menuInstall: 'Установить и создать ярлык',
     cancel: 'Отмена',
     install: 'Установить',
     installing: 'Установка Tayyor & Sweet…',

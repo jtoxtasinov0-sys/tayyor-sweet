@@ -4,7 +4,8 @@ import { L } from './strings.js';
 import * as UI from './ui.js';
 
 const Q = new URLSearchParams(location.search);
-const DEVICE = Q.get('device') === 'samsung' ? 'samsung' : 'iphone';
+// chrome — Android, do'kon Chrome'da allaqachon ochiq: ⋮ menyusidan o'rnatish
+const DEVICE = ['samsung', 'chrome'].includes(Q.get('device')) ? Q.get('device') : 'iphone';
 const OS = DEVICE === 'iphone' ? 'ios' : 'and';
 const D = UI.DEV[OS];
 
@@ -317,6 +318,88 @@ function buildSamsung(tl, pageBtn) {
   return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4, T.s5], sparkAt, confetti: T.shop + 0.1 };
 }
 
+// Do'kon Chrome'da ochiq (masalan, eski linkdan): ⋮ → pastga → «Установить и создать ярлык» → «Установить»
+function buildChrome() {
+  const A = L.and;
+  const T = {
+    phoneIn: 2.0, s1: 2.6, tapDots: 3.7, menu: 3.75,
+    s2: 4.6, scroll0: 5.3, scroll1: 5.9, tapRow: 7.0, sheet2: 7.2,
+    s3: 7.7, tapInstall2: 8.7, installing: 8.9, added: 9.8, homeSwipe: 10.5, fresh: 11.1,
+    s4: 11.9, tapIcon: 12.9, shop: 14.0, phoneOut: 17.0, dur: 20.0,
+  };
+  const SW = D.SW, SH = D.SH;
+  const HL = UI.homeLayout('and');
+  const CM = UI.chromeMenuTargets(A);
+  const CT = UI.chromeTargets();
+  const installTop = SH - 250;
+  const freshRect = HL.find('tsweet');
+  const pulse = (t) => 0.65 + 0.35 * Math.sin(t * 9);
+
+  touch.show(T.s1 + 0.5, { x: SW / 2, y: 420 }).move(T.tapDots - 0.6, T.tapDots - 0.15, CM.dots).tap(T.tapDots).hide(T.tapDots + 0.3);
+  touch.swipe(T.scroll0, T.scroll1, { x: SW / 2, y: 660 }, { x: SW / 2, y: 430 });
+  touch.show(T.tapRow - 0.8, { x: SW / 2 + 60, y: CM.install.y + 110 }).move(T.tapRow - 0.7, T.tapRow - 0.15, CM.install).tap(T.tapRow)
+    .move(T.tapInstall2 - 0.6, T.tapInstall2 - 0.15, CT.install(installTop)).tap(T.tapInstall2).hide(T.tapInstall2 + 0.3);
+  touch.swipe(T.homeSwipe, T.homeSwipe + 0.35, { x: SW / 2, y: SH - 6 }, { x: SW / 2, y: 560 });
+  touch.show(T.tapIcon - 0.6, { x: SW / 2 + 40, y: 600 }).move(T.tapIcon - 0.55, T.tapIcon - 0.15, { x: freshRect.cx, y: freshRect.cy }).tap(T.tapIcon).hide(T.tapIcon + 0.3);
+
+  cam.to(T.s1 + 0.3, T.s1 + 0.9, 1.5, 120)
+    .to(T.menu + 0.1, T.menu + 0.6, 1.2, 420)
+    .to(T.scroll1 + 0.1, T.scroll1 + 0.6, 1.45, CM.install.y)
+    .to(T.sheet2 + 0.1, T.sheet2 + 0.7, 1.45, 690)
+    .to(T.installing + 0.2, T.installing + 0.8, 1)
+    .to(T.fresh - 0.2, T.fresh + 0.4, 1.45, freshRect.cy)
+    .to(T.tapIcon + 0.1, T.tapIcon + 0.6, 1)
+    .to(T.shop + 0.4, T.phoneOut - 0.3, 1.15, 400)
+    .to(T.phoneOut - 0.3, T.phoneOut + 0.1, 1);
+
+  cue(T.menu, 'pop', 0.7); cue(T.sheet2, 'sheet'); cue(T.installing, 'load', 0.7); cue(T.added, 'ding', 0.8);
+  cue(T.fresh, 'pop'); cue(T.fresh + 0.05, 'sparkle'); cue(T.fresh + 0.15, 'success');
+  cue(T.tapIcon + 0.1, 'open'); cue(T.shop, 'ding', 0.8); cue(T.shop + 0.1, 'confetti'); cue(T.shop + 0.15, 'success2');
+
+  const chromeState = (t) => ({
+    page: 1,
+    img: IMG.shop,
+    dotsGlow: vis(t, T.s1 + 0.6, T.tapDots + 0.05, 0.3, 0.2) * pulse(t),
+    dotsPress: t >= T.tapDots && t < T.tapDots + 0.16,
+    menu: vis(t, T.menu, T.tapRow + 0.15, 0.25, 0.2),
+    menuScroll: pr(t, T.scroll0, T.scroll1),
+    menuGlow: vis(t, T.scroll1 + 0.1, T.tapRow + 0.05, 0.25, 0.2) * pulse(t),
+    menuPress: t >= T.tapRow && t < T.tapRow + 0.2,
+    install: vis(t, T.sheet2, T.tapInstall2 + 0.1, 0.4, 0.3),
+    installTop,
+    installPress: t >= T.tapInstall2 && t < T.tapInstall2 + 0.18,
+    toast: vis(t, T.installing + 0.1, T.homeSwipe - 0.1, 0.2, 0.2),
+    toastText: t < T.added ? A.installing : A.added,
+  });
+  const homeSt = (t, extra = {}) => ({ enter: 1, fresh: t >= T.fresh ? pr(t, T.fresh, T.fresh + 0.5) : 0, glow: vis(t, T.fresh + 0.3, T.tapIcon, 0.4, 0.3) * (0.7 + 0.3 * Math.sin(t * 6)), ...extra });
+  const drawApp = (c, t) => {
+    UI.androidSplash(c);
+    const p = pr(t, T.shop, T.shop + 0.35);
+    if (p > 0) {
+      c.save();
+      c.globalAlpha = p;
+      UI.shop(c, 'and');
+      c.restore();
+    }
+  };
+  const screen = (c, t) => {
+    if (t < T.homeSwipe) return UI.chrome(c, A, chromeState(t), false);
+    if (t < T.tapIcon + 0.1) {
+      UI.home(c, 'and', A.apps, homeSt(t, { enter: pr(t, T.homeSwipe + 0.05, T.homeSwipe + 0.5), press: t >= T.tapIcon && t < T.tapIcon + 0.2 ? 'tsweet' : null }));
+      UI.closeApp(c, 'and', pr(t, T.homeSwipe, T.homeSwipe + 0.5), (cc) => UI.chrome(cc, A, chromeState(T.homeSwipe), false));
+      return;
+    }
+    if (t < T.tapIcon + 0.6) {
+      UI.home(c, 'and', A.apps, homeSt(t));
+      UI.launch(c, 'and', freshRect, pr(t, T.tapIcon + 0.1, T.tapIcon + 0.55), (cc) => drawApp(cc, t));
+      return;
+    }
+    drawApp(c, t);
+  };
+  const sparkAt = { t: T.fresh, pt: { x: freshRect.cx, y: freshRect.cy } };
+  return { T, screen, steps: [T.s1, T.s2, T.s3, T.s4], sparkAt, confetti: T.shop + 0.1 };
+}
+
 // ---------- Fon, sarlavha, matnlar ----------
 function background(c, t) {
   const g = c.createLinearGradient(0, 0, 0, H);
@@ -483,14 +566,15 @@ function intro(c, t) {
   const sp = E.back(pr(t, 0.95, 1.35));
   if (sp > 0) {
     c.font = F(700, 38);
-    const w = c.measureText(L.intro_sub).width + 60;
+    const sub = L.intro_sub(L.steps[DEVICE].length - 1);
+    const w = c.measureText(sub).width + 60;
     c.save();
     c.translate(540, 1238);
     c.scale(sp, sp);
     shadow(c, 16, 'rgba(217,79,147,0.25)', 6);
     fillRR(c, -w / 2, -34, w, 68, 34, '#fff');
     noShadow(c);
-    text(c, L.intro_sub, 0, 13, F(700, 38), C.accent, 'center');
+    text(c, sub, 0, 13, F(700, 38), C.accent, 'center');
     c.restore();
   }
   floaters(c, t, 0.2);
@@ -755,7 +839,7 @@ export async function init() {
   const tl = UI.tgLayout(c, OS, L.tg);
   const b = layout['ilova-android-uz'];
   const pageBtn = { x: b.x, y: b.y, w: b.width, h: b.height, cx: b.x + b.width / 2, cy: b.y + b.height / 2 };
-  SC = DEVICE === 'iphone' ? buildIphone(tl) : buildSamsung(tl, pageBtn);
+  SC = DEVICE === 'iphone' ? buildIphone(tl) : DEVICE === 'samsung' ? buildSamsung(tl, pageBtn) : buildChrome();
   // qadam almashganda yumshoq "whoosh"
   cue(0.05, 'pop'); cue(0.38, 'swish', 0.8); cue(0.95, 'tick', 0.8);
   cue(SC.T.phoneIn, 'whoosh');

@@ -556,6 +556,29 @@ export const G = {
     c.stroke();
     c.restore();
   },
+  // Chrome "o'rnatish": ekran va unga tushuvchi strelka
+  installApp(c, x, y, s, col) {
+    c.save();
+    c.strokeStyle = col;
+    c.lineWidth = s * 0.08;
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    c.beginPath();
+    c.moveTo(x - s * 0.05, y - s * 0.3);
+    c.lineTo(x - s * 0.38, y - s * 0.3);
+    c.lineTo(x - s * 0.38, y + s * 0.18);
+    c.lineTo(x + s * 0.38, y + s * 0.18);
+    c.lineTo(x + s * 0.38, y + s * 0.02);
+    c.moveTo(x - s * 0.16, y + s * 0.38);
+    c.lineTo(x + s * 0.16, y + s * 0.38);
+    c.moveTo(x + s * 0.2, y - s * 0.42);
+    c.lineTo(x + s * 0.2, y - s * 0.06);
+    c.moveTo(x + s * 0.06, y - s * 0.2);
+    c.lineTo(x + s * 0.2, y - s * 0.06);
+    c.lineTo(x + s * 0.34, y - s * 0.2);
+    c.stroke();
+    c.restore();
+  },
   compass(c, x, y, s, col) {
     c.save();
     c.strokeStyle = col;

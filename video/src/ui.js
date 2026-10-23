@@ -865,16 +865,101 @@ function addSheet(c, I, top, press, link) {
 }
 
 // ---------- Chrome (Android) ----------
-export function chromeTargets(pageBtn) {
+export function chromeTargets(pageBtn = null) {
   const { SW } = DEV.and;
   return {
-    pageBtn: { x: pageBtn.cx, y: 88 + pageBtn.cy },
+    pageBtn: pageBtn && { x: pageBtn.cx, y: 88 + pageBtn.cy },
     install: (top) => ({ x: SW - 74, y: top + 194 }),
   };
 }
 
-// Chrome Telegram'dagi linkdan ochiladi (yuklanguncha oq sahifa).
-// st: { page, load, btnRect, install(0..1), installTop, installPress, toast(0..1), toastText }
+// ⋮ menyusi: tepada belgilar qatori, keyin bandlar ('-' — ajratuvchi); uzun — pastga suriladi
+const CM = { w: 350, top: DEV.and.SB + 6, icons: 58, row: 48, sep: 9 };
+function chromeMenuRows(A) {
+  let y = CM.icons;
+  const rows = [], seps = [];
+  for (const it of A.menu) {
+    if (it === '-') {
+      seps.push(y + CM.sep / 2);
+      y += CM.sep;
+    } else {
+      rows.push({ label: it, y });
+      y += CM.row;
+    }
+  }
+  const viewH = Math.min(y, DEV.and.SH - 48 - CM.top);
+  return { rows, seps, h: y, viewH, maxScroll: y - viewH, x: DEV.and.SW - 8 - CM.w };
+}
+// Bosiladigan joylar: ⋮ tugmasi va menyu oxirigacha surilgandagi «Установить и создать ярлык»
+export function chromeMenuTargets(A) {
+  const m = chromeMenuRows(A);
+  const r = m.rows.find((q) => q.label === A.menuInstall);
+  return { dots: { x: DEV.and.SW - 22, y: 60 }, install: { x: m.x + 170, y: CM.top + r.y - m.maxScroll + CM.row / 2 } };
+}
+
+function chromeMenu(c, A, p, scroll, glow, press) {
+  const m = chromeMenuRows(A);
+  const { x, viewH } = m;
+  const y0 = CM.top;
+  const e = E.out3(clamp(p));
+  c.save();
+  c.globalAlpha = clamp(p * 2);
+  // o'ng yuqori burchakdan ochiladi
+  const k = lerp(0.85, 1, e);
+  c.translate(x + CM.w, y0);
+  c.scale(k, k);
+  c.translate(-(x + CM.w), -y0);
+  shadow(c, 24, 'rgba(0,0,0,0.22)', 6);
+  fillRR(c, x, y0, CM.w, viewH, 16, '#F8F9FC');
+  noShadow(c);
+  rr(c, x, y0, CM.w, viewH, 16);
+  c.clip();
+  c.translate(0, -m.maxScroll * E.io3(clamp(scroll)));
+  // belgilar qatori: ← → ☆ ⬇ ↻
+  const ic = [
+    (cx, cy) => G.arrowLeft(c, cx, cy, 20, '#1F1F1F'),
+    (cx, cy) => {
+      c.save();
+      c.translate(cx, cy);
+      c.scale(-1, 1);
+      G.arrowLeft(c, 0, 0, 20, '#9AA0A6');
+      c.restore();
+    },
+    (cx, cy) => G.star(c, cx, cy, 20, '#1F1F1F'),
+    (cx, cy) => G.installApp(c, cx, cy, 20, '#1F1F1F'),
+    (cx, cy) => G.reload(c, cx, cy, 20, '#1F1F1F'),
+  ];
+  ic.forEach((f, i) => {
+    const cx = x + 34 + i * ((CM.w - 68) / 4), cy = y0 + 30;
+    c.fillStyle = '#E8EAF0';
+    c.beginPath();
+    c.arc(cx, cy, 20, 0, Math.PI * 2);
+    c.fill();
+    f(cx, cy);
+  });
+  const icons = {
+    'Новая вкладка': G.plusSquare, 'Новая вкладка инкогнито': G.glasses, 'Добавить в новую группу': G.plus, 'История': G.reload,
+    'Удалить данные о работе в браузере': G.close, 'Настройки сайта': G.lock, 'Скачанные файлы': G.check, 'Закладки': G.star,
+    'Недавние вкладки': G.copy, 'Поделиться…': G.share, 'Найти на странице': G.search, 'Перевести…': G.globe,
+    'Перейти в Режим чтения': G.book, 'Установить и создать ярлык': G.installApp, 'Версия для ПК': G.link, 'Настройки': G.dots, 'Справка/отзыв': G.smile,
+  };
+  for (const r of m.rows) {
+    const ry = y0 + r.y;
+    const inst = r.label === A.menuInstall;
+    if (inst) glowRR(c, x + 6, ry + 2, CM.w - 12, CM.row - 4, 12, glow);
+    if (inst && press) fillRR(c, x + 6, ry + 2, CM.w - 12, CM.row - 4, 12, 'rgba(0,0,0,0.1)');
+    (icons[r.label] || G.dots)(c, x + 30, ry + CM.row / 2, 22, '#3C4043');
+    c.font = S(400, 16);
+    text(c, ellipsize(c, r.label, CM.w - 76), x + 62, ry + CM.row / 2 + 5.5, S(400, 16), '#1F1F1F');
+  }
+  c.fillStyle = 'rgba(0,0,0,0.1)';
+  for (const sy of m.seps) c.fillRect(x + 20, y0 + sy, CM.w - 40, 1);
+  c.restore();
+}
+
+// Chrome: sahifa (img — boshqa sahifa rasmi, aks holda /ilova) yoki Telegram'dagi linkdan ochilish (yuklanguncha oq).
+// st: { page, load, img, btnRect, install(0..1), installTop, installPress, toast(0..1), toastText,
+//       dotsGlow, dotsPress, menu(0..1), menuScroll(0..1), menuGlow, menuPress }
 export function chrome(c, A, st, pageBtnPress) {
   const { SW, SH } = DEV.and;
   const pageA = clamp(st.page ?? 0);
@@ -885,7 +970,8 @@ export function chrome(c, A, st, pageBtnPress) {
     c.globalAlpha = pageA;
     c.fillStyle = '#FFF0F7';
     c.fillRect(0, 88, SW, SH);
-    c.drawImage(IMG.pageAnd, 0, 88, SW, (SW * IMG.pageAnd.height) / IMG.pageAnd.width);
+    const img = st.img || IMG.pageAnd;
+    c.drawImage(img, 0, 88, SW, (SW * img.height) / img.width);
     if (pageBtnPress) {
       const b = st.btnRect;
       fillRR(c, b.x, 88 + b.y, b.w, b.h, b.h / 2, 'rgba(74,36,68,0.18)');
@@ -906,11 +992,15 @@ export function chrome(c, A, st, pageBtnPress) {
   rr(c, 316, 51, 18, 18, 4);
   c.stroke();
   text(c, '1', 325, 65, S(600, 11), '#444', 'center');
+  glowRR(c, SW - 39, 43, 34, 34, 17, st.dotsGlow || 0);
+  if (st.dotsPress) fillRR(c, SW - 39, 43, 34, 34, 17, 'rgba(0,0,0,0.12)');
   G.vdots(c, SW - 22, 60, 22, '#444');
   if (st.load >= 0 && st.load < 1) {
     c.fillStyle = '#1A73E8';
     c.fillRect(0, 86, SW * E.out2(st.load), 3);
   }
+  const mp = clamp(st.menu ?? 0);
+  if (mp > 0) chromeMenu(c, A, mp, st.menuScroll || 0, st.menuGlow || 0, st.menuPress);
   // o'rnatish oynasi
   const ip = clamp(st.install ?? 0);
   if (ip > 0) {

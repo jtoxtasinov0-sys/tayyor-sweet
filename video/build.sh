@@ -2,6 +2,8 @@
 # Qo'llanma videolarini to'liq yig'ish: kadrlar → ovoz → ovoz balandligini me'yorlash → mp4 + muqova rasmlari.
 # Natija: miniapp/public/video/ilova-<iphone|samsung>-uz.mp4, .jpg (sayt muqovasi), -thumb.jpg (Telegram)
 # Ishlatish: ./build.sh [posters]   — "posters" faqat muqovalarni chizadi (sahifa rasmlarini olishdan oldin kerak)
+#   DEVICES="chrome" ./build.sh      — faqat ko'rsatilgan videolar (standart: iphone samsung chrome)
+#   chrome — do'kon Chrome'da ochiq bo'lsa ⋮ menyusidan o'rnatish (bot yubormaydi, mijozga alohida yuborish uchun)
 set -uo pipefail
 cd "$(dirname "$0")"
 OUT=../miniapp/public/video
@@ -33,7 +35,8 @@ video() {
 
 # Video faqat o'zbekcha. Muqovalar avval va ketma-ket: videodagi bot albomi ikkala muqovani ham o'qiydi.
 # Keyin ikkala video parallel (har biri alohida Chromium)
-for D in iphone samsung; do poster $D uz; done
+DEVICES=${DEVICES:-iphone samsung chrome}
+for D in $DEVICES; do poster $D uz; done
 [ "${1:-}" = posters ] && exit 0
-for D in iphone samsung; do video $D uz & done
+for D in $DEVICES; do video $D uz & done
 wait
