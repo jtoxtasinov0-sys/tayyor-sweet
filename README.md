@@ -107,6 +107,9 @@ Mini ilova — PWA: telefonda bosh ekranga "ilova" bo'lib o'rnatiladi va Telegra
   Telefonda do'kon ilovasi o'rnatilgan bo'lsa, Chrome admin ilovani o'rnatmaydi: do'kon ilovasi butun saytni (`/admin` ham)
   o'ziniki deb biladi. Sahifa buni aniqlaydi (`admin.webmanifest` → `related_applications` + `public/.well-known/assetlinks.json`)
   va yo'l ko'rsatadi: do'kon ilovasini o'chirish → admin ilovani o'rnatish → do'kon ilovasini qayta o'rnatish (keyin ikkalasi bor).
+  Yaxshirog'i — admin uchun alohida domen: Vercel → loyiha → Settings → Domains → `tayyor-admin.vercel.app` (band bo'lsa
+  `tayyor-sweet-admin.vercel.app` yoki `tayyorsweet-admin.vercel.app`; boshqa nom bo'lsa — `NEXT_PUBLIC_ADMIN_ORIGIN`).
+  Shunda asosiy domendagi tugma o'zi o'sha domenga o'tkazadi (`/admin?install=1`) va u yerda do'kon ilovasi xalaqit bermaydi.
   Sahifa ochilgan zahoti bosilsa, Chrome'ning o'rnatish oynasi tayyor bo'lishi 3 soniyagacha kutiladi («⏳ Kuting...»).
 - Fayllar: `miniapp/src/app/manifest.ts`, `miniapp/public/sw.js`, `miniapp/public/icons/`.
 - Videolar (yozuvlar o'zbekcha, telefon interfeysi ruscha — ko'pchilik telefonni rus tilida ishlatadi;

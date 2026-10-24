@@ -11,7 +11,11 @@ const nextConfig = {
   },
   // Service worker yangilanishi telefonlarga darhol yetib borishi uchun keshlanmaydi
   async headers() {
-    return [{ source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache' }] }];
+    return [
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache' }] },
+      // Asosiy domendagi admin sahifa alohida admin domeni ishlayotganini shu fayl orqali tekshiradi (AdminInstall)
+      { source: '/admin.webmanifest', headers: [{ key: 'Access-Control-Allow-Origin', value: '*' }] },
+    ];
   },
 };
 
