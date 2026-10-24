@@ -180,6 +180,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.2; }
 .admin-install { flex-direction: column; align-items: stretch; }
 .admin-install .row-top { display: flex; align-items: center; gap: 12px; }
 .admin-install ol { margin: 10px 0 2px; padding-left: 22px; font-size: 13.5px; line-height: 1.5; }
+.admin-install .adm-install-title { margin: 0; font-size: 13.5px; font-weight: 600; line-height: 1.45; }
+.admin-install .adm-install-title + ol { margin-top: 0; }
 .announce { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-sm); background: var(--plum); color: #fff; font-size: 14px; }
 
 /* ---------- Storylar ---------- */
