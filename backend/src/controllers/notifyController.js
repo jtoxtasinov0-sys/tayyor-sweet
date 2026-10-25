@@ -247,6 +247,81 @@ async function deleteBroadcast(id) {
   return { rec: { ...rec, status: 'deleting' } };
 }
 
+// HTML teglarsiz matn — Telegram'dagi xabar matni bilan solishtirish uchun
+const plain = (s) =>
+  String(s || '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+// Xabarlari saqlanmagan (o'chirish qo'shilishidan oldingi) rassilkani o'chirish. Admin o'zidagi nusxaga javob
+// qilib /ochir yozadi. Bot xabarlarining raqami ketma-ket, shuning uchun boshqa mijozlardagi nusxalar shu raqam
+// atrofida bo'ladi. Har bir nomzod adminga jim forward qilib tekshiriladi (nusxa darhol o'chiriladi) —
+// faqat botning aynan shu matnli xabari o'chiriladi
+async function deleteBroadcastByCopy(adminChat, copy, botId) {
+  if (Date.now() - copy.date * 1000 > DELETE_WINDOW) {
+    return { error: "48 soatdan o'tgan — Telegram eski xabarlarni o'chirishga ruxsat bermaydi" };
+  }
+  const text = plain(copy.text || copy.caption);
+  const rec = (await Broadcast.since(new Date(Date.now() - DELETE_WINDOW))).find((b) => plain(b.text) === text);
+  if (!rec) return { error: "Bu xabar so'nggi 48 soatdagi rassilkalar ichida topilmadi" };
+  // Yangi rassilka — xabarlari saqlangan, oddiy yo'l bilan o'chiriladi
+  if (rec.stored > 0 || sending.has(rec.id)) return deleteBroadcast(rec.id);
+  if (deleting.has(rec.id)) return { rec };
+  deleting.add(rec.id);
+
+  (async () => {
+    let deleted = rec.deleted;
+    try {
+      await Broadcast.setStatus(rec.id, 'deleting');
+      if (await bot.telegram.deleteMessage(adminChat, copy.message_id).catch(() => false)) deleted++;
+      const users = (await User.targetsBefore(rec.created_at)).filter((u) => String(u.id) !== String(adminChat));
+      for (const u of users) {
+        const id = await findCopy(adminChat, u.id, copy.message_id, text, botId);
+        if (id && (await tgRetry(() => bot.telegram.deleteMessage(u.id, id)).catch(() => false))) deleted++;
+        await Broadcast.deleteProgress(rec.id, deleted).catch(() => {});
+      }
+    } finally {
+      await Broadcast.deleteProgress(rec.id, deleted, 'deleted');
+    }
+    logger.info(`Rassilka #${rec.id} (eski): ${deleted} ta xabar o'chirildi`);
+    await bot.telegram.sendMessage(adminChat, `🗑 Rassilka o'chirildi: ${deleted} ta mijozdan (yuborilgan edi: ${rec.sent})`);
+  })()
+    .catch((e) => logger.error(`Rassilka #${rec.id} o'chirilmadi:`, e.message))
+    .finally(() => deleting.delete(rec.id));
+
+  return { rec: { ...rec, status: 'deleting' } };
+}
+
+// Mijoz chatida botning shu matnli xabarini anchor raqami atrofidan qidiradi (avval eng yaqinlari)
+const SCAN = 100;
+async function findCopy(adminChat, chatId, anchor, text, botId) {
+  for (let d = 1; d <= SCAN; d++) {
+    for (const id of [anchor - d, anchor + d]) {
+      if (id <= 0) continue;
+      let fwd;
+      try {
+        fwd = await tgRetry(() => bot.telegram.forwardMessage(adminChat, chatId, id, { disable_notification: true }));
+      } catch (e) {
+        // mijoz botni bloklagan / chat yo'q — bu mijozni qidirishdan foyda yo'q; aks holda bu raqamda xabar yo'q
+        if (e.code === 403 || /chat not found/i.test(e.message)) return null;
+        continue;
+      } finally {
+        await sleep(40);
+      }
+      await bot.telegram.deleteMessage(adminChat, fwd.message_id).catch(() => {});
+      const from = fwd.forward_origin?.sender_user?.id ?? fwd.forward_from?.id;
+      if (from === botId && plain(fwd.text || fwd.caption) === text) return id;
+    }
+  }
+  return null;
+}
+
 // 429 (juda tez) bo'lsa, Telegram aytgan vaqtni kutib qayta urinadi
 async function tgRetry(fn, tries = 3) {
   for (let i = 1; ; i++) {
@@ -259,4 +334,4 @@ async function tgRetry(fn, tries = 3) {
   }
 }
 
-module.exports = { orderSummary, newOrder, receiptUploaded, lowStock, statusChanged, runBroadcast, broadcastList, deleteBroadcast };
+module.exports = { orderSummary, newOrder, receiptUploaded, lowStock, statusChanged, runBroadcast, broadcastList, deleteBroadcast, deleteBroadcastByCopy };

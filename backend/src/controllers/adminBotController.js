@@ -90,4 +90,17 @@ async function orderAction(ctx) {
   await notify.statusChanged(full);
 }
 
-module.exports = { admin, panel, myId, orderAction, isAdmin };
+// /ochir — xato yuborilgan rassilka xabariga javob (Reply) qilib yoziladi: rassilka hamma mijozlardan o'chiriladi
+async function deleteBroadcast(ctx) {
+  if (!isAdmin(ctx)) return ctx.reply(t(langOf(ctx)).not_admin, { parse_mode: 'HTML' });
+  const copy = ctx.message.reply_to_message;
+  if (!copy || copy.from?.id !== ctx.botInfo.id) {
+    return ctx.reply("O'chirmoqchi bo'lgan rassilka xabarini bosib turing → «Ответить» (Reply) → /ochir deb yuboring");
+  }
+  await ctx.deleteMessage().catch(() => {});
+  const r = await notify.deleteBroadcastByCopy(ctx.chat.id, copy, ctx.botInfo.id);
+  if (r.error) return ctx.reply(`⚠️ ${r.error}`);
+  return ctx.reply("🗑 Rassilka hamma mijozlardan o'chirilmoqda — tugagach xabar beraman. Jarayon admin panelda ham ko'rinadi.");
+}
+
+module.exports = { admin, panel, myId, orderAction, deleteBroadcast, isAdmin };

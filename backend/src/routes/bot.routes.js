@@ -15,6 +15,7 @@ function registerBotRoutes() {
   bot.command('admin', adminBot.admin);
   bot.command('panel', adminBot.panel);
   bot.command('id', adminBot.myId);
+  bot.command('ochir', adminBot.deleteBroadcast);
 
   bot.action(/^lang:(uz|ru)$/, start.chooseLang);
   bot.action(/^menu:(install|orders|contact)$/, start.menuAction);

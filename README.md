@@ -78,6 +78,7 @@ zaxira ma'lumot bilan yig'iladi: katalog, narxlar va rasmlar ko'rinadi (buyurtma
 | `/ilova` | ilovani telefonga o'rnatish: bitta xabar — iPhone va Samsung video qo'llanma, izohida link (/start xabari ostidagi tugma ham shu) |
 | `/admin parol` | admin huquqini olish (5 xato → 15 daqiqa blok) |
 | `/panel` | statistika + tekshirilishi kerak bo'lgan buyurtmalar (tugmalar bilan) |
+| `/ochir` | admin: xato yuborilgan rassilka xabariga javob (Reply) qilib yoziladi — rassilka hamma mijozlardan o'chiriladi (48 soat ichida). Xabarlari saqlanmagan eski rassilkalar ham shu yo'l bilan topiladi |
 
 Saytdan (Telegramsiz, oddiy brauzerda) ham buyurtma berish mumkin: brauzer o'ziga "mehmon" kaliti yaratadi,
 buyurtmalar shu brauzerda "Buyurtmalar" bo'limida ko'rinadi. Bunday buyurtmalarda adminga "🌐 Saytdan" belgisi chiqadi —

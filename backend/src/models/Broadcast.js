@@ -29,6 +29,13 @@ const list = () =>
        FROM broadcasts b ORDER BY b.id DESC LIMIT 20`
   );
 
+const since = (at) =>
+  db.many(
+    `SELECT b.*, (SELECT COUNT(*) FROM broadcast_messages m WHERE m.broadcast_id = b.id)::int AS stored
+       FROM broadcasts b WHERE b.created_at > $1 ORDER BY b.id DESC`,
+    [at]
+  );
+
 // Yuborilgan har bir xabar (o'chirish uchun)
 const addMessage = (id, chatId, messageId) =>
   db.query('INSERT INTO broadcast_messages (broadcast_id, chat_id, message_id) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING', [
@@ -40,4 +47,4 @@ const messages = (id) => db.many('SELECT chat_id, message_id FROM broadcast_mess
 const dropMessage = (id, chatId) =>
   db.query('DELETE FROM broadcast_messages WHERE broadcast_id = $1 AND chat_id = $2', [id, chatId]);
 
-module.exports = { create, get, progress, setStatus, deleteProgress, list, addMessage, messages, dropMessage };
+module.exports = { create, get, progress, setStatus, deleteProgress, list, since, addMessage, messages, dropMessage };

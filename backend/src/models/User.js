@@ -59,5 +59,8 @@ async function list({ q = '', limit = 50, offset = 0 } = {}) {
 
 // Mehmonlarga (id < 0) Telegram xabar yuborib bo'lmaydi
 const broadcastTargets = () => db.many('SELECT id, lang FROM users WHERE bot_blocked = false AND id > 0 ORDER BY id');
+// Berilgan vaqtda bor bo'lgan (rassilka borishi mumkin bo'lgan) mijozlar
+const targetsBefore = (at) =>
+  db.many('SELECT id FROM users WHERE bot_blocked = false AND id > 0 AND created_at <= $1 ORDER BY id', [at]);
 
-module.exports = { upsertFromTelegram, isGuest, findGuest, saveGuest, get, setLang, setPhone, setAdmin, markBlocked, admins, list, broadcastTargets };
+module.exports = { upsertFromTelegram, isGuest, findGuest, saveGuest, get, setLang, setPhone, setAdmin, markBlocked, admins, list, broadcastTargets, targetsBefore };

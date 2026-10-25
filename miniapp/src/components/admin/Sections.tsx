@@ -175,9 +175,11 @@ function broadcastState(b: BroadcastRow) {
   return '✔︎ Yuborildi';
 }
 
-// Telegram bot xabarini faqat 48 soat ichida o'chira oladi; eski rassilkalarning xabarlari saqlanmagan (stored = 0)
-const canDelete = (b: BroadcastRow) =>
-  (b.status === 'running' || (b.status !== 'deleting' && b.stored > 0)) && Date.now() - new Date(b.created_at).getTime() < 48 * 3600_000;
+// Telegram bot xabarini faqat 48 soat ichida o'chira oladi
+const fresh = (b: BroadcastRow) => Date.now() - new Date(b.created_at).getTime() < 48 * 3600_000;
+const canDelete = (b: BroadcastRow) => (b.status === 'running' || (b.status !== 'deleting' && b.stored > 0)) && fresh(b);
+// O'chirish qo'shilishidan oldingi rassilka: xabarlari saqlanmagan — bot orqali (/ochir) o'chiriladi
+const isLegacy = (b: BroadcastRow) => b.status === 'done' && b.sent > 0 && b.stored === 0 && fresh(b);
 
 export function CustomersAdmin() {
   const { send, toast } = useAdminApi();
@@ -246,6 +248,7 @@ export function CustomersAdmin() {
                   <span>{fmtDate(b.created_at, 'uz')}</span>
                   <span>✅ {b.sent} · ❌ {b.failed} / {b.total}</span>
                   <span>{broadcastState(b)}</span>
+                  {isLegacy(b) && <span className="bc-hint">🗑 O&apos;chirish: botda shu xabarga javob (Reply) qilib <b>/ochir</b> deb yozing</span>}
                 </span>
                 {canDelete(b) && (
                   <button className="x-btn" title="Hammadan o'chirish" aria-label="Hammadan o'chirish" onClick={() => removeBroadcast(b)}>🗑</button>
