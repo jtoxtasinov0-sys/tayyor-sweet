@@ -72,6 +72,7 @@ a.get('/users', admin.users);
 a.patch('/users/:id', admin.setUserAdmin);
 a.post('/broadcast', admin.broadcast);
 a.get('/broadcasts', admin.broadcasts);
+a.delete('/broadcasts/:id', admin.deleteBroadcast);
 
 a.get('/settings', admin.settings);
 a.put('/settings', admin.updateSettings);

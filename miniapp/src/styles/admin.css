@@ -9,7 +9,8 @@
 .adm-nav:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 .adm-nav.on { background: var(--grad); color: #fff; box-shadow: var(--shadow-pink); }
 .adm-nav .cnt { margin-left: auto; background: #fff; color: var(--accent); border-radius: 99px; font-size: 11px; padding: 1px 7px; font-weight: 800; }
-.adm-main { padding: 24px 28px 80px; min-width: 0; }
+/* overflow-x: clip — biror jadval/matn sig'masa ham butun sahifa yonga surilmaydi (sticky menyuga ta'sir qilmaydi) */
+.adm-main { padding: 24px 28px 80px; min-width: 0; overflow-x: clip; }
 .adm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
 .adm-head h1 { font-size: 24px; font-weight: 800; margin-right: auto; }
 .adm-install-ok { font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -126,6 +127,14 @@
 .delta.minus { color: var(--danger); }
 .stock-alert { display: flex; align-items: center; gap: 12px; margin-top: 14px; border-left: 4px solid var(--warn); }
 .stock-alert b { display: block; }
+
+/* Rassilka tarixi: matn uzun bo'lsa ham karta ichiga sig'adi */
+.bc-list { list-style: none; margin: 14px 0 0; padding: 0; }
+.bc-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.bc-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.bc-meta { grid-column: 1; display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12.5px; color: var(--muted); }
+.bc-item .x-btn { grid-column: 2; grid-row: 1 / span 2; font-size: 16px; }
+.bc-item.off .bc-text { text-decoration: line-through; opacity: 0.55; }
 
 .receipt-img { max-width: 100%; max-height: 420px; border-radius: 12px; cursor: zoom-in; display: block; }
 .login { min-height: 100dvh; display: grid; place-items: center; align-content: center; gap: 14px; background: var(--grad); padding: 20px; }

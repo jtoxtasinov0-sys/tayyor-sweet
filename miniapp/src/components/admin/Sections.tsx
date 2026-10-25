@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAdminApi, useLoad, Field, Switch, ImageInput, imgSrc } from './common';
 import { Img, Spinner } from '@/components/ui';
-import { won, fmtDate } from '@/lib/utils';
+import { won, fmtDate, cx } from '@/lib/utils';
 import type { Banner, Category, Product, Story } from '@/lib/types';
 
 /* ---------- 4. Kategoriyalar ---------- */
@@ -95,7 +95,7 @@ function PromoList({ kind }: { kind: 'stories' | 'banners' }) {
         <button className="btn btn-primary btn-sm" onClick={create}>+ Qo&apos;shish</button>
       </div>
       {kind === 'stories' && <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>Maslahat: Mahsulotlar bo&apos;limida mahsulotni ochib &quot;📸 Story qilish&quot; tugmasini bossangiz, bir bosishda story tayyor bo&apos;ladi.</p>}
-      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))' }}>
         {data.map((x) => {
           const product = products?.find((p) => p.id === x.product_id);
           return (
@@ -162,7 +162,22 @@ interface UserRow {
   id: string; first_name: string | null; username: string | null; phone: string | null; lang: string | null;
   is_admin: boolean; bot_blocked: boolean; orders_count: number; orders_sum: number; created_at: string; last_seen: string;
 }
-interface BroadcastRow { id: number; text: string; total: number; sent: number; failed: number; status: string; created_at: string }
+// status: running → done → deleting → deleted; stored — hali o'chirilmagan xabarlar
+interface BroadcastRow {
+  id: number; text: string; total: number; sent: number; failed: number; deleted: number; stored: number;
+  status: 'running' | 'done' | 'deleting' | 'deleted'; created_at: string;
+}
+
+function broadcastState(b: BroadcastRow) {
+  if (b.status === 'running') return '⏳ Yuborilmoqda';
+  if (b.status === 'deleting') return `🗑 O'chirilmoqda: ${b.deleted} / ${b.sent}`;
+  if (b.status === 'deleted') return `🗑 O'chirildi: ${b.deleted} / ${b.sent}`;
+  return '✔︎ Yuborildi';
+}
+
+// Telegram bot xabarini faqat 48 soat ichida o'chira oladi; eski rassilkalarning xabarlari saqlanmagan (stored = 0)
+const canDelete = (b: BroadcastRow) =>
+  (b.status === 'running' || (b.status !== 'deleting' && b.stored > 0)) && Date.now() - new Date(b.created_at).getTime() < 48 * 3600_000;
 
 export function CustomersAdmin() {
   const { send, toast } = useAdminApi();
@@ -172,9 +187,9 @@ export function CustomersAdmin() {
   const [msg, setMsg] = useState({ text: '', image_id: null as number | null, withButton: true, button: "🛍 Do'konni ochish" });
   const [busy, setBusy] = useState(false);
 
-  // Rassilka davom etayotganda progressni yangilab turish
+  // Rassilka yuborilayotganda yoki o'chirilayotganda progressni yangilab turish
   useEffect(() => {
-    if (!history?.some((b) => b.status === 'running')) return;
+    if (!history?.some((b) => b.status === 'running' || b.status === 'deleting')) return;
     const id = setInterval(reloadHistory, 3000);
     return () => clearInterval(id);
   }, [history, reloadHistory]);
@@ -191,6 +206,14 @@ export function CustomersAdmin() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const removeBroadcast = async (b: BroadcastRow) => {
+    const what = b.status === 'running' ? "Yuborish to'xtatilib, yetib borgan xabarlar" : `Xabar ${b.stored} ta mijozning`;
+    if (!confirm(`${what} Telegram'idan o'chirilsinmi?\n\n«${b.text.slice(0, 80)}»\n\nBuni qaytarib bo'lmaydi.`)) return;
+    await send(`/broadcasts/${b.id}`, 'DELETE');
+    toast("🗑 Rassilka o'chirilmoqda");
+    reloadHistory();
   };
 
   const toggleAdmin = async (u: UserRow) => {
@@ -215,18 +238,21 @@ export function CustomersAdmin() {
           <button className="btn btn-primary btn-sm" disabled={busy} onClick={sendBroadcast}>🚀 Yuborish</button>
         </div>
         {!!history?.length && (
-          <table className="tbl" style={{ marginTop: 14 }}>
-            <tbody>
-              {history.slice(0, 5).map((b) => (
-                <tr key={b.id}>
-                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(b.created_at, 'uz')}</td>
-                  <td style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.text}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>✅ {b.sent} · ❌ {b.failed} / {b.total}</td>
-                  <td>{b.status === 'running' ? '⏳' : '✔︎'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ul className="bc-list">
+            {history.slice(0, 5).map((b) => (
+              <li key={b.id} className={cx('bc-item', b.status === 'deleted' && 'off')}>
+                <b className="bc-text">{b.text}</b>
+                <span className="bc-meta">
+                  <span>{fmtDate(b.created_at, 'uz')}</span>
+                  <span>✅ {b.sent} · ❌ {b.failed} / {b.total}</span>
+                  <span>{broadcastState(b)}</span>
+                </span>
+                {canDelete(b) && (
+                  <button className="x-btn" title="Hammadan o'chirish" aria-label="Hammadan o'chirish" onClick={() => removeBroadcast(b)}>🗑</button>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

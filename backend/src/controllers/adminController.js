@@ -5,7 +5,6 @@ const Category = require('../models/Category');
 const Setting = require('../models/Setting');
 const Image = require('../models/Image');
 const User = require('../models/User');
-const Broadcast = require('../models/Broadcast');
 const Stock = require('../models/Stock');
 const { stories, banners } = require('../models/Story');
 const { STATUSES, COURIERS } = require('../utils/format');
@@ -180,7 +179,14 @@ async function broadcast(req, res) {
   res.json(await notify.runBroadcast({ text: String(text).slice(0, image_id ? 1024 : 4000), image_id: num(image_id), button }));
 }
 
-const broadcasts = async (req, res) => res.json(await Broadcast.list());
+const broadcasts = async (req, res) => res.json(await notify.broadcastList());
+
+// Xato yuborilgan rassilkani barcha mijozlardan o'chirish
+async function deleteBroadcast(req, res) {
+  const r = await notify.deleteBroadcast(Number(req.params.id));
+  if (r.error) return res.status(r.status).json({ error: r.error });
+  res.json(r.rec);
+}
 
 // 7. Sozlamalar
 const settings = async (req, res) => res.json(await Setting.all());
@@ -206,6 +212,6 @@ module.exports = {
   categories, createCategory, updateCategory, deleteCategory,
   listStories, createStory, updateStory, deleteStory, storyFromProduct,
   listBanners, createBanner, updateBanner, deleteBanner,
-  users, setUserAdmin, broadcast, broadcasts,
+  users, setUserAdmin, broadcast, broadcasts, deleteBroadcast,
   settings, updateSettings, upload,
 };

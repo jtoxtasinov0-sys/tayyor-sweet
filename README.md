@@ -142,5 +142,6 @@ Matnlar `video/src/strings.js` da, sahnalar vaqti `video/src/main.js` da. Ovoz e
    Hisob yuritilmagan mahsulotlar (masalan, buyurtmaga tayyorlanadigan tortlar) avvalgidek cheklovsiz sotiladi.
 5. **Kategoriyalar**
 6. **Story va bannerlar** (karusel)
-7. **Mijozlar va rassilka**
+7. **Mijozlar va rassilka** — xato yuborilgan rassilkani 🗑 tugmasi bilan hamma mijozlardan o'chirish mumkin
+   (yuborilayotgan bo'lsa, yuborish to'xtaydi). Telegram faqat 48 soat ichidagi xabarlarni o'chirishga ruxsat beradi
 8. **Sozlamalar** — do'kon, bank rekvizitlari, yetkazish narxlari, e'lon

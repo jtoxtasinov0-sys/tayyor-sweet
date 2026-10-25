@@ -135,30 +135,39 @@ async function statusChanged(order) {
   }
 }
 
+// Davom etayotgan rassilkalar: id → { stop, done } — o'chirilganda avval yuborish to'xtatiladi
+const sending = new Map();
+const deleting = new Set();
+
 // Rassilka: fon rejimida, Telegram limitiga mos (~20 xabar/soniya)
 async function runBroadcast({ text, image_id, button }) {
   const users = await User.broadcastTargets();
-  const rec = await Broadcast.create({ text, image_id, button, total: users.length });
   const image = image_id ? await Image.get(image_id) : null;
+  const rec = await Broadcast.create({ text, image_id, button, total: users.length });
   let photoFileId = null;
   const shopUrl = webAppUrl();
+  const job = { stop: false };
+  sending.set(rec.id, job);
 
-  (async () => {
+  job.done = (async () => {
     let sent = 0;
     let failed = 0;
     for (const u of users) {
+      if (job.stop) break;
       const extra = { parse_mode: 'HTML' };
       if (button && shopUrl?.startsWith('https://')) {
         Object.assign(extra, Markup.inlineKeyboard([[Markup.button.webApp(button, shopUrl)]]));
       }
       try {
+        let msg;
         if (image) {
-          const msg = await bot.telegram.sendPhoto(u.id, photoFileId || { source: image.data }, { caption: text, ...extra });
+          msg = await bot.telegram.sendPhoto(u.id, photoFileId || { source: image.data }, { caption: text, ...extra });
           photoFileId = photoFileId || msg.photo?.at(-1)?.file_id;
         } else {
-          await bot.telegram.sendMessage(u.id, text, extra);
+          msg = await bot.telegram.sendMessage(u.id, text, extra);
         }
         sent++;
+        await Broadcast.addMessage(rec.id, u.id, msg.message_id).catch((e) => logger.warn('Rassilka xabari saqlanmadi:', e.message));
       } catch (e) {
         failed++;
         if (e.code === 403) await User.markBlocked(u.id).catch(() => {});
@@ -169,9 +178,85 @@ async function runBroadcast({ text, image_id, button }) {
     }
     await Broadcast.progress(rec.id, sent, failed, 'done').catch(() => {});
     logger.info(`Rassilka #${rec.id}: ${sent} yuborildi, ${failed} xato`);
-  })();
+  })().finally(() => sending.delete(rec.id));
 
   return rec;
 }
 
-module.exports = { orderSummary, newOrder, receiptUploaded, lowStock, statusChanged, runBroadcast };
+// Server qayta ishga tushsa, yarim qolgan yuborish/o'chirish "davom etmoqda" bo'lib qotib qolmasin
+async function broadcastList() {
+  const rows = await Broadcast.list();
+  return rows.map((b) => {
+    if (b.status === 'running' && !sending.has(b.id)) return { ...b, status: 'done' };
+    if (b.status === 'deleting' && !deleting.has(b.id)) return { ...b, status: 'deleted' };
+    return b;
+  });
+}
+
+// Telegram bot xabarini faqat 48 soat ichida o'chira oladi
+const DELETE_WINDOW = 48 * 3600_000;
+
+// Xato yuborilgan rassilkani hammadan o'chirish (fon rejimida). Tarmoq xatosida xabar ro'yxatda qoladi —
+// tugmani qayta bossa, qolganlari o'chiriladi
+async function deleteBroadcast(id) {
+  const rec = await Broadcast.get(id);
+  if (!rec) return { error: 'not_found', status: 404 };
+  const job = sending.get(id);
+  const left = await Broadcast.messages(id);
+  if (deleting.has(id)) return { rec };
+  if (!left.length && !job) {
+    return {
+      status: 400,
+      error: rec.status === 'deleted' ? "Bu rassilka allaqachon o'chirilgan" : "Bu rassilka xabarlari saqlanmagan (o'chirish qo'shilishidan oldin yuborilgan) — o'chirib bo'lmaydi",
+    };
+  }
+  if (Date.now() - new Date(rec.created_at).getTime() > DELETE_WINDOW) {
+    return { status: 400, error: "48 soatdan o'tgan — Telegram eski xabarlarni o'chirishga ruxsat bermaydi" };
+  }
+  deleting.add(id);
+  if (job) job.stop = true;
+
+  (async () => {
+    let deleted = rec.deleted;
+    try {
+      await Broadcast.setStatus(id, 'deleting');
+      await job?.done;
+      let n = 0;
+      for (const m of await Broadcast.messages(id)) {
+        try {
+          await tgRetry(() => bot.telegram.deleteMessage(m.chat_id, m.message_id));
+          deleted++;
+          await Broadcast.dropMessage(id, m.chat_id);
+        } catch (e) {
+          // Telegram rad etdi (mijoz botni bloklagan, xabarni o'zi o'chirgan...) — qayta urinishdan foyda yo'q.
+          // Tarmoq xatosi (code — matn) bo'lsa, xabar ro'yxatda qoladi
+          if (typeof e.code === 'number') await Broadcast.dropMessage(id, m.chat_id);
+          logger.warn(`Rassilka #${id} xabari o'chmadi (${m.chat_id}):`, e.message);
+        }
+        if (++n % 25 === 0) await Broadcast.deleteProgress(id, deleted).catch(() => {});
+        await sleep(50);
+      }
+      logger.info(`Rassilka #${id}: ${deleted} ta xabar o'chirildi`);
+    } finally {
+      await Broadcast.deleteProgress(id, deleted, 'deleted');
+    }
+  })()
+    .catch((e) => logger.error(`Rassilka #${id} o'chirilmadi:`, e.message))
+    .finally(() => deleting.delete(id));
+
+  return { rec: { ...rec, status: 'deleting' } };
+}
+
+// 429 (juda tez) bo'lsa, Telegram aytgan vaqtni kutib qayta urinadi
+async function tgRetry(fn, tries = 3) {
+  for (let i = 1; ; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (e.code !== 429 || i >= tries) throw e;
+      await sleep((e.parameters?.retry_after || 3) * 1000);
+    }
+  }
+}
+
+module.exports = { orderSummary, newOrder, receiptUploaded, lowStock, statusChanged, runBroadcast, broadcastList, deleteBroadcast };

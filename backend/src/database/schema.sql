@@ -152,3 +152,12 @@ CREATE TABLE IF NOT EXISTS seeds (
   key     TEXT PRIMARY KEY,
   done_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Rassilka xabarlari: kimga qaysi xabar ketgani — xato yuborilgan rassilkani hammadan o'chirish uchun
+ALTER TABLE broadcasts ADD COLUMN IF NOT EXISTS deleted INT NOT NULL DEFAULT 0;
+CREATE TABLE IF NOT EXISTS broadcast_messages (
+  broadcast_id INT NOT NULL REFERENCES broadcasts(id) ON DELETE CASCADE,
+  chat_id      BIGINT NOT NULL,
+  message_id   INT NOT NULL,
+  PRIMARY KEY (broadcast_id, chat_id)
+);

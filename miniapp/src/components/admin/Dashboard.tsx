@@ -57,7 +57,7 @@ export function Dashboard({ go }: { go: (section: string, orderId?: number) => v
         </div>
       )}
 
-      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', marginTop: 14 }}>
+      <div className="adm-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', marginTop: 14 }}>
         <div className="adm-card">
           <h3 style={{ fontSize: 16 }}>So&apos;nggi 14 kun — buyurtmalar</h3>
           <div className="bars">
